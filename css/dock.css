@@ -1,0 +1,558 @@
+/* ========================================
+   DOCK - DESKTOP
+======================================== */
+
+#dock {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+
+  transform: translateX(-50%);
+
+  padding: 3px;
+  height: 82px;
+
+  background: rgba(255, 255, 255, 0.55);
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 18px;
+
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+
+  white-space: nowrap;
+
+  gap: 3px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.15);
+
+  z-index: 100;
+
+  /* Quan trọng: popup More không bị cắt */
+  overflow: visible;
+}
+
+
+/* ========================================
+   DOCK ICON
+======================================== */
+
+.dock-icon {
+  flex: 0 0 76px;
+
+  width: 76px;
+  height: 76px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transform: translateY(0) scale(1);
+
+  transition:
+    transform 0.18s cubic-bezier(.22, 1, .36, 1);
+}
+
+
+.dock-icon img {
+  width: 76px;
+  height: 76px;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+/* Hover desktop */
+
+.dock-icon:hover {
+  transform:
+    translateY(-8px)
+    scale(1.08);
+}
+
+
+/* ========================================
+   DOCK SEPARATOR
+======================================== */
+
+.dock-sep {
+  flex: 0 0 1px;
+
+  width: 1px;
+  height: 60px;
+
+  background: rgba(0, 0, 0, 0.15);
+
+  margin: 0;
+}
+
+
+/* ========================================
+   MORE BUTTON
+   JS sẽ tự tạo
+======================================== */
+
+.dock-more {
+  flex: 0 0 76px;
+
+  width: 76px;
+  height: 76px;
+
+  display: none;
+
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+
+  transform: translateY(0) scale(1);
+
+  transition:
+    transform 0.18s cubic-bezier(.22, 1, .36, 1);
+}
+
+
+.dock-more img {
+  width: 76px;
+  height: 76px;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+/* Hover More */
+
+.dock-more:hover {
+  transform:
+    translateY(-8px)
+    scale(1.08);
+}
+
+
+/* ========================================
+   MORE POPUP
+======================================== */
+
+.dock-more-panel {
+  position: fixed;
+
+  left: 50%;
+  bottom: 105px;
+
+  width: 220px;
+
+  padding: 12px;
+
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  gap: 8px;
+
+  background: rgba(255, 255, 255, 0.72);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255, 255, 255, 0.7);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, 0.18),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+
+  transform:
+    translateX(-50%)
+    scale(0.92);
+
+  transform-origin: bottom center;
+
+  transition:
+    opacity 0.22s cubic-bezier(.22, 1, .36, 1),
+    transform 0.32s cubic-bezier(.22, 1, .36, 1),
+    visibility 0.22s ease;
+
+  z-index: 1000;
+}
+
+
+/* Popup OPEN */
+
+.dock-more-panel.open {
+  opacity: 1;
+
+  visibility: visible;
+
+  pointer-events: auto;
+
+  transform:
+    translateX(-50%)
+    scale(1);
+}
+
+
+/* ========================================
+   ICON TRONG POPUP
+======================================== */
+
+.dock-more-item {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: auto;
+
+  cursor: pointer;
+
+  border-radius: 11px;
+
+  transform: scale(1);
+
+  transition:
+    transform 0.18s cubic-bezier(.22, 1, .36, 1),
+    background 0.18s ease;
+}
+
+
+.dock-more-item img {
+  width: 44px;
+  height: 44px;
+
+  object-fit: contain;
+
+  display: block;
+}
+
+
+/* Hover icon trong popup */
+
+.dock-more-item:hover {
+  transform: scale(1.12);
+
+  background: rgba(255, 255, 255, 0.45);
+}
+
+
+/* ========================================
+   TABLET
+   769px - 1024px
+======================================== */
+
+@media (max-width: 1024px) and (min-width: 769px) {
+
+  #dock {
+    bottom: 12px;
+
+    height: 68px;
+
+    padding: 3px;
+
+    gap: 2px;
+
+    border-radius: 16px;
+
+    max-width: calc(100vw - 24px);
+
+    /*
+     * Không hidden vì popup phải nổi lên trên
+     */
+    overflow: visible;
+  }
+
+
+  .dock-icon {
+    flex: 0 0 62px;
+
+    width: 62px;
+    height: 62px;
+  }
+
+
+  .dock-icon img {
+    width: 62px;
+    height: 62px;
+  }
+
+
+  /* Hover tablet */
+
+  .dock-icon:hover {
+    transform:
+      translateY(-6px)
+      scale(1.06);
+  }
+
+
+  .dock-sep {
+    height: 48px;
+  }
+
+
+  /* More */
+
+  .dock-more {
+    flex: 0 0 62px;
+
+    width: 62px;
+    height: 62px;
+  }
+
+
+  .dock-more img {
+    width: 62px;
+    height: 62px;
+  }
+
+
+  .dock-more:hover {
+    transform:
+      translateY(-6px)
+      scale(1.06);
+  }
+
+
+  /* Popup tablet */
+
+  .dock-more-panel {
+    bottom: 92px;
+
+    width: 220px;
+
+    padding: 11px;
+
+    gap: 8px;
+
+    border-radius: 19px;
+  }
+}
+
+
+/* ========================================
+   MOBILE
+   481px - 768px
+======================================== */
+
+@media (max-width: 768px) {
+
+  #dock {
+    bottom: 10px;
+
+    height: 56px;
+
+    max-width: calc(100vw - 16px);
+
+    padding: 3px;
+
+    gap: 2px;
+
+    border-radius: 15px;
+
+    overflow: visible;
+  }
+
+
+  .dock-icon {
+    flex: 0 0 48px;
+
+    width: 48px;
+    height: 48px;
+  }
+
+
+  .dock-icon img {
+    width: 48px;
+    height: 48px;
+  }
+
+
+  /* Hover mobile */
+
+  .dock-icon:hover {
+    transform:
+      translateY(-5px)
+      scale(1.06);
+  }
+
+
+  .dock-sep {
+    height: 38px;
+  }
+
+
+  /* More */
+
+  .dock-more {
+    flex: 0 0 48px;
+
+    width: 48px;
+    height: 48px;
+  }
+
+
+  .dock-more img {
+    width: 48px;
+    height: 48px;
+  }
+
+
+  .dock-more:hover {
+    transform:
+      translateY(-5px)
+      scale(1.06);
+  }
+
+
+  /* Popup */
+
+  .dock-more-panel {
+    bottom: 76px;
+
+    width: 196px;
+
+    padding: 10px;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 7px;
+
+    border-radius: 18px;
+  }
+
+
+  .dock-more-item {
+    width: 40px;
+    height: 40px;
+  }
+
+
+  .dock-more-item img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+
+/* ========================================
+   SMALL MOBILE
+   <= 480px
+======================================== */
+
+@media (max-width: 480px) {
+
+  #dock {
+    bottom: 8px;
+
+    height: 48px;
+
+    max-width: calc(100vw - 12px);
+
+    padding: 2px;
+
+    gap: 1px;
+
+    border-radius: 14px;
+
+    overflow: visible;
+  }
+
+
+  .dock-icon {
+    flex: 0 0 42px;
+
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .dock-icon img {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  /* Hover small mobile */
+
+  .dock-icon:hover {
+    transform:
+      translateY(-4px)
+      scale(1.05);
+  }
+
+
+  .dock-sep {
+    height: 34px;
+  }
+
+
+  /* More */
+
+  .dock-more {
+    flex: 0 0 42px;
+
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .dock-more img {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  .dock-more:hover {
+    transform:
+      translateY(-4px)
+      scale(1.05);
+  }
+
+
+  /* Popup */
+
+  .dock-more-panel {
+    bottom: 64px;
+
+    width: 184px;
+
+    padding: 9px;
+
+    grid-template-columns: repeat(4, 1fr);
+
+    gap: 6px;
+
+    border-radius: 17px;
+  }
+
+
+  .dock-more-item {
+    width: 38px;
+    height: 38px;
+  }
+
+
+  .dock-more-item img {
+    width: 38px;
+    height: 38px;
+  }
+}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Ngoc Sang's design portfolio: website, mobile and branding projects." />
+  <meta name="theme-color" content="#f8f8f8" />
+  <title>NgocSang Portfolio</title>
+
+  <link rel="icon" href="assets/menubar/Logo.png" />
+
+  <!-- style.css: reset, biến, style chung — phải nạp đầu tiên -->
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/menubar.css" />
+  <link rel="stylesheet" href="css/dock.css" />
+  <link rel="stylesheet" href="css/windows.css" />
+  <link rel="stylesheet" href="css/desktop.css" />
+</head>
+
+<body>
+  <!-- MENU BAR -->
+  <header id="menubar">
+    <nav class="menubar-left" aria-label="Menu bar">
+      <img src="assets/menubar/Logo.png" class="logo" alt="Logo" width="32" height="32" />
+      <span class="menu-item active">NgocSang Portfolio</span>
+      <span class="menu-item" data-open="cv" role="button" tabindex="0">NgocSang_CV.pdf</span>
+      <span class="menu-item" data-open="contact" role="button" tabindex="0">Contact</span>
+    </nav>
+
+    <div class="menubar-right">
+      <img src="assets/menubar/Status_1.png" class="status-icon" alt="" aria-hidden="true" />
+      <img src="assets/menubar/Status_2.png" class="status-icon" alt="" aria-hidden="true" />
+      <img src="assets/menubar/Status_3.png" class="status-icon" alt="" aria-hidden="true" />
+      <img src="assets/menubar/Status_4.png" class="status-icon" alt="" aria-hidden="true" />
+      <img src="assets/menubar/Status_5.png" class="status-icon" alt="" aria-hidden="true" />
+      <img src="assets/menubar/Status_6.png" class="status-icon" alt="" aria-hidden="true" />
+      <time id="clock"></time>
+    </div>
+  </header>
+
+  <!-- DESKTOP --> <>
+  <main id="desktop">
+
+    <!-- Sticky note -->
+    <aside class="sticky-note" aria-label="To do list">
+      <h3>NGOC SANG — TO DO</h3>
+      <ul>
+        <li>Become a better designer</li>
+        <li>Get really good at Figma</li>
+        <li>Speak English without overthinking</li>
+        <li>Build something I'm proud of</li>
+        <li>Work with people around the world</li>
+        <li>Make a portfolio people remember</li>
+        <li class="done">Travel more</li>
+        <li>Drink coffee ☕</li>
+        <li class="done">Stop saying &ldquo;I'll do it tomorrow&rdquo;</li>
+        <li class="done">Become the designer I want to be</li>
+      </ul>
+    </aside>  
+
+    <!-- Welcome -->
+    <section class="welcome">
+      <p class="welcome-sub">Welcome to my</p>
+      <h1 class="welcome-title">Portfolio</h1>
+    </section>
+
+    <!-- Desktop icons -->
+    <div class="desktop-icons">
+
+      <div class="desk-icon" data-open="website_project" style="top:130px; right:230px;">
+        <img src="assets/folders/folder.png" alt="" width="80" height="80" />
+        <span class="label">Website_project</span>
+      </div>
+
+      <div class="desk-icon" data-open="mobile_project" style="top:340px; right:100px;">
+        <img src="assets/folders/folder.png" alt="" width="80" height="80" />
+        <span class="label">mobile_project</span>
+      </div>
+
+      <div class="desk-icon" data-open="branding_project" style="top:480px; right:280px;">
+        <img src="assets/folders/folder.png" alt="" width="80" height="80" />
+        <span class="label">Branding_project</span>
+      </div>
+
+      <div class="desk-icon" data-open="cv" style="top:480px; left:340px;">
+        <img src="assets/folders/pdf.png" alt="" width="60" height="80" />
+        <span class="label">NgocSang_CV.pdf</span>
+      </div>
+
+      <div class="desk-icon" data-open="about" style="bottom:160px; left:140px;">
+        <img src="assets/folders/folder.png" alt="" width="80" height="80" />
+        <span class="label">About Me</span>
+      </div>
+
+      <div class="desk-icon" data-open="trash" style="bottom:160px; right:140px;">
+        <img src="assets/folders/trash.png" alt="" width="80" height="80" />
+        <span class="label">Trash</span>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- DOCK -->
+  <nav id="dock" aria-label="Dock">
+    <div class="dock-icon" title="Finder"><img src="assets/dock/dock_1.png" alt="Finder" /></div>
+    <div class="dock-icon" title="Folder"><img src="assets/dock/dock_2.png" alt="Folder" /></div>
+    <div class="dock-icon" title="WhatsApp"><img src="assets/dock/dock_3.png" alt="WhatsApp" /></div>
+    <div class="dock-icon" title="Mail"><img src="assets/dock/dock_4.png" alt="Mail" /></div>
+    <div class="dock-icon" title="Calendar"><img src="assets/dock/dock_5.png" alt="Calendar" /></div>
+    <div class="dock-icon" title="Notes"><img src="assets/dock/dock_6.png" alt="Notes" /></div>
+    <div class="dock-icon" title="Reminders"><img src="assets/dock/dock_7.png" alt="Reminders" /></div>
+    <div class="dock-icon" title="Photos"><img src="assets/dock/dock_8.png" alt="Photos" /></div>
+    <div class="dock-icon" title="Safari"><img src="assets/dock/dock_9.png" alt="Safari" /></div>
+
+    <div class="dock-sep" role="separator"></div>
+
+    <div class="dock-icon" title="Figma"><img src="assets/dock/dock_10.png" alt="Figma" /></div>
+    <div class="dock-icon" title="Office"><img src="assets/dock/dock_11.png" alt="Office" /></div>
+    <div class="dock-icon" title="Code Editor"><img src="assets/dock/dock_12.png" alt="Code Editor" /></div>
+    <div class="dock-icon" title="Illustrator"><img src="assets/dock/dock_13.png" alt="Illustrator" /></div>
+    <div class="dock-icon" title="Photoshop"><img src="assets/dock/dock_14.png" alt="Photoshop" /></div>
+
+    <div class="dock-sep" role="separator"></div>
+
+    <div class="dock-icon" title="Spotify"><img src="assets/dock/dock_15.png" alt="Spotify" /></div>
+    <div class="dock-icon" title="Settings"><img src="assets/dock/dock_16.png" alt="Settings" /></div>
+  </nav>
+
+  <!-- WINDOWS: được tạo động bởi js/window-manager.js khi bấm data-open -->
+  <div id="windows"></div>
+
+  <script src="js/clock.js" defer></script>
+  <script src="js/dock.js" defer></script>
+  <sscript src="js/window-manager.js" defer></sscript>
+  <script src="js/desktop.js" defer></script>
+
+</body>
+
+</html>

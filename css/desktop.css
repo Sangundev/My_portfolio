@@ -1,0 +1,630 @@
+/* =========================================================
+   desktop.css: desk + sticky note + welcome (bản tối ưu)
+
+   Class do JS gắn:
+   #desktop       -> .is-desktop | .is-tablet | .is-phone (+ .is-tiny)
+   .desktop-icons -> .is-responsive (+ .is-small | .is-tiny)
+
+   Mỗi chuyển động dùng một thuộc tính riêng nên cộng dồn được, không đè nhau:
+   translate = kéo | scale = nhấn/nâng | rotate = lắc | transform = hover
+========================================================= */
+
+/* ---------- 1. TOKENS ---------- */
+:root {
+  --ui-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  --menubar-h: 34px;
+  --dock-space: 120px;
+
+  --note-bg: #f4a396;
+  --note-w: 330px;
+  --note-pad: 22px 24px;
+  --note-title: 15px;
+  --note-text: 14px;
+
+  --icon-w: 90px;
+  --icon-img: 66px;
+  --icon-label: 12px;
+
+  --welcome-sub: clamp(18px, 2.2vw, 48px);
+  --welcome-title: clamp(56px, 7.6vw, 200px);
+
+  --ease: cubic-bezier(.22, 1, .36, 1);
+  --spring: cubic-bezier(.34, 1.3, .64, 1);      /* fallback */
+  --pop: cubic-bezier(.34, 1.56, .64, 1);        /* nảy rõ hơn: dấu trừ, nhóm mới */
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --spring: linear(0, .006, .025 2.8%, .101 6.1%, .539 18.9%, .721 25.3%, .849 31.5%,
+      .937 38.1%, .968 41.8%, .991 45.7%, 1.006 50.1%, 1.015 55%, 1.017 63.9%, 1.001);
+  }
+}
+
+@media (min-width: 1600px) {
+  :root { --note-w: 360px; --note-text: 15px; --icon-w: 100px; --icon-img: 72px; --icon-label: 13px; }
+}
+
+@media (min-width: 2200px) {
+  :root { --note-w: 420px; --note-title: 17px; --note-text: 17px; --icon-w: 110px; --icon-img: 84px; --icon-label: 14px; }
+}
+
+#desktop.is-tablet {
+  --note-w: 270px;
+  --note-pad: 20px;
+  --welcome-y: 72%;
+  --welcome-sub: clamp(20px, 3.2vw, 34px);
+  --welcome-title: clamp(64px, 12vw, 120px);
+}
+
+@media (orientation: landscape) {
+  #desktop.is-tablet { --welcome-y: 74%; --welcome-title: clamp(56px, 9vw, 100px); }
+}
+
+#desktop.is-phone {
+  --note-pad: 24px 22px;
+  --note-title: 17px;
+  --welcome-sub: clamp(20px, 6vw, 32px);
+  --welcome-title: clamp(56px, 20vw, 110px);
+}
+
+#desktop.is-phone.is-tiny {
+  --note-pad: 20px 18px;
+  --note-title: 15px;
+  --note-text: 13px;
+  --welcome-title: clamp(52px, 18vw, 90px);
+}
+
+
+/* ---------- 2. DESKTOP ---------- */
+#desktop {
+  position: fixed;
+  top: var(--menubar-h);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 1;
+}
+
+/* Phone: cột cuộn dọc Welcome -> Icons -> Note */
+#desktop.is-phone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  padding: 24px 0 var(--dock-space);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+/* ---------- 3. ICON ---------- */
+.desktop-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.desk-icon {
+  position: absolute;
+  z-index: 10;
+  width: var(--icon-w);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    transform .5s var(--spring),
+    translate .5s var(--spring),
+    scale .5s var(--spring),
+    opacity .25s ease;
+}
+
+.desk-icon img {
+  display: block;
+  width: var(--icon-img);
+  height: var(--icon-img);
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  transition: transform .45s var(--spring), filter .3s ease;
+}
+
+.desk-icon .label {
+  margin-top: 5px;
+  max-width: calc(var(--icon-w) + 20px);
+  font: 400 var(--icon-label)/1.25 var(--ui-font);
+  color: #111;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+/* Hover chỉ có trên thiết bị có chuột (cảm ứng không bị kẹt hover) */
+@media (hover: hover) {
+  body:not(.desktop-edit-mode) .desk-icon:not(.dragging):not(.pressed):hover {
+    transform: translateY(-4px);
+  }
+  body:not(.desktop-edit-mode) .desk-icon:not(.dragging):not(.pressed):hover > img {
+    transform: scale(1.08);
+    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, .15));
+  }
+  body:not(.desktop-edit-mode) .desk-group:not(.dragging):not(.pressed):hover > .group-tile {
+    transform: scale(1.08);
+  }
+}
+
+/* Nhấn xuống: co nhanh, nhả ra thì bật lại bằng lò xo */
+.desk-icon.pressed {
+  scale: .94;
+  transition: scale .12s var(--ease);
+}
+
+/* Đang kéo: nhấc lên. Không transition `translate` nên bám ngón tay tức thì */
+.desk-icon.dragging {
+  z-index: 9999;
+  cursor: grabbing;
+  scale: 1.08;
+  will-change: translate;
+  transition: scale .3s var(--pop), opacity .2s ease;
+}
+
+.desk-icon.dragging > img,
+.desk-icon.dragging > .group-tile {
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .2));
+}
+
+/* Bị xóa bằng dấu trừ */
+.desk-icon.is-removing {
+  opacity: 0;
+  scale: .6;
+  pointer-events: none;
+}
+
+
+/* ---------- 4. EDIT MODE (lắc + dấu trừ kiểu iOS) ---------- */
+@keyframes jig-a { from { rotate: -1.4deg; } to { rotate: 1.4deg; } }
+@keyframes jig-b { from { rotate: 1.4deg; } to { rotate: -1.4deg; } }
+@keyframes minus-in { from { opacity: 0; scale: .4; } to { opacity: 1; scale: 1; } }
+
+.desktop-edit-mode :is(.desk-icon, .group-item):not(.dragging) {
+  animation: jig-a .18s ease-in-out infinite alternate;
+}
+
+.desktop-edit-mode :is(.desk-icon, .group-item):nth-child(2n):not(.dragging) {
+  animation-name: jig-b;
+  animation-duration: .2s;
+  animation-delay: -.07s;
+}
+
+.desktop-edit-mode :is(.desk-icon, .group-item):nth-child(3n):not(.dragging) {
+  animation-duration: .16s;
+  animation-delay: -.11s;
+}
+
+.desktop-edit-mode :is(.desk-icon, .group-item)::before {
+  content: "−";
+  position: absolute;
+  top: -5px;
+  left: 4px;
+  z-index: 20;
+  width: 19px;
+  height: 19px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #8e8e93;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+  font: 600 15px/19px var(--ui-font);
+  color: #fff;
+  pointer-events: none;
+  animation: minus-in .4s var(--pop) both;
+}
+
+/* Icon đích và icon đang kéo ẩn dấu trừ; thả ra thì bật lại */
+.desktop-edit-mode :is(.desk-icon, .group-item):is(.merge-target, .dragging)::before {
+  animation: none;
+  opacity: 0;
+  scale: .4;
+  transition: opacity .15s ease, scale .2s ease;
+}
+
+
+/* ---------- 5. GỘP NHÓM ---------- */
+.desk-icon.merge-target > img,
+.desk-icon.merge-target > .group-tile {
+  transform: scale(1.14);
+}
+
+.desk-icon.merge-target::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  z-index: -1;
+  width: calc(var(--icon-img) + 16px);
+  height: calc(var(--icon-img) + 16px);
+  translate: -50% 0;
+  border-radius: 20px;
+  background: rgba(0, 122, 255, .16);
+  outline: 2px solid rgba(0, 122, 255, .5);
+  animation: glow .35s var(--pop) both;
+}
+
+@keyframes glow { from { opacity: 0; scale: .6; } to { opacity: 1; scale: 1; } }
+@keyframes group-pop { from { scale: .6; } to { scale: 1; } }
+
+.desk-group .group-tile {
+  width: var(--icon-img);
+  height: var(--icon-img);
+  box-sizing: border-box;
+  padding: 7%;
+  display: grid;
+  grid: 1fr 1fr / 1fr 1fr;
+  gap: 6%;
+  border-radius: 22%;
+  background: rgba(120, 120, 128, .22);
+  pointer-events: none;
+  transition: transform .45s var(--spring);
+}
+
+.desk-icon .group-tile img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.desk-group.group-pop .group-tile { animation: group-pop .5s var(--pop); }
+
+
+/* ---------- 6. PANEL NỘI DUNG NHÓM ---------- */
+.group-overlay {
+  position: fixed;
+  inset: var(--menubar-h) 0 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .18);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  touch-action: none;
+  animation: fade-in .22s ease both;
+  transition: opacity .22s ease;
+}
+
+.group-overlay.is-closing { opacity: 0; pointer-events: none; animation: none; }
+
+.group-panel {
+  width: min(420px, calc(100vw - 32px));
+  box-sizing: border-box;
+  padding: 20px 20px 26px;
+  border-radius: 28px;
+  background: rgba(255, 255, 255, .7);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .25);
+  touch-action: none;
+  transform-origin: var(--ox, 50%) var(--oy, 50%);
+  animation: panel-in .5s var(--spring) both;
+}
+
+.group-overlay.is-closing .group-panel {
+  animation: none;
+  opacity: 0;
+  transform: scale(.3);
+  transition: transform .24s var(--ease), opacity .2s ease;
+}
+
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes panel-in { from { opacity: 0; transform: scale(.25); } to { opacity: 1; transform: none; } }
+
+input.group-title {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0 0 18px;
+  padding: 6px 10px;
+  font: 600 17px/1.3 var(--ui-font);      /* >= 16px để iOS không tự zoom */
+  color: #111;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  border-radius: 10px;
+  outline: none;
+  caret-color: #007aff;
+  touch-action: manipulation;
+  transition: background .2s ease;
+}
+
+input.group-title:hover { background: rgba(0, 0, 0, .05); }
+input.group-title:focus { background: rgba(120, 120, 128, .16); }
+
+.group-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 18px 8px;
+  justify-items: center;
+}
+
+.group-item {
+  position: relative;
+  width: 84px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: none;
+  transition: translate .45s var(--spring), scale .3s var(--pop);
+}
+
+.group-item img {
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.group-item .label {
+  max-width: 84px;
+  margin-top: 5px;
+  font: 400 12px/1.25 var(--ui-font);
+  color: #111;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.group-item.dragging {
+  z-index: 30;
+  scale: 1.12;
+  cursor: grabbing;
+  filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .25));
+  transition: scale .3s var(--pop);
+}
+
+
+/* ---------- 7. STICKY NOTE ---------- */
+.sticky-note {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 30;
+  width: var(--note-w);
+  box-sizing: border-box;
+  padding: var(--note-pad);
+  background: var(--note-bg);
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
+  color: #1a1a1a;
+  user-select: none;
+  -webkit-user-select: none;
+
+  transition:
+    translate .8s var(--spring),
+    scale .5s var(--spring),
+    rotate .5s var(--spring),
+    transform .4s var(--spring),
+    box-shadow .4s ease;
+}
+
+.sticky-note h3 { margin: 0 0 14px; font-size: var(--note-title); font-weight: 600; line-height: 1.3; letter-spacing: .2px; }
+.sticky-note ul { margin: 0; padding: 0; list-style: none; }
+.sticky-note li { margin: 0; font-size: var(--note-text); line-height: 1.9; }
+.sticky-note li.done { text-decoration: line-through; opacity: .6; }
+
+#desktop.is-desktop .sticky-note { cursor: grab; touch-action: none; }
+
+@media (hover: hover) {
+  #desktop.is-desktop .sticky-note:not(.is-dragging):hover {
+    transform: translateY(-3px);
+    rotate: -.4deg;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, .18);
+  }
+}
+
+/* Kéo: nhấc lên; thả ra thì lò xo về chỗ cũ (JS chỉ đặt `translate`) */
+.sticky-note.is-dragging {
+  z-index: 999;
+  cursor: grabbing;
+  scale: 1.03;
+  rotate: -1.2deg;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, .22);
+  will-change: translate;
+  transition: scale .3s var(--spring), rotate .3s var(--spring), box-shadow .3s ease;
+}
+
+#desktop.is-tablet .sticky-note { top: 55px; }
+
+#desktop.is-phone .sticky-note {
+  position: relative;
+  top: auto;
+  left: auto;
+  order: 3;
+  flex-shrink: 0;
+  width: calc(100% - 24px);
+  max-width: 480px;
+  margin: 24px auto 0;
+}
+
+#desktop.is-phone.is-tiny .sticky-note { width: calc(100% - 16px); }
+#desktop.is-phone.is-tiny .sticky-note li { line-height: 1.8; }
+
+
+/* ---------- 8. WELCOME ----------
+   Căn giữa bằng `translate`, chuyển động vào bằng `transform`
+   => hai thứ không đè nhau và không phải animate `top` (gây layout). */
+.welcome {
+  position: fixed;
+  left: 50%;
+  top: var(--welcome-y, 50%);
+  translate: -50% -50%;
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100vw - 48px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-style: italic;
+  contain: layout style;
+  user-select: none;
+  -webkit-user-select: none;
+  pointer-events: none;
+  animation: welcome-in 1.3s var(--spring) both;
+}
+
+@keyframes welcome-in {
+  from { opacity: 0; transform: translateY(90px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.welcome-sub,
+.welcome-title {
+  margin: 0;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.welcome-sub   { font-size: var(--welcome-sub); }
+.welcome-title { font-size: var(--welcome-title); }
+
+.welcome-char {
+  display: inline-grid;
+  place-items: center;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.welcome-space { display: inline-block; width: .3em; flex-shrink: 0; }
+
+#desktop.is-phone .welcome {
+  position: relative;
+  top: auto;
+  left: auto;
+  translate: none;
+  order: 1;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+  margin: 12px 0 28px;
+  padding: 0 20px;
+}
+
+
+/* ---------- 9. LƯỚI RESPONSIVE (.is-responsive do JS gắn) ----------
+   Kích thước icon nằm trong biến nên chỉ cần đổi biến. */
+.desktop-icons.is-responsive {
+  --icon-w: 80px;
+  --icon-img: 58px;
+  --icon-label: 11px;
+
+  position: absolute;
+  inset: 60px 20px auto;
+  display: grid;
+  grid-template-columns: repeat(4, var(--icon-w));
+  grid-auto-rows: minmax(96px, auto);
+  justify-content: center;
+  align-content: start;
+  gap: 20px 30px;
+}
+
+.desktop-icons.is-responsive.is-small {
+  --icon-w: 68px;
+  --icon-img: 50px;
+  --icon-label: 10px;
+  inset: 45px 8px auto;
+  grid-template-columns: repeat(4, minmax(48px, 1fr));
+  grid-auto-rows: minmax(84px, auto);
+  gap: 16px 6px;
+}
+
+.desktop-icons.is-responsive.is-tiny {
+  --icon-w: 58px;
+  --icon-img: 44px;
+  --icon-label: 9px;
+  inset: 35px 5px auto;
+  grid-template-columns: repeat(4, minmax(42px, 1fr));
+  grid-auto-rows: minmax(76px, auto);
+  gap: 12px 3px;
+}
+
+/* !important vì vị trí desktop nằm inline (style="top:..; right:..") */
+.desktop-icons.is-responsive .desk-icon {
+  position: relative !important;
+  inset: auto !important;
+  height: auto;
+  justify-self: center;
+  align-self: start;
+  cursor: default;
+  touch-action: auto;
+}
+
+.desktop-edit-mode .desktop-icons.is-responsive .desk-icon { touch-action: none; }
+
+/* Tên tối đa 2 dòng, không bị cắt/mất */
+.desktop-icons.is-responsive .desk-icon .label {
+  flex: none;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin-top: 4px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  white-space: normal;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+/* Tablet: note bên trái, lưới 4 cột bên phải, nhiều hơn thì xuống hàng */
+#desktop.is-tablet .desktop-icons.is-responsive {
+  --icon-w: 84px;
+  --icon-img: 62px;
+  --icon-label: 11.5px;
+  inset: 55px 24px auto calc(var(--note-w) + 48px);
+  grid-template-columns: repeat(4, minmax(0, 96px));
+  grid-auto-rows: minmax(104px, auto);
+  gap: 16px 12px;
+}
+
+/* Phone: lưới nằm giữa Welcome và Note */
+#desktop.is-phone .desktop-icons.is-responsive {
+  position: relative;
+  inset: auto;
+  order: 2;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 12px;
+}
+
+
+/* ---------- 10. GIẢM CHUYỂN ĐỘNG ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .desk-icon, .desk-icon::before, .desk-icon::after, .desk-icon > *,
+  .group-item, .group-item::before, .group-overlay, .group-panel,
+  .sticky-note, .welcome {
+    animation: none !important;
+    transition: none !important;
+  }
+}
