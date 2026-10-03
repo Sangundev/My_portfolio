@@ -3,12 +3,22 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Mac ios</title>
   <meta name="description" content="Ngoc Sang's design portfolio: website, mobile and branding projects." />
   <meta name="theme-color" content="#f8f8f8" />
-  <title>NgocSang Portfolio</title>
+
+  <!-- Chia sẻ mạng xã hội -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="NgocSang Portfolio" />
+  <meta property="og:description" content="Design portfolio: website, mobile and branding projects." />
+  <meta property="og:image" content="assets/menubar/Logo.png" />
 
   <link rel="icon" href="assets/menubar/Logo.png" />
+
+  <!-- Nạp sớm ảnh nằm trên màn hình đầu tiên -->
+  <link rel="preload" as="image" href="assets/menubar/Logo.png" />
+  <link rel="preload" as="image" href="assets/folders/folder.png" />
 
   <!-- style.css: reset, biến, style chung — phải nạp đầu tiên -->
   <link rel="stylesheet" href="css/style.css" />
@@ -16,9 +26,21 @@
   <link rel="stylesheet" href="css/dock.css" />
   <link rel="stylesheet" href="css/windows.css" />
   <link rel="stylesheet" href="css/desktop.css" />
+  <link rel="stylesheet" href="css/liquid-glass.css" />
+  <link rel="stylesheet" href="css/responsive.css" />
+  <link rel="stylesheet" href="css/sticky-note.css" />
+  <!-- defer: tải song song, chạy đúng thứ tự sau khi parse xong DOM -->
+  <script src="js/clock.js" defer></script>
+  <script src="js/dock.js" defer></script>
+  <script src="js/window-manager.js" defer></script>
+  <script src="js/desktop.js" defer></script>
+  <script src="js/wallpaper.js" defer></script>
+
+
 </head>
 
 <body>
+
   <!-- MENU BAR -->
   <header id="menubar">
     <nav class="menubar-left" aria-label="Menu bar">
@@ -29,22 +51,30 @@
     </nav>
 
     <div class="menubar-right">
-      <img src="assets/menubar/Status_1.png" class="status-icon" alt="" aria-hidden="true" />
-      <img src="assets/menubar/Status_2.png" class="status-icon" alt="" aria-hidden="true" />
-      <img src="assets/menubar/Status_3.png" class="status-icon" alt="" aria-hidden="true" />
-      <img src="assets/menubar/Status_4.png" class="status-icon" alt="" aria-hidden="true" />
-      <img src="assets/menubar/Status_5.png" class="status-icon" alt="" aria-hidden="true" />
-      <img src="assets/menubar/Status_6.png" class="status-icon" alt="" aria-hidden="true" />
+      <span class="status-icons" aria-hidden="true" style="display:contents">
+        <img src="assets/menubar/Status_1.png" class="status-icon" alt="" decoding="async" />
+        <img src="assets/menubar/Status_2.png" class="status-icon" alt="" decoding="async" />
+        <img src="assets/menubar/Status_3.png" class="status-icon" alt="" decoding="async" />
+        <img src="assets/menubar/Status_4.png" class="status-icon" alt="" decoding="async" />
+        <img src="assets/menubar/Status_5.png" class="status-icon" alt="" decoding="async" />
+        <img src="assets/menubar/Status_6.png" class="status-icon" alt="" decoding="async" />
+      </span>
       <time id="clock"></time>
     </div>
   </header>
 
-  <!-- DESKTOP --> <>
+  <!-- DESKTOP -->
   <main id="desktop">
+
+    <!-- Welcome -->
+    <section class="welcome">
+      <p class="welcome-sub">Welcome to my</p>
+      <h1 class="welcome-title">Portfolio</h1>
+    </section>
 
     <!-- Sticky note -->
     <aside class="sticky-note" aria-label="To do list">
-      <h3>NGOC SANG — TO DO</h3>
+      <h2>NGOC SANG — TO DO</h2>
       <ul>
         <li>Become a better designer</li>
         <li>Get really good at Figma</li>
@@ -57,44 +87,38 @@
         <li class="done">Stop saying &ldquo;I'll do it tomorrow&rdquo;</li>
         <li class="done">Become the designer I want to be</li>
       </ul>
-    </aside>  
-
-    <!-- Welcome -->
-    <section class="welcome">
-      <p class="welcome-sub">Welcome to my</p>
-      <h1 class="welcome-title">Portfolio</h1>
-    </section>
+    </aside>
 
     <!-- Desktop icons -->
     <div class="desktop-icons">
 
-      <div class="desk-icon" data-open="website_project" style="top:130px; right:230px;">
+      <div class="desk-icon" data-open="website_project" role="button" tabindex="0" style="top:130px; right:230px;">
         <img src="assets/folders/folder.png" alt="" width="80" height="80" />
         <span class="label">Website_project</span>
       </div>
 
-      <div class="desk-icon" data-open="mobile_project" style="top:340px; right:100px;">
+      <div class="desk-icon" data-open="mobile_project" role="button" tabindex="0" style="top:340px; right:100px;">
         <img src="assets/folders/folder.png" alt="" width="80" height="80" />
-        <span class="label">mobile_project</span>
+        <span class="label">Mobile_project</span>
       </div>
 
-      <div class="desk-icon" data-open="branding_project" style="top:480px; right:280px;">
+      <div class="desk-icon" data-open="branding_project" role="button" tabindex="0" style="top:480px; right:280px;">
         <img src="assets/folders/folder.png" alt="" width="80" height="80" />
         <span class="label">Branding_project</span>
       </div>
 
-      <div class="desk-icon" data-open="cv" style="top:480px; left:340px;">
-        <img src="assets/folders/pdf.png" alt="" width="60" height="80" />
-        <span class="label">NgocSang_CV.pdf</span>
+      <div class="desk-icon" data-open="cv" role="button" tabindex="0" style="top:480px; left:340px;">
+        <img src="assets/folders/pdf.png" alt="" width="60" height="80" loading="lazy" />
+        <span class="label">NgocSang.pdf</span>
       </div>
 
-      <div class="desk-icon" data-open="about" style="bottom:160px; left:140px;">
+      <div class="desk-icon" data-open="about" role="button" tabindex="0" style="bottom:160px; left:140px;">
         <img src="assets/folders/folder.png" alt="" width="80" height="80" />
         <span class="label">About Me</span>
       </div>
 
-      <div class="desk-icon" data-open="trash" style="bottom:160px; right:140px;">
-        <img src="assets/folders/trash.png" alt="" width="80" height="80" />
+      <div class="desk-icon" data-open="trash" role="button" tabindex="0" style="bottom:160px; right:140px;">
+        <img src="assets/folders/trash.png" alt="" width="80" height="80" loading="lazy" />
         <span class="label">Trash</span>
       </div>
 
@@ -103,38 +127,50 @@
 
   <!-- DOCK -->
   <nav id="dock" aria-label="Dock">
-    <div class="dock-icon" title="Finder"><img src="assets/dock/dock_1.png" alt="Finder" /></div>
-    <div class="dock-icon" title="Folder"><img src="assets/dock/dock_2.png" alt="Folder" /></div>
-    <div class="dock-icon" title="WhatsApp"><img src="assets/dock/dock_3.png" alt="WhatsApp" /></div>
-    <div class="dock-icon" title="Mail"><img src="assets/dock/dock_4.png" alt="Mail" /></div>
-    <div class="dock-icon" title="Calendar"><img src="assets/dock/dock_5.png" alt="Calendar" /></div>
-    <div class="dock-icon" title="Notes"><img src="assets/dock/dock_6.png" alt="Notes" /></div>
-    <div class="dock-icon" title="Reminders"><img src="assets/dock/dock_7.png" alt="Reminders" /></div>
-    <div class="dock-icon" title="Photos"><img src="assets/dock/dock_8.png" alt="Photos" /></div>
-    <div class="dock-icon" title="Safari"><img src="assets/dock/dock_9.png" alt="Safari" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Finder"><img src="assets/dock/dock_1.png" alt="Finder"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Folder"><img src="assets/dock/dock_2.png" alt="Folder"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="WhatsApp"><img src="assets/dock/dock_3.png" alt="WhatsApp"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Mail"><img src="assets/dock/dock_4.png" alt="Mail"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Calendar"><img src="assets/dock/dock_5.png" alt="Calendar"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Notes"><img src="assets/dock/dock_6.png" alt="Notes"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Reminders"><img src="assets/dock/dock_7.png"
+        alt="Reminders" decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Photos"><img src="assets/dock/dock_8.png" alt="Photos"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Safari"><img src="assets/dock/dock_9.png" alt="Safari"
+        decoding="async" /></div>
 
     <div class="dock-sep" role="separator"></div>
 
-    <div class="dock-icon" title="Figma"><img src="assets/dock/dock_10.png" alt="Figma" /></div>
-    <div class="dock-icon" title="Office"><img src="assets/dock/dock_11.png" alt="Office" /></div>
-    <div class="dock-icon" title="Code Editor"><img src="assets/dock/dock_12.png" alt="Code Editor" /></div>
-    <div class="dock-icon" title="Illustrator"><img src="assets/dock/dock_13.png" alt="Illustrator" /></div>
-    <div class="dock-icon" title="Photoshop"><img src="assets/dock/dock_14.png" alt="Photoshop" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Figma"><img src="assets/dock/dock_10.png" alt="Figma"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Office"><img src="assets/dock/dock_11.png" alt="Office"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Code Editor"><img src="assets/dock/dock_12.png"
+        alt="Code Editor" decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Illustrator"><img src="assets/dock/dock_13.png"
+        alt="Illustrator" decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Photoshop"><img src="assets/dock/dock_14.png"
+        alt="Photoshop" decoding="async" /></div>
 
     <div class="dock-sep" role="separator"></div>
 
-    <div class="dock-icon" title="Spotify"><img src="assets/dock/dock_15.png" alt="Spotify" /></div>
-    <div class="dock-icon" title="Settings"><img src="assets/dock/dock_16.png" alt="Settings" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Spotify"><img src="assets/dock/dock_15.png" alt="Spotify"
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Settings"><img src="assets/dock/dock_16.png" alt="Settings"
+        decoding="async" /></div>
   </nav>
 
   <!-- WINDOWS: được tạo động bởi js/window-manager.js khi bấm data-open -->
-  <div id="windows"></div>
+  <div id="windows" aria-live="polite"></div>
 
-  <script src="js/clock.js" defer></script>
-  <script src="js/dock.js" defer></script>
-  <sscript src="js/window-manager.js" defer></sscript>
-  <script src="js/desktop.js" defer></script>
-
+  <noscript>Please enable JavaScript to open the folders and windows on this portfolio.</noscript>
 </body>
 
 </html>

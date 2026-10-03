@@ -1,0 +1,138 @@
+/* =========================================================
+   sticky-note.css: ghi chú kiểu macOS Stickies
+   Nạp SAU desktop.css + liquid-glass.css, TRƯỚC responsive.css
+   (không cần sửa HTML của note)
+========================================================= */
+
+/* ---------- 1. GIAO DIỆN ---------- */
+.sticky-note {
+  --bar-h: 26px;
+  --note-r: 12px;
+  --note-shadow:
+    0 0 0 .5px rgba(0, 0, 0, .2),
+    0 2px 6px rgba(0, 0, 0, .14),
+    0 14px 32px rgba(0, 0, 0, .22);
+  --note-shadow-lift:
+    0 0 0 .5px rgba(0, 0, 0, .2),
+    0 4px 10px rgba(0, 0, 0, .16),
+    0 22px 44px rgba(0, 0, 0, .28);
+
+  /* chừa chỗ cho thanh tiêu đề phía trên */
+  padding: calc(var(--bar-h) + 14px) 20px 18px;
+  border-radius: var(--note-r);
+  box-shadow: var(--note-shadow);
+
+  /* Marker Felt có sẵn trên Mac / iPad / iPhone; máy khác dùng font tương tự */
+  font-family: "Marker Felt", "Noteworthy", "Bradley Hand", "Segoe Print", "Chalkboard SE", ui-rounded, cursive;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thanh tiêu đề đậm hơn một chút, có dấu "+" như Stickies */
+.sticky-note::before {
+  content: "+";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--bar-h);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  border-radius: var(--note-r) var(--note-r) 0 0;
+  background: rgba(0, 0, 0, .075);
+  border-bottom: 1px solid rgba(0, 0, 0, .06);
+  font: 300 20px/1 -apple-system, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  color: rgba(0, 0, 0, .4);
+  pointer-events: none;
+}
+
+/* Lớp bóng nhẹ phía trên (ghi đè bản trong liquid-glass.css) */
+.sticky-note::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, .2), transparent 28%);
+}
+
+.sticky-note :is(h2, h3) {
+  margin: 0 0 10px;
+  font-size: var(--note-title);
+  font-weight: 700;
+  line-height: 1.25;
+  letter-spacing: .02em;
+}
+
+/* Danh sách kiểu checklist của Apple: vòng tròn, xong thì có dấu tích */
+.sticky-note li {
+  position: relative;
+  padding-left: 1.7em;
+  font-size: var(--note-text);
+  line-height: 1.7;
+}
+
+.sticky-note li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .4em;
+  width: .9em;
+  height: .9em;
+  box-sizing: border-box;
+  border: 1.5px solid rgba(0, 0, 0, .45);
+  border-radius: 50%;
+}
+
+.sticky-note li.done::before {
+  border-color: transparent;
+  background:
+    rgba(0, 0, 0, .55)
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.6 2.6L12 5.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+    center / 80% no-repeat;
+}
+
+/* Hover + kéo: nhấc lên như cửa sổ macOS */
+@media (hover: hover) {
+  #desktop.is-desktop .sticky-note:not(.is-dragging):hover { box-shadow: var(--note-shadow-lift); }
+}
+
+.sticky-note.is-dragging { box-shadow: var(--note-shadow-lift); }
+
+
+/* ---------- 2. KÍCH THƯỚC THEO THIẾT BỊ APPLE ----------
+   MacBook Air 13" ≈ 1440px, MacBook Pro 14" ≈ 1512px, 16" ≈ 1728px,
+   iMac 24" ≈ 2240px, Studio Display ≈ 2560px  -> co giãn mượt, có chặn trên/dưới */
+#desktop.is-desktop {
+  --note-w: clamp(280px, 22vw, 440px);
+  --note-title: clamp(15px, 1vw, 19px);
+  --note-text: clamp(14px, .95vw, 18px);
+}
+
+#desktop.is-desktop .sticky-note,
+#desktop.is-tablet .sticky-note {
+  left: max(24px, env(safe-area-inset-left, 0px));
+}
+
+/* iPad mini (744) -> iPad Pro 13" dọc (1032) */
+#desktop.is-tablet {
+  --note-w: clamp(240px, 32vw, 300px);
+  --note-title: clamp(14px, 1.9vw, 16px);
+  --note-text: clamp(12.5px, 1.7vw, 15px);
+}
+
+/* iPhone: thẻ rộng gần hết màn hình, chữ đủ đọc (>= 14px) */
+#desktop.is-phone {
+  --note-title: 17px;
+  --note-text: 15px;
+}
+
+#desktop.is-phone.is-tiny {          /* iPhone SE / mini */
+  --note-title: 16px;
+  --note-text: 14px;
+}
+
+/* Màn hình thấp (cửa sổ trình duyệt thấp): note tự cuộn thay vì tràn xuống dock */
+@media (max-height: 640px) and (min-width: 701px) {
+  .sticky-note {
+    max-height: calc(100% - 48px);
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+}

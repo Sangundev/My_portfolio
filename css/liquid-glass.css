@@ -1,0 +1,186 @@
+/* =========================================================
+   liquid-glass.css v3: kính tinh tế kiểu thư mục iOS (nạp SAU desktop.css)
+   Không còn dùng bộ lọc khúc xạ #lg-refract.
+========================================================= */
+
+/* ---------- 1. TOKENS ---------- */
+:root {
+  --lg-fill: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.1));
+  --lg-edge: rgba(255,255,255,.4);
+  --lg-shadow: 0 10px 30px rgba(0,0,0,.14);
+  --lg-text: #fff;
+  --lg-text-shadow: 0 1px 4px rgba(0,0,0,.35);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --lg-fill: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    --lg-edge: rgba(255,255,255,.25);
+    --lg-shadow: 0 10px 30px rgba(0,0,0,.4);
+  }
+}
+
+
+/* ---------- 2. OVERLAY: nền mờ mạnh, chính nó làm nổi panel ---------- */
+.group-overlay {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: none;
+  animation: none;
+  transition: none;
+}
+
+.group-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,.06);
+  -webkit-backdrop-filter: blur(26px) saturate(115%);
+  backdrop-filter: blur(26px) saturate(115%);
+  animation: fade-in .25s ease both;
+  transition: opacity .22s ease;
+}
+
+.group-overlay.is-closing::before { opacity: 0; }
+
+
+/* ---------- 3. PANEL NHÓM ---------- */
+.group-panel {
+  position: relative;
+  overflow: visible;                  /* để tên thư mục nằm phía trên panel */
+  padding-top: 26px;
+  border-radius: 38px;
+  background: var(--lg-fill);
+  border: 1px solid var(--lg-edge);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), var(--lg-shadow);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+}
+
+/* Ánh sáng rất nhẹ ở nửa trên */
+.group-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%);
+  pointer-events: none;
+}
+
+.group-panel > * { position: relative; z-index: 1; }
+
+/* Tên thư mục nằm NGOÀI panel, chữ trắng như iOS */
+.group-panel > input.group-title {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -52px;
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--lg-text);
+  text-shadow: var(--lg-text-shadow);
+}
+
+.group-panel > input.group-title:hover { background: transparent; }
+.group-panel > input.group-title:focus { background: rgba(255,255,255,.18); }
+
+.group-item .label { color: var(--lg-text); text-shadow: var(--lg-text-shadow); }
+
+
+/* ---------- 4. TILE NHÓM TRÊN DESKTOP ---------- */
+.desk-group .group-tile {
+  background: var(--lg-fill);
+  border: 1px solid var(--lg-edge);
+  border-radius: 28%;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 4px 12px rgba(0,0,0,.12);
+  -webkit-backdrop-filter: blur(10px) saturate(140%);
+  backdrop-filter: blur(10px) saturate(140%);
+}
+
+.desk-icon.merge-target::after {
+  background: rgba(255,255,255,.22);
+  outline: 0;
+  border: 1px solid rgba(255,255,255,.55);
+  border-radius: 28%;
+  box-shadow: none;
+}
+
+
+/* ---------- 5. DẤU TRỪ + NHÃN ---------- */
+.desktop-edit-mode :is(.desk-icon, .group-item)::before {
+  box-sizing: border-box;
+  top: -7px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  font: 500 17px/20px var(--ui-font);
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+  background:
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.55), transparent 55%),
+    linear-gradient(145deg, rgba(110,110,125,.55), rgba(40,40,55,.45));
+  border: 1px solid rgba(255,255,255,.6);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.75),
+    inset 0 -3px 5px -2px rgba(255,255,255,.3),
+    0 3px 8px rgba(0,0,0,.25);
+  -webkit-backdrop-filter: blur(8px) saturate(180%);
+  backdrop-filter: blur(8px) saturate(180%);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .desktop-edit-mode :is(.desk-icon, .group-item)::before {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(70,70,80,.85);
+  }
+}
+.desk-icon:focus-visible .label,
+.desk-icon.dragging .label {
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.3);
+}
+
+
+/* ---------- 6. MƯỢT ---------- */
+.desk-icon { contain: layout style; backface-visibility: hidden; }
+.desk-icon.dragging,
+.group-item.dragging { will-change: translate, scale; }
+.sticky-note.is-dragging { will-change: translate, scale, rotate; }
+
+.desk-icon.dragging > img { filter: none; }
+.desk-icon.dragging > img,
+.desk-icon.dragging > .group-tile { box-shadow: 0 12px 20px rgba(0,0,0,.2); }
+
+
+/* ---------- 7. FALLBACK ---------- */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .group-panel { background: rgba(110,110,125,.85); }
+  .desk-group .group-tile { background: rgba(140,140,170,.35); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .group-panel,
+  .desk-group .group-tile,
+  .group-overlay::before {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .group-panel { background: rgba(110,110,125,.92); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .group-overlay::before { animation: none; transition: none; }
+}
+/* ---------- NỀN TỐI: chữ trắng ---------- */
+.desk-icon .label,
+.welcome { transition: color .5s ease; }
+
+body.wp-dark .desk-icon .label,
+body.wp-dark .welcome {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
+}

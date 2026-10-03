@@ -1,0 +1,68 @@
+/* =========================================================
+   responsive.css: nạp CUỐI CÙNG (sau liquid-glass.css)
+========================================================= */
+
+/* 1. Dock không tràn ra ngoài màn hình (iPad, điện thoại): vuốt ngang được */
+@media (max-width: 1100px) {
+  #dock {
+    max-width: calc(100vw - 16px);
+    box-sizing: border-box;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+  }
+
+  #dock::-webkit-scrollbar { display: none; }
+  #dock > * { flex-shrink: 0; }
+}
+
+/* 2. Tên icon không bị ngắt giữa từ
+   (ghi đè max-width:100% và overflow-wrap:anywhere trong desktop.css) */
+.desktop-icons.is-responsive .desk-icon .label {
+  width: calc(100% + 24px);
+  max-width: none;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.desktop-icons.is-responsive.is-small { column-gap: 12px; }
+
+/* 3. Điện thoại: chừa chỗ cho thanh home của iPhone phía dưới dock */
+#desktop.is-phone {
+  --dock-space: calc(120px + env(safe-area-inset-bottom, 0px));
+}
+
+/* 4. Điện thoại: Welcome nằm trong cột cuộn, không đè lên note */
+#desktop.is-phone .welcome { position: relative; }
+
+/* ---------- ĐIỆN THOẠI: vừa màn hình, tránh tai thỏ / thanh home ---------- */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Chiều cao menubar khớp với menubar.css để desktop không bị hở */
+@media (max-width: 768px) { :root { --menubar-h: 32px; } }
+@media (max-width: 480px) { :root { --menubar-h: 30px; } }
+
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;          /* không kéo giãn nảy cả trang */
+  }
+
+  /* Menubar tự cao thêm đúng bằng vùng tai thỏ */
+  #menubar {
+    box-sizing: border-box;
+    height: calc(var(--menubar-h) + var(--safe-top));
+    padding-top: var(--safe-top);
+  }
+
+  #desktop { top: calc(var(--menubar-h) + var(--safe-top)); }
+  .group-overlay { inset: calc(var(--menubar-h) + var(--safe-top)) 0 0; }
+
+  /* Dock nổi lên trên thanh home của iPhone */
+  #dock { margin-bottom: var(--safe-bottom); }
+}
+

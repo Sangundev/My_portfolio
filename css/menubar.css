@@ -97,8 +97,7 @@
     flex-shrink: 0;
   }
 
-  .menubar-left .menu-item[data-open="cv"],
-  .menubar-left .menu-item[data-open="contact"] {
+  .menubar-left .menu-item[data-open="cv"] {
     display: none;
   }
 
@@ -163,7 +162,7 @@
 
   .menubar-left .menu-item.active {
     font-size: 10px;
-    max-width: 120px;
+    max-width: 90px;
   }
 
   .status-icon {
