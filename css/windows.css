@@ -1,49 +1,300 @@
-.window{
+/* ===== CỬA SỔ kiểu macOS ===== */
+:root{
+--win-bg:rgba(246,246,248,.82);--win-bar:rgba(255,255,255,.5);
+--win-tx:#1d1d1f;--win-tx2:#6e6e73;--win-line:rgba(0,0,0,.1);--win-hover:rgba(0,0,0,.06);
+--win-edge:rgba(255,255,255,.7);
+--win-shadow:0 22px 60px rgba(0,0,0,.28),0 0 0 .5px rgba(0,0,0,.25);
+--win-shadow-off:0 10px 28px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.2);
+--win-ease:cubic-bezier(.32,.72,0,1);
+}
+@media (prefers-color-scheme:dark){
+:root{
+  --win-bg:rgba(40,40,44,.82);--win-bar:rgba(60,60,66,.5);
+  --win-tx:#f5f5f7;--win-tx2:#a1a1a6;--win-line:rgba(255,255,255,.12);--win-hover:rgba(255,255,255,.08);
+  --win-edge:rgba(255,255,255,.14);
+}
+}
+
+#windows{position:fixed;inset:var(--mb-h,32px) 0 0 0;z-index:50;pointer-events:none}
+
+.win{
+position:absolute;pointer-events:auto;display:flex;flex-direction:column;
+min-width:320px;min-height:200px;overflow:hidden;border-radius:12px;
+background:var(--win-bg);color:var(--win-tx);border:1px solid var(--win-edge);
+box-shadow:var(--win-shadow-off);
+-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+font:400 14px/1.45 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
+transition:transform .45s var(--win-ease),opacity .35s ease,visibility 0s;
+animation:win-in .34s var(--win-ease);
+}
+.win.is-active{box-shadow:var(--win-shadow)}
+.win.dragging{transition:none;user-select:none}
+.win.anim{                                              /* phóng to / trả về mượt */
+transition:transform .45s var(--win-ease),opacity .35s ease,
+  left .34s var(--win-ease),top .34s var(--win-ease),width .34s var(--win-ease),height .34s var(--win-ease);
+}
+.win.is-min{                                            /* bay về dock */
+transform:translate(var(--dx,0),var(--dy,0)) scale(.06);opacity:0;visibility:hidden;pointer-events:none;
+transition:transform .5s var(--win-ease),opacity .3s .15s ease,visibility 0s .5s;
+}
+.win.is-closing{animation:win-out .2s ease forwards;pointer-events:none}
+@keyframes win-in{from{opacity:0;transform:scale(.88) translateY(12px)}to{opacity:1;transform:none}}
+@keyframes win-out{to{opacity:0;transform:scale(.94)}}
+
+/* ----- Thanh tiêu đề ----- */
+.win-bar{
+position:relative;flex:0 0 44px;height:44px;background:var(--win-bar);
+border-bottom:1px solid var(--win-line);touch-action:none;
+}
+.win-title{
+position:absolute;inset:0 90px;margin:0;line-height:44px;text-align:center;pointer-events:none;
+font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.win:not(.is-active) .win-title{color:var(--win-tx2)}
+
+/* ----- 3 nút đỏ vàng xanh ----- */
+.lights{position:absolute;left:16px;top:0;height:44px;z-index:4;display:flex;align-items:center;gap:8px}
+.light{
+width:12px;height:12px;padding:0;display:grid;place-items:center;cursor:default;
+border-radius:50%;border:.5px solid rgba(0,0,0,.14);background:#c8c8cc;
+}
+@media (prefers-color-scheme:dark){.light{background:#5a5a5e}}
+.light svg{width:10px;height:10px;opacity:0;stroke:rgba(0,0,0,.62);transition:opacity .12s}
+.lights:hover svg{opacity:1}
+.win.is-active .light.close,.lights:hover .light.close{background:#ff5f57}
+.win.is-active .light.min,.lights:hover .light.min{background:#febc2e}
+.win.is-active .light.max,.lights:hover .light.max{background:#28c840}
+.light:active{filter:brightness(.8)}
+.light:focus-visible{outline:2px solid #0a84ff;outline-offset:2px}
+
+/* ----- Nội dung ----- */
+.win-body{flex:1;min-height:0;overflow:auto;padding:20px}
+.win-body.flush{padding:0}
+.pdf{display:block;width:100%;height:100%;border:0}
+.empty{display:grid;place-items:center;height:100%;min-height:140px;color:var(--win-tx2);text-align:center}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:18px 12px}
+.tile-i{
+display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;
+border-radius:10px;font-size:12px;text-align:center;cursor:default;
+}
+.tile-i img{width:64px;height:64px;object-fit:contain}
+.tile-i:hover,.tile-i:focus-visible{background:var(--win-hover);outline:0}
+
+.prose h3{margin:0 0 6px;font-size:20px}
+.prose p{margin:0 0 12px;color:var(--win-tx2)}
+.links{display:grid;gap:8px}
+.links a{display:block;padding:12px 14px;border-radius:10px;background:var(--win-hover);color:inherit;text-decoration:none}
+.links a:hover{background:var(--win-line)}
+.links small{display:block;color:var(--win-tx2)}
+
+/* ----- Kéo giãn kích thước ----- */
+.rs{position:absolute;z-index:3;touch-action:none}
+.rs.n,.rs.s{left:10px;right:10px;height:5px;cursor:ns-resize}
+.rs.e,.rs.w{top:10px;bottom:10px;width:5px;cursor:ew-resize}
+.rs.n{top:0}.rs.s{bottom:0}.rs.e{right:0}.rs.w{left:0}
+.rs.ne,.rs.nw,.rs.se,.rs.sw{width:12px;height:12px}
+.rs.ne{top:0;right:0;cursor:nesw-resize}.rs.sw{bottom:0;left:0;cursor:nesw-resize}
+.rs.nw{top:0;left:0;cursor:nwse-resize}.rs.se{bottom:0;right:0;cursor:nwse-resize}
+.win.is-max .rs{display:none}
+
+/* ----- Mobile: cửa sổ gần toàn màn hình, không kéo ----- */
+@media (max-width:768px){
+.win{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;height:calc(100% - 88px)!important;min-width:0}
+.rs{display:none}
+}
+@media (prefers-reduced-motion:reduce){.win,.win.anim,.win.is-min{animation:none;transition:none}}
+
+/* ===== Tab trong cửa sổ ===== */
+.win-add{
+position:absolute;right:12px;top:8px;z-index:4;width:28px;height:28px;padding:0;
+display:grid;place-items:center;border:0;border-radius:7px;background:transparent;
+color:var(--win-tx2);font:300 22px/1 var(--ui-font,inherit);cursor:default;
+}
+.win-add:hover{background:var(--win-hover);color:var(--win-tx)}
+.win-title{inset:0 56px}                                /* chừa chỗ cho nút + */
+
+.win-tabs{
+display:none;flex:0 0 34px;gap:2px;padding:4px 8px 0;overflow-x:auto;scrollbar-width:none;
+background:var(--win-bar);border-bottom:1px solid var(--win-line);
+}
+.win-tabs::-webkit-scrollbar{display:none}
+.win.has-tabs .win-tabs{display:flex}
+
+.wtab{
+flex:1 1 0;min-width:96px;max-width:200px;height:29px;padding:0 6px 0 12px;
+display:flex;align-items:center;gap:6px;border-radius:7px 7px 0 0;
+font-size:12px;color:var(--win-tx2);cursor:default;transition:background .15s;
+}
+.wtab:hover{background:var(--win-hover)}
+.wtab.on{background:var(--win-bg);color:var(--win-tx);box-shadow:inset 0 0 0 .5px var(--win-line)}
+.wtab:focus-visible{outline:2px solid #0a84ff;outline-offset:-2px}
+.wtab-t{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wtab-x{
+flex:none;width:18px;height:18px;padding:0;border:0;border-radius:5px;background:transparent;
+color:inherit;font:400 14px/1 var(--ui-font,inherit);opacity:0;cursor:default;
+}
+.wtab:hover .wtab-x,.wtab.on .wtab-x{opacity:.7}
+.wtab-x:hover{background:var(--win-line);opacity:1}
+
+@media (max-width:768px){.win-add{display:none}}
+
+/* ===== Mission Control: xem tất cả cửa sổ ===== */
+#mc{
+position:fixed;inset:var(--mb-h,32px) 0 0 0;z-index:49;opacity:0;
+background:rgba(0,0,0,.22);
+-webkit-backdrop-filter:blur(18px) saturate(120%);backdrop-filter:blur(18px) saturate(120%);
+transition:opacity .35s var(--win-ease);
+}
+#mc.on{opacity:1}
+#mc[hidden],#mc-items[hidden],.mc-hint[hidden]{display:none}
+
+.mc-pill{
+position:absolute;top:10px;left:50%;transform:translateX(-50%);
+padding:3px 18px;border-radius:9px;color:#fff;
+font:500 13px/1.45 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
+background:rgba(255,255,255,.22);
+-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+}
+.mc-hint{
+position:absolute;inset:0;margin:0;display:grid;place-items:center;color:#fff;
+font:500 17px/1.4 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
+text-shadow:0 1px 6px rgba(0,0,0,.45);
+}
+
+/* Cửa sổ thật co lại và bay vào lưới */
+#windows.mc-on .win{
+transform:translate(var(--mx,0),var(--my,0)) scale(var(--ms,1));transform-origin:0 0;
+visibility:visible;opacity:1;pointer-events:none;animation:none;
+box-shadow:0 14px 40px rgba(0,0,0,.35),0 0 0 .5px rgba(0,0,0,.3);
+transition:transform .5s var(--win-ease),opacity .3s ease,box-shadow .3s;
+}
+#windows.mc-on .win.is-closing{animation:mc-out .26s ease forwards}
+@keyframes mc-out{
+to{opacity:0;transform:translate(var(--mx,0),var(--my,0)) scale(calc(var(--ms,1) * .8))}
+}
+
+/* Lớp bắt bấm phủ lên từng thẻ */
+#mc-items{position:fixed;inset:var(--mb-h,32px) 0 0 0;z-index:51;pointer-events:none}
+.mc-it{
+position:absolute;pointer-events:auto;cursor:pointer;outline:0;
+transition:box-shadow .15s;
+}
+.mc-it:hover,.mc-it:focus-visible{box-shadow:0 0 0 4px rgba(10,132,255,.95)}
+
+.mc-t{
+position:absolute;left:0;right:0;top:100%;margin-top:8px;padding:0 4px;pointer-events:none;
+text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff;
+font:500 13px/1.35 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
+text-shadow:0 1px 5px rgba(0,0,0,.55);
+}
+.mc-x{
+position:absolute;left:-9px;top:-9px;width:22px;height:22px;padding:0;border:0;border-radius:50%;
+display:grid;place-items:center;cursor:pointer;color:#fff;background:rgba(30,30,34,.88);
+font:600 11px/1 var(--ui-font,sans-serif);box-shadow:0 2px 6px rgba(0,0,0,.35);
+opacity:0;transform:scale(.6);transition:opacity .15s,transform .2s var(--win-ease);
+}
+.mc-x:hover{background:#ff5f57}
+.mc-it:hover .mc-x,.mc-it:focus-within .mc-x{opacity:1;transform:none}
+@media (hover:none){.mc-x{opacity:1;transform:none}}
+
+/* Nút trên menubar */
+.mc-btn{
+align-self:stretch;display:inline-grid;place-items:center;padding:0 8px;
+border:0;background:transparent;color:inherit;cursor:default;
+}
+.mc-btn:hover{opacity:.7}
+.mc-btn[aria-pressed="true"]{opacity:.5}
+.mc-btn:focus-visible{outline:2px solid #0a84ff;outline-offset:-2px}
+
+@media (prefers-reduced-motion:reduce){
+#mc,#windows.mc-on .win,.mc-it,.mc-x{transition:none}
+#windows.mc-on .win.is-closing{animation:none;opacity:0}
+}
+
+/* ===== Mobile: chuyển app như điện thoại ===== */
+
+/* Cho --my / --mdy có đơn vị để dùng được trong calc() */
+#windows.mc-on .win{
+transform:translate(var(--mx,0px),calc(var(--my,0px) + var(--mdy,0px))) scale(var(--ms,1));
+}
+#windows.mc-scrub .win{transition:none}
+
+@media (max-width:768px){
+/* App gần toàn màn hình (đè lên rule mobile cũ) */
+.win{
+  left:6px!important;top:6px!important;
+  width:calc(100% - 12px)!important;height:calc(100% - 12px)!important;
+  border-radius:16px;
+}
+
+/* Dock ẩn khi đang ở trong app */
+#dock{transition:transform .4s var(--win-ease)}
+body.app-open #dock{transform:translate(-50%,170%);pointer-events:none}
+
+/* Thanh ngang ở đáy: chỉ chỗ vuốt lên */
+#home-bar{
+  position:fixed;left:0;right:0;bottom:0;height:28px;z-index:101;touch-action:none;
   display:none;
-  position:absolute;
-  width:480px;
-  max-width:88vw;
-  background:#fff;
-  border-radius:10px;
-  box-shadow:0 20px 50px rgba(0,0,0,.25);
-  overflow:hidden;
-  z-index:50;
-  flex-direction:column;
 }
-.window.open{ display:flex; }
-.window.active{ box-shadow:0 24px 60px rgba(0,0,0,.35); }
+#home-bar::after{
+  content:"";position:absolute;left:50%;bottom:7px;width:128px;height:5px;margin-left:-64px;
+  border-radius:3px;background:rgba(0,0,0,.45);box-shadow:0 0 0 .5px rgba(255,255,255,.4);
+}
+body.app-open #home-bar{display:block}
 
-.window-bar{
-  height:38px; background:#f0f0f0; border-bottom:1px solid #e0e0e0;
-  display:flex; align-items:center; padding:0 12px; gap:8px;
-  cursor:grab; flex-shrink:0;
+/* Chế độ xem: hàng thẻ lướt ngang */
+#mc-items{
+  pointer-events:auto;display:flex;align-items:center;gap:18px;
+  overflow-x:auto;overflow-y:hidden;overscroll-behavior:contain;
+  scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;
 }
-.window-bar:active{ cursor:grabbing; }
-.win-dot{ width:12px; height:12px; border-radius:50%; }
-.win-dot.red{ background:#ff5f57; }
-.win-dot.yellow{ background:#febc2e; }
-.win-dot.green{ background:#28c840; }
-.window-title{
-  flex:1; text-align:center; font-size:13px; font-weight:600; color:#333;
-  margin-right:44px;
+#mc-items::-webkit-scrollbar{display:none}
+#mc-items::before,#mc-items::after{content:"";flex:0 0 calc(var(--pad,0px) - 18px)}
+.mc-it{position:relative;flex:none;scroll-snap-align:center;touch-action:pan-x}
+.mc-it:hover{box-shadow:none}
+.mc-x{display:none}                       /* vuốt lên để đóng, không cần nút ✕ */
+.mc-t{margin-top:12px;font-size:14px}
 }
 
-.window-body{ padding:20px 24px; max-height:60vh; overflow:auto; }
-.window-body h2{ font-size:20px; margin-bottom:8px; }
-.window-body p{ font-size:14px; color:#555; line-height:1.6; margin-bottom:12px; }
+@media (max-width:768px){
+/* Nền mờ đậm như iOS */
+#mc{
+  background:rgba(0,0,0,.28);
+  -webkit-backdrop-filter:blur(34px) saturate(130%);backdrop-filter:blur(34px) saturate(130%);
+}
+.mc-pill{display:none}
 
-.file-grid{ display:flex; flex-wrap:wrap; gap:18px; padding-top:4px; }
-.file-item{
-  width:88px; display:flex; flex-direction:column; align-items:center; gap:6px;
-  cursor:pointer; text-align:center;
-}
-.file-item .thumb{
-  width:64px; height:64px; border-radius:8px; background:#eee;
-  display:flex; align-items:center; justify-content:center; font-size:22px;
-}
-.file-item span{ font-size:12px; color:#333; }
+/* Thẻ chồng lên nhau */
+#mc-items{gap:0}
+#mc-items::before{flex-basis:var(--pad,0px)}
+#mc-items::after{flex-basis:calc(var(--pad,0px) - var(--ov,0px))}
+.mc-it{margin-right:var(--ov,0px)}
+.mc-t{display:none}
 
-.window-body a.link-btn{
-  display:inline-block; margin-top:6px; padding:8px 16px;
-  background:#111; color:#fff; border-radius:6px; text-decoration:none; font-size:13px;
+/* Icon + tên app nằm phía trên thẻ */
+.mc-h{
+  position:absolute;left:6px;bottom:100%;margin-bottom:12px;max-width:calc(100% - 8px);
+  display:flex;align-items:center;gap:10px;pointer-events:none;
+  color:#fff;font:600 17px/1.2 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
+  text-shadow:0 1px 6px rgba(0,0,0,.4);
 }
+.mc-h img{flex:none;width:32px;height:32px;object-fit:cover;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.mc-h span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* Thẻ bên phải nằm trên, góc bo lớn giữ nguyên khi co lại */
+#windows.mc-on .win{
+  z-index:var(--mz,auto)!important;
+  border-radius:calc(44px / var(--ms,1));
+  box-shadow:0 10px 36px rgba(0,0,0,.4);
+}
+.win{transition:transform .5s var(--win-ease),opacity .35s ease,border-radius .5s var(--win-ease)}
+
+/* Mở app: phóng ra từ icon */
+.win.from-icon{animation:win-open .5s var(--win-ease)}
+@keyframes win-open{
+  from{opacity:0;transform:scale(.12);border-radius:200px}
+  35%{opacity:1}
+}
+}
+@media (prefers-reduced-motion:reduce){.win.from-icon{animation:none}}

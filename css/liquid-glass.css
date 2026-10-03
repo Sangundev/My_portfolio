@@ -1,9 +1,9 @@
 /* =========================================================
-   liquid-glass.css v3: kính tinh tế kiểu thư mục iOS (nạp SAU desktop.css)
-   Không còn dùng bộ lọc khúc xạ #lg-refract.
+   liquid-glass.css (bản gộp cuối): kính tinh tế kiểu thư mục iOS
+   Nạp SAU desktop.css, TRƯỚC sticky-note.css và responsive.css
 ========================================================= */
 
-/* ---------- 1. TOKENS ---------- */
+/* ---------- 1. TOKENS (dock.css cũng dùng các biến này) ---------- */
 :root {
   --lg-fill: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.1));
   --lg-edge: rgba(255,255,255,.4);
@@ -21,7 +21,7 @@
 }
 
 
-/* ---------- 2. OVERLAY: nền mờ mạnh, chính nó làm nổi panel ---------- */
+/* ---------- 2. OVERLAY: blur nằm ở ::before (tránh "backdrop root") ---------- */
 .group-overlay {
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
@@ -57,7 +57,6 @@
   backdrop-filter: blur(14px) saturate(140%);
 }
 
-/* Ánh sáng rất nhẹ ở nửa trên */
 .group-panel::before {
   content: "";
   position: absolute;
@@ -70,7 +69,6 @@
 
 .group-panel > * { position: relative; z-index: 1; }
 
-/* Tên thư mục nằm NGOÀI panel, chữ trắng như iOS */
 .group-panel > input.group-title {
   position: absolute;
   left: 0;
@@ -89,7 +87,7 @@
 .group-item .label { color: var(--lg-text); text-shadow: var(--lg-text-shadow); }
 
 
-/* ---------- 4. TILE NHÓM TRÊN DESKTOP ---------- */
+/* ---------- 4. TILE NHÓM TRÊN DESKTOP + Ô GỘP ---------- */
 .desk-group .group-tile {
   background: var(--lg-fill);
   border: 1px solid var(--lg-edge);
@@ -108,7 +106,7 @@
 }
 
 
-/* ---------- 5. DẤU TRỪ + NHÃN ---------- */
+/* ---------- 5. DẤU TRỪ KIỂU GLASS + NHÃN KHI KÉO ---------- */
 .desktop-edit-mode :is(.desk-icon, .group-item)::before {
   box-sizing: border-box;
   top: -7px;
@@ -130,13 +128,6 @@
   backdrop-filter: blur(8px) saturate(180%);
 }
 
-@media (prefers-reduced-transparency: reduce) {
-  .desktop-edit-mode :is(.desk-icon, .group-item)::before {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    background: rgba(70,70,80,.85);
-  }
-}
 .desk-icon:focus-visible .label,
 .desk-icon.dragging .label {
   padding: 1px 8px;
@@ -145,7 +136,18 @@
 }
 
 
-/* ---------- 6. MƯỢT ---------- */
+/* ---------- 6. NỀN TỐI: chữ icon + Welcome chuyển trắng (class do wallpaper.js gắn) ---------- */
+.desk-icon .label,
+.welcome { transition: color .5s ease; }
+
+body.wp-dark .desk-icon .label,
+body.wp-dark .welcome {
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.45);
+}
+
+
+/* ---------- 7. MƯỢT ---------- */
 .desk-icon { contain: layout style; backface-visibility: hidden; }
 .desk-icon.dragging,
 .group-item.dragging { will-change: translate, scale; }
@@ -156,7 +158,7 @@
 .desk-icon.dragging > .group-tile { box-shadow: 0 12px 20px rgba(0,0,0,.2); }
 
 
-/* ---------- 7. FALLBACK ---------- */
+/* ---------- 8. FALLBACK ---------- */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .group-panel { background: rgba(110,110,125,.85); }
   .desk-group .group-tile { background: rgba(140,140,170,.35); }
@@ -165,22 +167,15 @@
 @media (prefers-reduced-transparency: reduce) {
   .group-panel,
   .desk-group .group-tile,
-  .group-overlay::before {
+  .group-overlay::before,
+  .desktop-edit-mode :is(.desk-icon, .group-item)::before {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   .group-panel { background: rgba(110,110,125,.92); }
+  .desktop-edit-mode :is(.desk-icon, .group-item)::before { background: rgba(70,70,80,.85); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .group-overlay::before { animation: none; transition: none; }
-}
-/* ---------- NỀN TỐI: chữ trắng ---------- */
-.desk-icon .label,
-.welcome { transition: color .5s ease; }
-
-body.wp-dark .desk-icon .label,
-body.wp-dark .welcome {
-  color: #fff;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, .45);
 }

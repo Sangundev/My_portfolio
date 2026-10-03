@@ -1,27 +1,28 @@
 /* =========================================================
    wallpaper.js: đổi hình nền kiểu macOS
    - Chuột phải vào nền desktop -> "Change Wallpaper…"
-   - Hoặc bấm icon Settings trên dock
-   - Lưu lựa chọn bằng localStorage, đổi có hiệu ứng mờ dần
+   - Hoặc bấm logo ở menubar (như menu Apple)
+   - Lưu lựa chọn (localStorage), đổi có hiệu ứng mờ dần
+   - Nền tối -> thêm class "wp-dark" lên <body> (chữ icon chuyển trắng)
 ========================================================= */
 
 document.addEventListener("DOMContentLoaded", () => {
   "use strict";
 
-  /* Thêm hình nền của bạn: { name: "Tên", img: "assets/wallpapers/wall_1.jpg" } */
-    const WALLPAPERS = [
-    { name: "Wall 1", img: "assets/wallpapers/wall_1.jpg.png" },
-    { name: "Wall 2", img: "assets/wallpapers/wall_2.jpg.png" },
-    { name: "Lavender", bg: "linear-gradient(135deg,#c9c3ff,#a8d0ff 45%,#f3c6ff)" },
-    { name: "Lavender", bg: "linear-gradient(135deg,#c9c3ff,#a8d0ff 45%,#f3c6ff)" },
-    { name: "Sunset",   bg: "linear-gradient(135deg,#ffd1a8,#ff9fb8 50%,#9d8cff)" },
-    { name: "Ocean",    bg: "linear-gradient(135deg,#9be3ff,#5aa2ff 50%,#6c5cff)" },
-    { name: "Mint",     bg: "linear-gradient(135deg,#c9ffe0,#8fe3d6 50%,#8fb8ff)" },
-       { name: "Night",    bg: "linear-gradient(135deg,#1b1740,#3a2a78 50%,#0f3a6d)", dark: true }
-    // { name: "Mac", img: "assets/wallpapers/wall_1.jpg" },
+  /* dark: true/false = tự khai báo (chắc chắn nhất, nhất là khi mở file trực tiếp).
+     Bỏ dark đi thì ảnh sẽ được đo độ sáng tự động (chỉ chạy khi có server). */
+  const WALLPAPERS = [
+    { name: "Wall 1",   img: "assets/wallpapers/wall_1.jpg.png", dark: true },
+    { name: "Wall 2",   img: "assets/wallpapers/wall_2.jpg.png", dark: true },
+    { name: "Lavender", bg: "linear-gradient(135deg,#c9c3ff,#a8d0ff 45%,#f3c6ff)", dark: false },
+    { name: "Sunset",   bg: "linear-gradient(135deg,#ffd1a8,#ff9fb8 50%,#9d8cff)", dark: false },
+    { name: "Ocean",    bg: "linear-gradient(135deg,#9be3ff,#5aa2ff 50%,#6c5cff)", dark: false },
+    { name: "Mint",     bg: "linear-gradient(135deg,#c9ffe0,#8fe3d6 50%,#8fb8ff)", dark: false },
+    { name: "Night",    bg: "linear-gradient(135deg,#1b1740,#3a2a78 50%,#0f3a6d)", dark: true }
   ];
 
   const KEY = "portfolio-wallpaper";
+  const TRIGGERS = '#menubar .logo, .dock-icon[data-label="Settings"]';
   const desktop = document.querySelector("#desktop");
   if (!desktop) return;
 
@@ -62,13 +63,12 @@ document.addEventListener("DOMContentLoaded", () => {
   let cur = 0;
   let active = -1;
 
-   const css = (w) => (w.img ? `url("${w.img}") center / cover no-repeat` : w.bg);
-
-  /* Nền tối -> chữ icon chuyển sang trắng */
+  const css = (w) => (w.img ? `url("${w.img}") center / cover no-repeat` : w.bg);
   const setDark = (on) => document.body.classList.toggle("wp-dark", on);
 
+  /* Nền tối? Ưu tiên khai báo tay; không có thì đo độ sáng ảnh */
   function detectDark(w, done) {
-    if (w.dark !== undefined) return done(w.dark);    // bạn khai báo tay thì ưu tiên
+    if (w.dark !== undefined) return done(w.dark);
     if (!w.img) return done(false);
 
     const im = new Image();
@@ -81,12 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const p = x.getImageData(0, 0, 16, 16).data;
         let sum = 0;
-        for (let i = 0; i < p.length; i += 4) {
-          sum += 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
-        }
-        done(sum / (p.length / 4) < 140);             // độ sáng trung bình < 140/255 = tối
+        for (let i = 0; i < p.length; i += 4) sum += 0.2126 * p[i] + 0.7152 * p[i + 1] + 0.0722 * p[i + 2];
+        done(sum / (p.length / 4) < 140);
       } catch {
-        done(false);                                  // không đọc được pixel (xem lưu ý bên dưới)
+        done(false);                                  // file:// chặn đọc pixel -> khai báo dark tay
       }
     };
     im.onerror = () => done(false);
@@ -107,7 +105,7 @@ document.addEventListener("DOMContentLoaded", () => {
       cur = 1 - cur;
     };
 
-    if (w.img) {                       // đợi ảnh tải xong rồi mới chuyển
+    if (w.img) {                                      // đợi ảnh tải xong rồi mới chuyển
       const im = new Image();
       im.onload = show;
       im.onerror = show;
@@ -176,23 +174,20 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.querySelector("button").addEventListener("click", openPicker);
     document.body.append(menu);
 
-    const x = Math.min(e.clientX, innerWidth - menu.offsetWidth - 8);
-    const y = Math.min(e.clientY, innerHeight - menu.offsetHeight - 8);
-    menu.style.left = `${x}px`;
-    menu.style.top = `${y}px`;
+    menu.style.left = `${Math.min(e.clientX, innerWidth - menu.offsetWidth - 8)}px`;
+    menu.style.top = `${Math.min(e.clientY, innerHeight - menu.offsetHeight - 8)}px`;
   });
 
-  /* ---------- Icon Settings trên dock ---------- */
-  const settings = document.querySelector('.dock-icon[title="Settings"]');
-  settings?.addEventListener("click", openPicker);
-  settings?.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPicker(); }
+  /* ---------- Logo menubar / icon Settings (nếu có) ---------- */
+  document.querySelectorAll(TRIGGERS).forEach((el) => {
+    el.style.cursor = "pointer";
+    el.addEventListener("click", (e) => { e.stopPropagation(); openPicker(); });
   });
 
   /* ---------- Đóng khi bấm ra ngoài / Esc ---------- */
   document.addEventListener("pointerdown", (e) => {
     if (menu && !e.target.closest(".wp-menu")) closeMenu();
-    if (picker && !e.target.closest(".wp-picker, .dock-icon[title='Settings']")) closePicker();
+    if (picker && !e.target.closest(".wp-picker, " + TRIGGERS)) closePicker();
   });
 
   document.addEventListener("keydown", (e) => {
@@ -201,7 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     closePicker();
   });
 
-  /* ---------- Khôi phục lựa chọn đã lưu (nếu chưa lưu thì giữ nền cũ) ---------- */
+  /* ---------- Khôi phục lựa chọn đã lưu (chưa lưu thì giữ nền cũ) ---------- */
   try {
     const saved = localStorage.getItem(KEY);
     if (saved !== null) apply(Number(saved));

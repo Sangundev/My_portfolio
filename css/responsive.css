@@ -65,4 +65,63 @@
   /* Dock nổi lên trên thanh home của iPhone */
   #dock { margin-bottom: var(--safe-bottom); }
 }
+/* =========================================================
+   responsive.css: nạp CUỐI CÙNG (sau sticky-note.css)
+   Dock tự responsive trong dock.css + dock.js (nút More) nên KHÔNG đụng vào dock ở đây.
+========================================================= */
 
+/* 1. Tên icon không bị ngắt giữa từ (ghi đè desktop.css) */
+.desktop-icons.is-responsive .desk-icon .label {
+  width: calc(100% + 24px);
+  max-width: none;
+  overflow-wrap: break-word;
+  word-break: normal;
+}
+
+.desktop-icons.is-responsive.is-small { column-gap: 12px; }
+
+/* 2. Điện thoại: chừa chỗ thanh home, Welcome nằm trong cột cuộn */
+#desktop.is-phone { --dock-space: calc(120px + env(safe-area-inset-bottom, 0px)); }
+#desktop.is-phone .welcome { position: relative; }
+
+/* 3. Vùng an toàn (tai thỏ / thanh home) + chiều cao menubar khớp menubar.css */
+:root {
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@media (max-width: 768px) { :root { --menubar-h: 32px; } }
+@media (max-width: 480px) { :root { --menubar-h: 30px; } }
+
+@media (max-width: 768px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  #menubar {
+    box-sizing: border-box;
+    height: calc(var(--menubar-h) + var(--safe-top));
+    padding-top: var(--safe-top);
+  }
+
+  #desktop { top: calc(var(--menubar-h) + var(--safe-top)); }
+  .group-overlay { inset: calc(var(--menubar-h) + var(--safe-top)) 0 0; }
+
+  #dock { margin-bottom: var(--safe-bottom); }
+
+  /* Cửa sổ không bị thanh home của iPhone che */
+  .win { height: calc(100% - 12px - env(safe-area-inset-bottom, 0px)) !important; }
+}
+
+/* 4. Cảm ứng (iPad / iPhone): vùng chạm to hơn */
+@media (pointer: coarse) {
+  .rs.n, .rs.s { height: 16px; }
+  .rs.e, .rs.w { width: 16px; }
+  .rs.ne, .rs.nw, .rs.se, .rs.sw { width: 28px; height: 28px; }
+
+  .lights { gap: 10px; }
+  .light { position: relative; }
+  .light::before { content: ""; position: absolute; inset: -9px; }
+}

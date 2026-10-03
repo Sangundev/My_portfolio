@@ -29,6 +29,7 @@
   <link rel="stylesheet" href="css/liquid-glass.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/sticky-note.css" />
+  <link rel="stylesheet" href="css/app-mode.css" />
   <!-- defer: tải song song, chạy đúng thứ tự sau khi parse xong DOM -->
   <script src="js/clock.js" defer></script>
   <script src="js/dock.js" defer></script>
@@ -125,50 +126,38 @@
     </div>
   </main>
 
-  <!-- DOCK -->
-  <nav id="dock" aria-label="Dock">
-    <div class="dock-icon" role="button" tabindex="0" title="Finder"><img src="assets/dock/dock_1.png" alt="Finder"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Folder"><img src="assets/dock/dock_2.png" alt="Folder"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="WhatsApp"><img src="assets/dock/dock_3.png" alt="WhatsApp"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Mail"><img src="assets/dock/dock_4.png" alt="Mail"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Calendar"><img src="assets/dock/dock_5.png" alt="Calendar"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Notes"><img src="assets/dock/dock_6.png" alt="Notes"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Reminders"><img src="assets/dock/dock_7.png"
-        alt="Reminders" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Photos"><img src="assets/dock/dock_8.png" alt="Photos"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Safari"><img src="assets/dock/dock_9.png" alt="Safari"
-        decoding="async" /></div>
+<!-- DOCK -->
+<!-- DOCK -->
+<nav id="dock" aria-label="Dock">
+  <div class="dock-icon" role="button" tabindex="0" data-open="finder" title="Finder"><img src="assets/dock/Finder.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="website_project" title="Website_project"><img src="assets/dock/Folder.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="contact" title="Messages"><img src="assets/dock/Messages.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="contact" title="Mail"><img src="assets/dock/Mail.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Maps"><img src="assets/dock/Maps.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="mobile_project" title="Photos"><img src="assets/dock/Photos.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="about" title="Notes"><img src="assets/dock/Notes.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Safari"><img src="assets/dock/Safari.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Freeform"><img src="assets/dock/Freeform.png" alt="" decoding="async" /></div>
 
-    <div class="dock-sep" role="separator"></div>
+  <div class="dock-sep" role="separator"></div>
 
-    <div class="dock-icon" role="button" tabindex="0" title="Figma"><img src="assets/dock/dock_10.png" alt="Figma"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Office"><img src="assets/dock/dock_11.png" alt="Office"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Code Editor"><img src="assets/dock/dock_12.png"
-        alt="Code Editor" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Illustrator"><img src="assets/dock/dock_13.png"
-        alt="Illustrator" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Photoshop"><img src="assets/dock/dock_14.png"
-        alt="Photoshop" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="WPS Office"><img src="assets/dock/Wps.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="VS Code"><img src="assets/dock/Vs.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Framer"><img src="assets/dock/Framer.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="branding_project" title="Figma"><img src="assets/dock/Figma.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Illustrator"><img src="assets/dock/aiAi.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" title="Photoshop"><img src="assets/dock/Ps.png" alt="" decoding="async" /></div>
 
-    <div class="dock-sep" role="separator"></div>
+  <div class="dock-sep" role="separator"></div>
 
-    <div class="dock-icon" role="button" tabindex="0" title="Spotify"><img src="assets/dock/dock_15.png" alt="Spotify"
-        decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Settings"><img src="assets/dock/dock_16.png" alt="Settings"
-        decoding="async" /></div>
-  </nav>
+  <div class="dock-icon" role="button" tabindex="0" title="Spotify"><img src="assets/dock/Spotify.png" alt="" decoding="async" /></div>
+  <div class="dock-icon" role="button" tabindex="0" data-open="trash" title="Trash"><img src="assets/dock/Trash_Full.png" alt="" decoding="async" /></div>
+</nav>
 
-  <!-- WINDOWS: được tạo động bởi js/window-manager.js khi bấm data-open -->
-  <div id="windows" aria-live="polite"></div>
+<!-- WINDOWS: tạo động bởi js/window-manager.js -->
+<div id="windows"></div>
+
+
 
   <noscript>Please enable JavaScript to open the folders and windows on this portfolio.</noscript>
 </body>
