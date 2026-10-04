@@ -1,4 +1,4 @@
-/* Cửa sổ kiểu macOS (desktop) + app toàn màn hình kiểu iOS (tablet / điện thoại ≤1024px) */
+/* Cửa sổ kiểu macOS (desktop) + app toàn màn hình kiểu iOS (tablet / điện thoại ≤1100px) */
 (() => {
   const layer = document.getElementById('windows');
   if (!layer) return;
@@ -10,7 +10,7 @@
     if (text != null) n.textContent = text;
     return n;
   };
-  const mq = matchMedia('(max-width:1024px)');
+  const mq = matchMedia('(max-width:1100px)');
   const isMobile = () => mq.matches;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const setMb = () => document.documentElement.style.setProperty('--mb-h', ($('#menubar')?.offsetHeight || 32) + 'px');
@@ -178,7 +178,7 @@
     setTimeout(() => w.el.remove(), reduce ? 0 : 260);
     refresh();
     if (active === w) { active = null; focusTop(); }
-    if (mcOn) mcLayout();
+    if (mcOn) { if (isMobile()) mobRemove(w); else mcLayoutDesktop(); }
   }
 
   const ACT = { close: closeWin, min: minimize, max: toggleMax };
@@ -393,7 +393,7 @@
   mcItems.hidden = true;
   document.body.append(mcRoot, mcItems);
   mcRoot.addEventListener('click', () => mcExit());
-  mcItems.addEventListener('click', e => { if (e.target === mcItems) mcExit(); });
+  mcItems.addEventListener('click', e => { if (!isMobile() && e.target === mcItems) mcExit(); });
 
   const mcLayout = () => (isMobile() ? mcLayoutMobile() : mcLayoutDesktop());
 
@@ -486,19 +486,26 @@
     });
   }
 
-  /* ----- Tablet / điện thoại: thẻ app lướt ngang ----- */
+  /* ----- Tablet / điện thoại: thẻ app như iOS -----
+     Không dùng thanh cuộn của trình duyệt: vị trí thẻ tính theo một số thực `pos` (thẻ ở giữa),
+     kéo = đổi pos, thả = lò xo trượt tới thẻ gần nhất. Mọi thứ vẽ bằng transform nên rất mượt. */
+  let mob = null;
+
   function mcLayoutMobile() {
-    const list = [...wins.values()].sort((a, b) => +b.el.style.zIndex - +a.el.style.zIndex);
-    const keep = mcItems.scrollLeft;
+    const list = [...wins.values()].sort((a, b) => +a.el.style.zIndex - +b.el.style.zIndex);   // cũ nhất → mới nhất
+    const keepPos = mob ? mob.pos : null;
+    if (mob && mob.raf) cancelAnimationFrame(mob.raf);
     mcItems.replaceChildren();
+    mob = null;
     mcHint.hidden = list.length > 0;
     if (!list.length) return;
 
-    const W = layer.clientWidth, H = layer.clientHeight, S = 0.62;
+    const W = layer.clientWidth, H = layer.clientHeight, S = 0.66;
     const cw = W * S, ch = H * S;
     mcItems.style.setProperty('--cw', cw + 'px');
+    mcItems.style.setProperty('--ch', ch + 'px');
 
-    list.forEach(w => {
+    const items = list.map((w, i) => {
       const snap = w.el.cloneNode(true);                               // bản chụp nhanh, không phải cửa sổ thật
       snap.classList.remove('is-min', 'is-active', 'is-closing', 'anim', 'dragging', 'from-icon', 'is-max');
       snap.removeAttribute('role');
@@ -521,58 +528,177 @@
       it.setAttribute('aria-label', title);
       it.style.width = cw + 'px';
       it.style.height = ch + 'px';
+      it._w = w; it._slot = i; it._dy = 0;
+      if (i === list.length - 1) it.classList.add('cur');
       it.append(head, card);
 
-      it.addEventListener('click', e => {
-        e.stopPropagation();
-        if (it._moved) { it._moved = false; return; }
-        mcExit(w);
-      });
       it.addEventListener('keydown', e => {
-        if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); closeWin(w); }
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); zoomOpen(it); }
+        else if (e.key === 'Delete' || e.key === 'Backspace') { e.preventDefault(); closeWin(w); }
       });
-      swipeUpClose(it, w, H);
       mcItems.append(it);
+      return it;
     });
 
-    mcItems.scrollLeft = keep;
+    const pos = Math.max(0, Math.min(items.length - 1, keepPos == null ? items.length - 1 : keepPos));
+    mob = { items, H, PR: cw * 0.76, PL: cw * 0.25, pos, target: Math.round(pos), dragging: false, locked: false, raf: 0, last: 0 };
+    mobRender();
   }
 
-  /* Vuốt thẻ lên trên để đóng app */
-  function swipeUpClose(it, w, screenH) {
-    let sx = 0, sy = 0, dy = 0, id = null, t0 = 0, drag = false;
-    it.addEventListener('pointerdown', e => {
-      sx = e.clientX; sy = e.clientY; dy = 0; id = e.pointerId; t0 = performance.now();
-      drag = false; it._moved = false;
+  /* Vẽ: thẻ bên phải nằm trên và giữ nguyên; thẻ bên trái bị đẩy sát vào sau thẻ giữa, nhỏ lại và xám nhạt */
+  function mobRender() {
+    const m = mob;
+    if (!m) return;
+    m.items.forEach(it => {
+      const d = it._slot - m.pos;
+      const a = Math.min(Math.abs(d), 1);
+      const x = d >= 0 ? d * m.PR : d * m.PL;
+      it.style.translate = `${x.toFixed(1)}px ${(it._dy || 0).toFixed(1)}px`;
+      it.style.scale = d >= 0 ? '1' : (1 - 0.07 * a).toFixed(3);
+      it.style.setProperty('--dim', d < 0 ? (0.24 * a).toFixed(3) : '0');
+      it.style.zIndex = String(Math.round(it._slot) + 1);
     });
-    it.addEventListener('pointermove', e => {
-      if (e.pointerId !== id) return;
-      const ddy = e.clientY - sy, ddx = e.clientX - sx;
-      if (!drag) {
-        if (ddy < -10 && Math.abs(ddy) > Math.abs(ddx)) { drag = true; it._moved = true; it.setPointerCapture(id); }
-        else return;
-      }
-      dy = Math.min(0, ddy);
-      it.style.translate = `0 ${dy}px`;
-      it.style.opacity = String(Math.max(0.3, 1 + dy / 400));
-    });
-    const end = () => {
-      if (!drag) return;
-      drag = false;
-      const fast = dy / Math.max(1, performance.now() - t0) < -0.5;
-      if (dy < -110 || (fast && dy < -40)) {
-        it.style.translate = `0 ${-screenH}px`;
-        it.style.opacity = '0';
-        it.style.pointerEvents = 'none';
-        setTimeout(() => closeWin(w), reduce ? 0 : 240);
-      } else {
-        it.style.translate = '';
-        it.style.opacity = '';
-      }
-    };
-    it.addEventListener('pointerup', end);
-    it.addEventListener('pointercancel', end);
   }
+
+  function mobTick(now) {
+    const m = mob;
+    if (!m) return;
+    const dt = Math.min(40, m.last ? now - m.last : 16);
+    m.last = now;
+    let busy = m.dragging;
+
+    if (!m.dragging) {                                                 // lò xo về thẻ gần nhất
+      const dp = m.target - m.pos;
+      if (Math.abs(dp) > 0.0005) { m.pos += dp * (1 - Math.exp(-dt / 120)); busy = true; }
+      else m.pos = m.target;
+    }
+
+    const ks = 1 - Math.exp(-dt / 100);                                // các thẻ trượt vào chỗ trống khi đóng app
+    m.items.forEach((it, i) => {
+      const e = i - it._slot;
+      if (Math.abs(e) > 0.0005) { it._slot += e * ks; busy = true; } else it._slot = i;
+    });
+
+    mobRender();
+    m.raf = busy ? requestAnimationFrame(mobTick) : 0;
+    if (!busy) m.last = 0;
+  }
+
+  const mobKick = () => { if (mob && !mob.raf) mob.raf = requestAnimationFrame(mobTick); };
+
+  /* Chạm thẻ: thẻ phóng ra toàn màn hình rồi mới hiện app thật */
+  function zoomOpen(it) {
+    const m = mob, w = it._w;
+    if (!m || m.locked) return;
+    m.locked = true;
+    if (reduce) return mcExit(w);
+    const card = it.querySelector('.mc-card');
+    it.style.transition = 'none';
+    it.style.scale = '1';
+    const r = card.getBoundingClientRect(), L = layer.getBoundingClientRect();
+
+    mcItems.classList.add('zooming');
+    it.classList.add('pick');
+    card.style.transformOrigin = '0 0';
+    card.style.transition = 'transform .38s var(--win-ease), border-radius .38s var(--win-ease)';
+    card.style.borderRadius = '0px';
+    card.style.transform = `translate(${L.left - r.left}px, ${L.top - r.top}px) scale(${L.width / r.width}, ${L.height / r.height})`;
+    setTimeout(() => mcExit(w), 370);
+  }
+
+  /* Vuốt thẻ lên: thẻ bay lên rồi đóng app */
+  function closeCard(it) {
+    it.classList.add('closing');
+    it._dy = -mob.H;
+    it.style.opacity = '0';
+    it.style.pointerEvents = 'none';
+    mobRender();
+    setTimeout(() => closeWin(it._w), reduce ? 0 : 200);
+  }
+
+  /* App đã đóng: bỏ thẻ, các thẻ còn lại tự trượt vào chỗ trống (xem mobTick) */
+  function mobRemove(w) {
+    const m = mob;
+    if (!m) return;
+    const k = m.items.findIndex(it => it._w === w);
+    if (k < 0) return;
+    const it = m.items[k];
+    m.items.splice(k, 1);
+    it.classList.add('closing');
+    it.style.opacity = '0';
+    it.style.pointerEvents = 'none';
+    setTimeout(() => it.remove(), 320);
+    mcHint.hidden = m.items.length > 0;
+    m.target = Math.max(0, Math.min(m.items.length - 1, Math.round(m.target)));
+    mobKick();
+  }
+
+  /* ----- Cử chỉ: kéo ngang = lướt thẻ; vuốt thẻ lên = đóng; chạm thẻ = mở; chạm nền = về màn hình chính ----- */
+  let g = null;
+
+  mcItems.addEventListener('pointerdown', e => {
+    const m = mob;
+    if (!m || m.locked || !isMobile() || (e.pointerType === 'mouse' && e.button)) return;
+    g = { id: e.pointerId, x: e.clientX, y: e.clientY, it: e.target.closest('.mc-it'), axis: '',
+          p0: m.pos, lx: e.clientX, lt: performance.now(), t0: performance.now(), v: 0 };
+    try { mcItems.setPointerCapture(e.pointerId); } catch {}
+  });
+
+  mcItems.addEventListener('pointermove', e => {
+    const m = mob;
+    if (!g || !m || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+
+    if (!g.axis) {
+      if (Math.hypot(dx, dy) < 8) return;
+      g.axis = Math.abs(dx) >= Math.abs(dy) ? 'x' : (g.it && dy < 0 ? 'y' : 'none');
+      if (g.axis === 'x') { m.dragging = true; mobKick(); }
+    }
+
+    if (g.axis === 'x') {
+      const now = performance.now(), dt = Math.max(1, now - g.lt);
+      g.v = 0.75 * g.v + 0.25 * ((g.lx - e.clientX) / m.PR / dt);      // vận tốc (thẻ / ms)
+      g.lx = e.clientX; g.lt = now;
+      const n = m.items.length, raw = g.p0 - dx / m.PR;
+      m.pos = raw < 0 ? raw * 0.35 : raw > n - 1 ? (n - 1) + (raw - (n - 1)) * 0.35 : raw;   // kéo quá đầu/cuối thì có lực cản
+    } else if (g.axis === 'y') {
+      g.it._dy = Math.min(0, dy);
+      g.it.style.opacity = String(Math.max(0.35, 1 + dy / 420));
+      mobRender();
+    }
+    e.preventDefault();
+  });
+
+  const gEnd = e => {
+    const m = mob;
+    if (!g || e.pointerId !== g.id) return;
+    const s = g;
+    g = null;
+    try { mcItems.releasePointerCapture(s.id); } catch {}
+    if (!m) return;
+
+    if (!s.axis) {                                                     // chạm
+      if (e.type === 'pointercancel') return;
+      if (s.it) zoomOpen(s.it); else mcExit();
+    } else if (s.axis === 'x') {
+      m.dragging = false;
+      const fling = e.type === 'pointerup' && performance.now() - s.lt < 90 ? s.v : 0;   // dừng tay rồi mới thả thì không văng
+      m.target = Math.max(0, Math.min(m.items.length - 1, Math.round(m.pos + fling * 240)));
+      mobKick();
+    } else if (s.axis === 'y') {
+      const dy = s.it._dy, fast = dy / Math.max(1, performance.now() - s.t0) < -0.5;
+      if (dy < -110 || (fast && dy < -40)) closeCard(s.it);
+      else {
+        s.it.classList.add('closing');
+        s.it._dy = 0;
+        s.it.style.opacity = '';
+        mobRender();
+        setTimeout(() => s.it.classList.remove('closing'), 320);
+      }
+    }
+  };
+  mcItems.addEventListener('pointerup', gEnd);
+  mcItems.addEventListener('pointercancel', gEnd);
 
   function mcEnter() {
     if (mcOn) return;
@@ -581,6 +707,10 @@
     mcItems.hidden = false;
     document.body.classList.add('mc-active');
     mcLayout();
+    if (isMobile() && !reduce) {
+      mcItems.classList.add('enter');
+      setTimeout(() => mcItems.classList.remove('enter'), 600);
+    }
     requestAnimationFrame(() => {
       layer.classList.add(isMobile() ? 'mc-m' : 'mc-on');
       mcRoot.classList.add('on');
@@ -588,25 +718,26 @@
     mcBtn.setAttribute('aria-pressed', 'true');
   }
 
-  function mcExit(target) {
+  function mcExit(target, silent) {
     if (!mcOn) return;
     mcOn = false;
+    const el = target && isMobile() ? target.el : null;
+    if (el) el.style.transition = 'none';                              // app hiện ngay, không mờ dần
     layer.classList.remove('mc-on', 'mc-m');
     mcRoot.classList.remove('on');
     mcItems.replaceChildren();
+    mcItems.classList.remove('zooming', 'enter');
     document.body.classList.remove('mc-active');
     mcBtn.setAttribute('aria-pressed', 'false');
+    if (mob && mob.raf) cancelAnimationFrame(mob.raf);
+    mob = null;
     setTimeout(() => { if (!mcOn) { mcRoot.hidden = true; mcItems.hidden = true; } }, 360);
 
     if (target) {
       if (target.min) restore(target); else focus(target);
-      if (isMobile() && !reduce) {                                     // app bật lên từ thẻ
-        target.el.style.animation = 'none';
-        void target.el.offsetWidth;
-        target.el.style.animation = '';
-      }
-    } else if (isMobile()) {
-      wins.forEach(w => minimize(w));                                  // chạm nền = về màn hình chính
+      if (el) requestAnimationFrame(() => requestAnimationFrame(() => { el.style.transition = ''; }));
+    } else if (isMobile() && !silent) {
+      wins.forEach(w => minimize(w));                                  // chạm nền / vuốt thanh home = về màn hình chính
     }
   }
 
@@ -619,15 +750,17 @@
   homeBar.setAttribute('aria-label', 'Xem tất cả ứng dụng');
   document.body.append(homeBar);
 
+  const barAction = () => { if (mcOn) mcExit(); else if (wins.size) mcEnter(); };
+
   let gesture = null;
   homeBar.addEventListener('pointerdown', e => {
     gesture = { y: e.clientY };
     try { homeBar.setPointerCapture(e.pointerId); } catch {}
   });
   homeBar.addEventListener('pointermove', e => {
-    if (gesture && gesture.y - e.clientY > 36) { gesture = null; mcEnter(); }
+    if (gesture && gesture.y - e.clientY > 36) { gesture = null; barAction(); }
   });
-  homeBar.addEventListener('pointerup', () => { if (gesture) { gesture = null; mcEnter(); } });
+  homeBar.addEventListener('pointerup', () => { if (gesture) { gesture = null; barAction(); } });
   homeBar.addEventListener('pointercancel', () => { gesture = null; });
 
   /* Ẩn dock + hiện thanh home khi đang ở trong app */
@@ -700,6 +833,17 @@
       }
     });
     if (mcOn) mcLayout();
+  });
+
+  mq.addEventListener('change', () => {
+    if (mcOn) mcExit(null, true);                                      // bỏ danh sách thẻ cũ, không thu nhỏ app
+    wins.forEach(w => {
+      ['--mx', '--my', '--ms', '--mdy'].forEach(p => w.el.style.removeProperty(p));
+      w.el.style.opacity = '';
+      w.el.style.transition = '';
+    });
+    setMb();
+    syncApp();
   });
 
   window.WM = {

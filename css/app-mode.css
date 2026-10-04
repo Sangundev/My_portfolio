@@ -1,7 +1,8 @@
 /* =========================================================
-   app-mode.css: tablet + điện thoại (≤1024px) hiển thị như app iOS
-   - Mở app = toàn màn hình, không có nút đỏ/vàng/xanh, tab, dấu +, kéo giãn
-   - Vuốt từ thanh home lên = xem tất cả app (thẻ lướt ngang); vuốt thẻ lên = đóng
+   app-mode.css: tablet + điện thoại (≤1100px) hiển thị như app iOS
+   - Mở app = toàn màn hình, không nút đỏ/vàng/xanh, tab, dấu +, kéo giãn
+   - Thanh home ở đáy: vuốt lên = xem tất cả app (thẻ lướt ngang)
+   - Vuốt thẻ lên = đóng app; chạm thẻ = mở app; vuốt thanh home lúc đang xem = về màn hình chính
    Nạp CUỐI CÙNG (sau responsive.css)
 ========================================================= */
 
@@ -10,7 +11,15 @@
   35%  { opacity: 1; }
 }
 
-@media (max-width: 1024px) {
+@keyframes mc-in {
+  from { opacity: 0; transform: scale(1.18); }
+}
+
+@keyframes mc-in-cur {
+  from { transform: scale(1.5); }
+}
+
+@media (max-width: 1100px) {
 
   /* ---------- App toàn màn hình ---------- */
   #windows .win {
@@ -37,9 +46,13 @@
 
   .win.from-icon { animation: win-open .5s var(--win-ease); }
 
-  /* ---------- Dock ẩn khi đang ở trong app; thanh home hiện ra ---------- */
-  #dock { transition: translate .4s var(--win-ease); }
-  body.app-open #dock { translate: 0 170%; pointer-events: none; }
+  /* ---------- Dock + thanh home ---------- */
+  #dock {
+    transition: translate .4s var(--win-ease);
+    margin-bottom: calc(14px + env(safe-area-inset-bottom, 0px));   /* chừa chỗ cho thanh home bên dưới */
+  }
+
+  body.app-open #dock { translate: 0 190%; pointer-events: none; }
   body.app-open .dock-more-panel { display: none; }
 
   #home-bar {
@@ -49,7 +62,7 @@
     bottom: 0;
     height: 40px;
     z-index: 101;
-    display: none;
+    display: block;                    /* luôn hiện, cả ở màn hình chính */
     touch-action: none;
     cursor: pointer;
   }
@@ -63,13 +76,17 @@
     height: 5px;
     margin-left: -67px;
     border-radius: 3px;
-    background: rgba(0, 0, 0, .45);
-    box-shadow: 0 0 0 .5px rgba(255, 255, 255, .4);
+    background: rgba(255, 255, 255, .85);          /* màn hình chính / xem tất cả: thanh trắng */
+    box-shadow: 0 0 0 .5px rgba(0, 0, 0, .25);
+    transition: background .25s ease;
   }
 
-  body.app-open:not(.mc-active) #home-bar { display: block; }
+  body.app-open:not(.mc-active) #home-bar::after { background: rgba(0, 0, 0, .45); }   /* trong app sáng: thanh tối */
 
-  /* ---------- Xem tất cả app: thẻ lướt ngang ---------- */
+  /* ---------- Cửa sổ thật ẩn đi khi đang xem thẻ (kể cả khi vừa đổi kích thước) ---------- */
+  body.mc-active #windows .win { opacity: 0 !important; visibility: hidden !important; pointer-events: none; }
+
+  /* ---------- Xem tất cả app: thẻ lướt ngang, chồng lên nhau ---------- */
   #mc {
     background: rgba(0, 0, 0, .28);
     -webkit-backdrop-filter: blur(34px) saturate(130%);
@@ -80,31 +97,36 @@
 
   #mc-items {
     pointer-events: auto;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 40px calc((100% - var(--cw, 260px)) / 2) 0;
-    overflow-x: auto;
-    overflow-y: hidden;
-    overscroll-behavior: contain;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
+    display: block;
+    overflow: hidden;
+    touch-action: none;
+    scroll-snap-type: none;
+    cursor: grab;
+    user-select: none;
+    -webkit-user-select: none;
   }
 
-  #mc-items::-webkit-scrollbar { display: none; }
+  #mc-items:active { cursor: grabbing; }
   #mc-items::before, #mc-items::after { display: none; }
 
+  /* Mỗi thẻ đặt chính giữa; JS dịch chuyển bằng translate/scale (không dùng thanh cuộn) */
   .mc-it {
-    position: relative;
-    flex: none;
+    position: absolute;
+    left: calc(50% - var(--cw, 260px) / 2);
+    top: calc(50% - var(--ch, 480px) / 2 + 24px);
     margin: 0;
-    scroll-snap-align: center;
-    touch-action: pan-x;
-    transition: translate .25s var(--win-ease), opacity .25s ease;
+    cursor: pointer;
+    touch-action: none;
+    scroll-snap-align: none;
+    will-change: translate, scale;
+    transition: none;                                  /* không transition khi kéo để bám tay tức thì */
   }
 
+  .mc-it.closing { transition: translate .3s var(--win-ease), opacity .25s ease; }
   .mc-it:hover { box-shadow: none; }
+
+  #mc-items.enter .mc-it { animation: mc-in .45s var(--win-ease) backwards; }
+  #mc-items.enter .mc-it.cur { animation: mc-in-cur .5s var(--win-ease) backwards; }
 
   .mc-card {
     position: relative;
@@ -114,6 +136,15 @@
     border-radius: 30px;
     background: #f5f5f7;
     box-shadow: 0 14px 40px rgba(0, 0, 0, .4);
+    pointer-events: none;
+  }
+
+  .mc-card::after {                                    /* thẻ càng xa tâm càng tối */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: rgb(70, 70, 78);
+    opacity: var(--dim, 0);
     pointer-events: none;
   }
 
@@ -131,6 +162,9 @@
     visibility: visible;
     animation: none;
     transition: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
   }
 
   /* Icon + tên app phía trên mỗi thẻ */
@@ -152,14 +186,61 @@
   .mc-h img { flex: none; width: 32px; height: 32px; object-fit: cover; border-radius: 8px; box-shadow: 0 1px 4px rgba(0, 0, 0, .3); }
   .mc-h span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
-  /* Cửa sổ thật ẩn đi khi đang xem thẻ */
-  #windows.mc-m .win { opacity: 0 !important; visibility: hidden; pointer-events: none; }
+  /* Chạm thẻ: thẻ được chọn phóng ra toàn màn hình, các thẻ khác mờ đi */
+  #mc-items.zooming .mc-it:not(.pick) { opacity: 0; transition: opacity .2s ease; }
+  #mc-items .mc-it.pick { z-index: 999 !important; transition: none; }
+  .pick .mc-h { opacity: 0; transition: opacity .15s ease; }
+  .pick .mc-card::after { opacity: 0; }
 }
 
-@media (max-width: 1024px) and (prefers-color-scheme: dark) {
+@media (max-width: 1100px) and (prefers-color-scheme: dark) {
   #windows .win, .mc-card { background: #1c1c1e; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .win.from-icon { animation: none; }
+  .win.from-icon, #mc-items.enter .mc-it, #mc-items.enter .mc-it.cur { animation: none; }
+  .mc-it.closing { transition: none; }
+}
+
+/* ---------- Popup More nằm ngay trên dock (dock đã được nâng lên chừa chỗ cho thanh home) ---------- */
+@media (max-width: 1100px) and (min-width: 769px) {
+  .dock-more-panel { bottom: calc(106px + env(safe-area-inset-bottom, 0px)); }
+}
+
+
+/* ---------- Kích thước dock theo thiết bị ---------- */
+@media (max-width: 1100px) and (min-width: 769px) {      /* tablet, kể cả iPad Pro 13" dọc (1032px) */
+  #dock { --sz: 62px; bottom: 12px; border-radius: 19px; max-width: calc(100vw - 24px); }
+}
+
+
+/* =========================================================
+   ĐIỆN THOẠI: dock lớn như iPhone thật
+   4 ô đều nhau: 3 app + nút More, icon ≈ 16% bề ngang màn hình (393px → ~62px)
+========================================================= */
+@media (max-width: 768px) {
+  #dock {
+    --sz: clamp(50px, 15vw, 66px);
+    box-sizing: border-box;
+    width: calc(100vw - 28px);                     /* khung rộng gần hết màn hình như iOS */
+    max-width: none;
+    height: auto;
+    padding: 10px 14px;                            /* icon ngoài cùng sát mép khung */
+    gap: 0;
+    justify-content: space-between;                /* 4 icon chia đều, 2 icon ngoài cùng dính 2 mép */
+    border-radius: 30px;
+  }
+  /* Chừa chỗ cho dock: nội dung desktop không bị che */
+  #desktop.is-phone { --dock-space: calc(clamp(50px, 14.5vw, 66px) + 68px + env(safe-area-inset-bottom, 0px)); }
+
+  /* Popup More: nằm ngay trên dock */
+  .dock-more-panel {
+    bottom: calc(clamp(50px, 14.5vw, 66px) + 52px + env(safe-area-inset-bottom, 0px));
+    width: min(calc(100vw - 32px), 340px);
+    padding: 16px;
+    gap: 12px;
+    border-radius: 28px;
+  }
+
+  .dock-more-item, .dock-more-item img { width: 56px; height: 56px; }
 }
