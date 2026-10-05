@@ -138,6 +138,14 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+        /** Hiệu ứng iOS: icon phình lên rồi nhỏ lại khi vào edit mode */
+    function popIcon(el) {
+      el.classList.remove("pressed", "pop");
+      void el.offsetWidth;                       // chạy lại animation
+      el.classList.add("pop");
+      setTimeout(() => el.classList.remove("pop"), 520);
+    }
+    
     function resetVisual(d) {
       cancelAnimationFrame(d.raf);
       d.raf = 0;
@@ -408,6 +416,7 @@ document.addEventListener("DOMContentLoaded", () => {
             enterEdit();
             swallowClick = true;
             if (pdrag?.item === item) pdrag.ready = true;
+            popIcon(item);
             navigator.vibrate?.(15);
           }, LONG_PRESS_MS);
         }
@@ -667,6 +676,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (drag !== d) return;
           enterEdit();
           d.ready = true;
+          popIcon(d.el);
           navigator.vibrate?.(15);
         }, LONG_PRESS_MS);
       }

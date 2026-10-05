@@ -159,7 +159,6 @@
   }
   body:not(.desktop-edit-mode) .desk-icon:not(.dragging):not(.pressed):hover > img {
     transform: scale(1.08);
-    filter: drop-shadow(0 5px 5px rgba(0, 0, 0, .15));
   }
   body:not(.desktop-edit-mode) .desk-group:not(.dragging):not(.pressed):hover > .group-tile {
     transform: scale(1.08);
@@ -181,11 +180,9 @@
   transition: scale .3s var(--pop), opacity .2s ease;
 }
 
-.desk-icon.dragging > img,
 .desk-icon.dragging > .group-tile {
   filter: drop-shadow(0 10px 12px rgba(0, 0, 0, .2));
 }
-
 /* Bị xóa bằng dấu trừ */
 .desk-icon.is-removing {
   opacity: 0;
@@ -627,4 +624,17 @@ input.group-title:focus { background: rgba(120, 120, 128, .16); }
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* Giữ đủ lâu: icon phình lên rồi nhỏ lại (kiểu iOS) lúc vào edit mode */
+@keyframes lift-pop {
+  0%   { scale: .94; }
+  45%  { scale: 1.2; }
+  100% { scale: 1; }
+}
+
+.desk-icon.pop > img,
+.desk-icon.pop > .group-tile,
+.group-item.pop > img {
+  animation: lift-pop .5s var(--ease) both;
 }

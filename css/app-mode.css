@@ -52,6 +52,9 @@
     margin-bottom: calc(14px + env(safe-area-inset-bottom, 0px));   /* chừa chỗ cho thanh home bên dưới */
   }
 
+  /* Không hiện chấm "đang mở" dưới icon dock trên tablet + điện thoại */
+  .dock-icon.running::after { content: none; }
+
   body.app-open #dock { translate: 0 190%; pointer-events: none; }
   body.app-open .dock-more-panel { display: none; }
 
@@ -216,7 +219,7 @@
 
 /* =========================================================
    ĐIỆN THOẠI: dock lớn như iPhone thật
-   4 ô đều nhau: 3 app + nút More, icon ≈ 16% bề ngang màn hình (393px → ~62px)
+   4 ô đều nhau: 3 app + nút More (Launchpad), icon ≈ 15% bề ngang màn hình
 ========================================================= */
 @media (max-width: 768px) {
   #dock {
@@ -230,12 +233,13 @@
     justify-content: space-between;                /* 4 icon chia đều, 2 icon ngoài cùng dính 2 mép */
     border-radius: 30px;
   }
+
   /* Chừa chỗ cho dock: nội dung desktop không bị che */
-  #desktop.is-phone { --dock-space: calc(clamp(50px, 14.5vw, 66px) + 68px + env(safe-area-inset-bottom, 0px)); }
+  #desktop.is-phone { --dock-space: calc(clamp(50px, 15vw, 66px) + 68px + env(safe-area-inset-bottom, 0px)); }
 
   /* Popup More: nằm ngay trên dock */
   .dock-more-panel {
-    bottom: calc(clamp(50px, 14.5vw, 66px) + 52px + env(safe-area-inset-bottom, 0px));
+    bottom: calc(clamp(50px, 15vw, 66px) + 52px + env(safe-area-inset-bottom, 0px));
     width: min(calc(100vw - 32px), 340px);
     padding: 16px;
     gap: 12px;

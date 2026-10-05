@@ -47,13 +47,13 @@
   };
 
   const APPS = {
-    finder: {
-      title: 'Finder', w: 720, h: 460,
-      build: b => b.append(tiles([
-        ['Website_project', 'website_project'], ['Mobile_project', 'mobile_project'],
-        ['Branding_project', 'branding_project'], ['About Me', 'about'], ['NgocSang.pdf', 'cv']
-      ]))
-    },
+    // finder: {
+    //   title: 'Finder', w: 720, h: 460,
+    //   build: b => b.append(tiles([
+    //     ['Website_project', 'website_project'], ['Mobile_project', 'mobile_project'],
+    //     ['Branding_project', 'branding_project'], ['About Me', 'about'], ['NgocSang.pdf', 'cv']
+    //   ]))
+    // },
     website_project:  { title: 'Website_project',  build: b => b.append(tiles([['Landing page'], ['Dashboard'], ['E-commerce'], ['Blog']])) },
     mobile_project:   { title: 'Mobile_project',   build: b => b.append(tiles([['Food delivery'], ['Banking app'], ['Fitness']])) },
     branding_project: { title: 'Branding_project', build: b => b.append(tiles([['Logo system'], ['Packaging'], ['Brand guideline']])) },
@@ -94,7 +94,9 @@
     trash: { title: 'Trash', w: 520, h: 360, build: b => b.append(empty('Trash is empty')) }
   };
   const soon = b => b.append(empty('Đang cập nhật nội dung'));
-
+    /* App ở file riêng (js/apps/*.js) tự đăng ký vào window.WMApps; app nhỏ vẫn có thể để trong APPS */
+  const appDef = key => APPS[key] || (window.WMApps || {})[key] || {};
+  const api = { open: (...a) => open(...a), isMobile, h, empty, tiles, link };
   /* ---------- Trạng thái ---------- */
   const wins = new Map();
   let z = 10, active = null, uid = 0, mcOn = false;
@@ -200,11 +202,11 @@
     const old = w.tabs.find(t => t.key === key);
     if (old) return selectTab(w, old);
 
-    const app = APPS[key] || {};
+      const app = appDef(key);
     const title = app.title || src?.dataset?.label || src?.querySelector?.('.label')?.textContent || key;
 
     const body = h('div', 'win-body');
-    (app.build || soon)(body, title);
+        (app.build || soon)(body, title, api);
     body.hidden = true;
 
     const btn = h('div', 'wtab');
@@ -306,13 +308,14 @@
       return into;
     }
 
-    const app = APPS[key] || {};
+    const app = appDef(key);
     const m = metrics();
     const W = Math.min(app.w || 720, m.cw - 24);
     const H = Math.min(app.h || 480, m.usable - 16);
     const off = (wins.size % 6) * 28;
 
     const el = h('section', 'win');
+        if (app.cls) el.classList.add(app.cls);
     el.setAttribute('role', 'dialog');
     Object.assign(el.style, {
       width: W + 'px', height: H + 'px',
@@ -356,6 +359,12 @@
     el.addEventListener('pointerdown', () => focus(w), true);
     bar.addEventListener('pointerdown', e => startDrag(e, w));
     bar.addEventListener('dblclick', e => { if (!e.target.closest('.lights, .win-add')) toggleMax(w); });
+        el.addEventListener('pointerdown', e => {
+      if (e.target.closest('.win-drag') && !e.target.closest('button, input, .fd-pill')) startDrag(e, w);
+    });
+    el.addEventListener('dblclick', e => {
+      if (e.target.closest('.win-drag') && !e.target.closest('button, input, .fd-pill')) toggleMax(w);
+    });
 
     layer.append(el);
 

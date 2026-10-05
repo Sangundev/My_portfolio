@@ -19,7 +19,13 @@
 }
 .status-icon:last-of-type{ margin-right:24px; }
 
-#clock{ font-variant-numeric:tabular-nums; align-items:center; }
+#clock{
+  display:inline-block;
+  min-width:1px;
+  color:#111;
+  font-variant-numeric:tabular-nums;
+  white-space:nowrap;
+}
 
 /* TABLET 769px - 1024px */
 @media (max-width:1024px){

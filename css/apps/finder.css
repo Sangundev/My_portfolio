@@ -1,0 +1,870 @@
+/* =========================================================
+   css/apps/finder.css: cửa sổ Finder kiểu macOS
+   Nạp SAU windows.css. Máy tính (>1100px): sidebar + thanh công cụ + icon rải rác.
+   Tablet / điện thoại (≤1100px): chỉ hiện lưới icon, thanh tiêu đề do app-mode.css lo.
+========================================================= */
+
+/* ---------- Khung chung ---------- */
+.fd {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  background: #fff;
+  color: #1d1d1f;
+  font: 13px/1.3 var(--ui-font, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif);
+}
+
+/* ---------- Sidebar ---------- */
+.fd-side {
+  position: relative;
+  flex: none;
+  box-sizing: border-box;
+  width: clamp(190px, 19%, 244px);
+  padding: 38px 10px 12px;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: #e9e9ea;
+}
+
+.fd-side::-webkit-scrollbar { display: none; }
+
+.fd-side-drag {                       /* vùng kéo cửa sổ phía trên sidebar (đèn đỏ/vàng/xanh nằm đè lên) */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+}
+
+.fd-head {
+  padding: 8px 12px 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a8a8e;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.fd-head.gap { margin-top: 16px; }
+
+.fd-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fd-row:hover { background: rgba(0, 0, 0, .04); }
+.fd-row.on { background: rgba(0, 0, 0, .09); }
+.fd-row:focus-visible { outline: 2px solid #0a84ff; outline-offset: -2px; }
+
+.fd-ico {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  color: #1a7cf5;
+}
+
+.fd-ico svg,
+.fd-btn svg,
+.fd-sico svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* ---------- Thanh công cụ ---------- */
+.fd-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.fd-bar {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 48px;
+  padding: 0 16px 0 14px;
+}
+
+.fd-pill {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: 32px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, .14), 0 1px 4px rgba(0, 0, 0, .1);
+}
+
+.fd-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 28px;
+  padding: 5px 6px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: #3c3c43;
+  cursor: default;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fd-btn:hover { background: rgba(0, 0, 0, .05); }
+.fd-btn.on { background: rgba(0, 0, 0, .09); }
+.fd-btn.dim { opacity: .45; }
+.fd-btn:disabled { opacity: .35; pointer-events: none; }
+
+.fd-div {
+  width: 1px;
+  height: 14px;
+  margin: 0 1px;
+  background: rgba(0, 0, 0, .14);
+}
+
+.fd-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  margin-left: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.fd-title img { flex: none; width: 18px; height: 18px; object-fit: contain; }
+
+.fd-sp { flex: 1; min-width: 0; }
+
+.fd-search {
+  gap: 8px;
+  width: 195px;
+  padding: 0 12px;
+  cursor: text;
+}
+
+.fd-sico {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  color: #a0a0a5;
+}
+
+.fd-search input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  background: none;
+  color: #1d1d1f;
+  font: inherit;
+  font-size: 14px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.fd-search input::placeholder { color: #a0a0a5; }
+.fd-search input::-webkit-search-cancel-button { display: none; }
+
+/* ---------- Vùng nội dung: icon rải rác ---------- */
+.fd-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.fd-item {
+  position: absolute;
+  left: var(--x, 50%);
+  top: var(--y, 50%);
+  width: 124px;
+  margin: -34px 0 0 -62px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+.fd-item[hidden] { display: none; }
+
+.fd-item img {
+  display: block;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  padding: 3px;
+  box-sizing: content-box;
+  border-radius: 8px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+.fd-item span {
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fd-item.sel img { background: rgba(0, 0, 0, .1); }
+.fd-item.sel span { background: #0a60d8; color: #fff; }
+.fd-item:focus-visible span { background: #0a60d8; color: #fff; }
+
+.fd-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  color: #8a8a8e;
+  font-size: 14px;
+}
+
+/* ---------- Máy tính: đèn giao thông đè lên sidebar, không có thanh tiêu đề ---------- */
+@media (min-width: 1101px) {
+  .win.is-finder > .win-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    z-index: 5;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none;             /* kéo cửa sổ do .fd-drag lo (window-manager.js) */
+  }
+
+  .win.is-finder > .win-bar .lights {
+    position: absolute;
+    left: 19px;
+    top: 0;
+    height: 48px;                      /* căn giữa theo chiều dọc với thanh công cụ */
+    pointer-events: auto;
+  }
+
+  .win.is-finder > .win-bar .win-title,
+  .win.is-finder > .win-bar .win-add { display: none; }
+
+  .win.is-finder > .win-body {
+    display: flex;
+    padding: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .win.is-finder > .win-body[hidden] { display: none; }
+  .win.is-finder > .win-tabs { display: none !important; }
+}
+
+/* ---------- Tablet + điện thoại: lưới icon như app iOS ---------- */
+@media (max-width: 1100px) {
+  .fd-side,
+  .fd-bar { display: none; }
+
+  .fd-canvas {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    align-content: start;
+    gap: 22px 8px;
+    padding: 22px 16px;
+  }
+
+  .fd-item {
+    position: static;
+    width: auto;
+    margin: 0;
+  }
+
+  .fd-empty { position: static; grid-column: 1 / -1; padding: 40px 0; }
+}
+
+/* ---------- Chế độ tối ---------- */
+@media (prefers-color-scheme: dark) {
+  .fd { background: #1e1e20; color: #f5f5f7; }
+  .fd-side { background: #2b2b2e; }
+  .fd-head { color: #98989d; }
+  .fd-row:hover { background: rgba(255, 255, 255, .06); }
+  .fd-row.on { background: rgba(255, 255, 255, .12); }
+  .fd-pill { background: #3a3a3d; box-shadow: 0 0 0 .5px rgba(255, 255, 255, .14), 0 1px 4px rgba(0, 0, 0, .3); }
+  .fd-btn { color: #e5e5ea; }
+  .fd-btn:hover { background: rgba(255, 255, 255, .08); }
+  .fd-btn.on { background: rgba(255, 255, 255, .14); }
+  .fd-div { background: rgba(255, 255, 255, .18); }
+  .fd-search input { color: #f5f5f7; }
+  .fd-item.sel img { background: rgba(255, 255, 255, .14); }
+  .fd-empty { color: #98989d; }
+}
+
+/* =========================================================
+   DÁN XUỐNG CUỐI css/apps/finder.css (sau khối "Chế độ tối" cũng được,
+   vì phần dark của các thành phần mới nằm ngay cuối file này)
+========================================================= */
+
+.fd { position: relative; }
+.fd [hidden] { display: none !important; }
+
+/* ---------- Chấm màu tag ---------- */
+.fd-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 5px;
+  border-radius: 50%;
+  vertical-align: baseline;
+}
+.fd-dot.big { width: 12px; height: 12px; margin: 0 8px 0 0; flex: none; }
+
+/* ---------- Tiêu đề nhóm + lưới khi Group ---------- */
+.fd-sec-h {
+  padding: 12px 20px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #8a8a8e;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.fd-flow {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 18px 8px;
+  padding: 8px 20px 16px;
+}
+.fd-item.flow { position: static; width: auto; margin: 0; }
+
+/* ---------- View: List ---------- */
+.fd-lh,
+.fd-li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 150px 130px;
+  align-items: center;
+  margin: 0 8px;
+  padding: 0 12px;
+}
+.fd-lh {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  height: 28px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+  font-size: 12px;
+  color: #8a8a8e;
+}
+.fd-li { height: 30px; border-radius: 6px; cursor: default; user-select: none; -webkit-user-select: none; outline: none; }
+.fd-li:nth-child(even) { background: rgba(0, 0, 0, .03); }
+.fd-li > span { font-size: 12px; opacity: .7; }
+.fd-li.sel { background: #0a60d8; color: #fff; }
+.fd-li.sel > span { opacity: .9; }
+.c-name { display: flex; align-items: center; gap: 8px; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.c-name img { flex: none; width: 20px; height: 20px; object-fit: contain; pointer-events: none; }
+
+/* ---------- View: Columns ---------- */
+.fd-canvas.v-columns { display: flex; overflow: hidden; }
+.v-columns .fd-col {
+  flex: none;
+  width: 240px;
+  box-sizing: border-box;
+  padding: 6px;
+  overflow-y: auto;
+  border-right: 1px solid rgba(0, 0, 0, .1);
+}
+.v-columns .fd-prev {
+  flex: 1;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding-top: 36px;
+  border-right: 0;
+}
+.fd-cr {
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  outline: none;
+}
+.fd-cr.sel { background: #0a60d8; color: #fff; }
+
+/* ---------- View: Gallery ---------- */
+.fd-canvas.v-gallery { display: flex; flex-direction: column; overflow: hidden; }
+.fd-gal {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.fd-gal img { width: 200px; height: 200px; object-fit: contain; }
+.fd-strip {
+  flex: none;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  padding: 12px;
+  overflow-x: auto;
+  border-top: 1px solid rgba(0, 0, 0, .08);
+  background: rgba(0, 0, 0, .02);
+}
+.fd-strip .fd-item { flex: none; width: 96px; }
+.fd-strip .fd-item img { width: 44px; height: 44px; }
+
+/* ---------- Khung xem trước (Columns + Gallery) ---------- */
+.fd-prev img { width: 112px; height: 112px; object-fit: contain; }
+.fd-pname { max-width: 90%; font-size: 15px; font-weight: 600; text-align: center; word-break: break-word; }
+.fd-pmeta { font-size: 12px; color: #8a8a8e; text-align: center; }
+.fd-nosel { margin: auto; color: #8a8a8e; font-size: 14px; }
+
+/* ---------- Popover menu (Group / Share / Tags / More) ---------- */
+.fd-pop {
+  position: absolute;
+  z-index: 30;
+  min-width: 190px;
+  padding: 5px;
+  border-radius: 12px;
+  background: rgba(250, 250, 250, .94);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, .15), 0 10px 30px rgba(0, 0, 0, .2);
+}
+.fd-mi {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 28px;
+  padding: 0 12px 0 4px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  white-space: nowrap;
+  cursor: default;
+}
+.fd-mi:hover:not(:disabled) { background: #0a60d8; color: #fff; }
+.fd-mi:disabled { opacity: .4; }
+.fd-ck { flex: none; width: 18px; text-align: center; font-size: 12px; }
+.fd-mhead {
+  max-width: 240px;
+  padding: 6px 10px 4px 22px;
+  overflow: hidden;
+  font-size: 11px;
+  font-weight: 600;
+  color: #8a8a8e;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.fd-sep { height: 1px; margin: 4px 8px; background: rgba(0, 0, 0, .1); }
+
+/* ---------- Toast + hộp Get Info ---------- */
+.fd-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 40;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(30, 30, 32, .88);
+  color: #fff;
+  font-size: 13px;
+  pointer-events: none;
+}
+.fd-ov {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, .25);
+}
+.fd-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 260px;
+  padding: 22px 20px 16px;
+  border-radius: 14px;
+  background: #f6f6f7;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .3);
+  font-size: 13px;
+}
+.fd-card img { width: 72px; height: 72px; object-fit: contain; }
+.fd-card b { margin-top: 4px; font-size: 15px; }
+.fd-card p { margin: 0; color: #6e6e73; }
+.fd-ok {
+  margin-top: 12px;
+  padding: 6px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #0a60d8;
+  color: #fff;
+  font: inherit;
+}
+
+/* ---------- Tablet + điện thoại: bỏ các thanh/khung mới ---------- */
+@media (max-width: 1100px) {
+  .fd-canvas.v-icons { display: grid; }
+  .fd-flow { padding: 0; }
+}
+
+/* ---------- Chế độ tối ---------- */
+@media (prefers-color-scheme: dark) {
+  .fd-lh { background: #1e1e20; border-bottom-color: rgba(255, 255, 255, .1); }
+  .fd-li:nth-child(even) { background: rgba(255, 255, 255, .04); }
+  .v-columns .fd-col { border-right-color: rgba(255, 255, 255, .12); }
+  .fd-strip { border-top-color: rgba(255, 255, 255, .1); background: rgba(255, 255, 255, .03); }
+  .fd-pop { background: rgba(44, 44, 46, .94); box-shadow: 0 0 0 .5px rgba(255, 255, 255, .15), 0 10px 30px rgba(0, 0, 0, .5); }
+  .fd-sep { background: rgba(255, 255, 255, .14); }
+  .fd-card { background: #2c2c2e; }
+  .fd-card p { color: #98989d; }
+}
+/* =========================================================
+   DÁN XUỐNG CUỐI css/apps/finder.css (sau tất cả các khối cũ)
+   Giao diện điện thoại / tablet (≤1100px) giống app Tệp trên iPhone:
+   header tròn + ô tìm kiếm + lưới thư mục "N mục" + thanh tab nổi
+========================================================= */
+
+/* ---------- Màu dùng chung ---------- */
+.fd {
+  --fm-bg: #f2f2f7;
+  --fm-card: #fff;
+  --fm-text: #000;
+  --fm-sub: #8a8a8e;
+  --fm-blue: #0a84ff;
+  --fm-tabon: rgba(120, 120, 128, .14);
+  --fm-line: rgba(0, 0, 0, .09);
+  --fm-shadow: 0 0 0 .5px rgba(0, 0, 0, .05), 0 4px 18px rgba(0, 0, 0, .09);
+}
+
+@media (prefers-color-scheme: dark) {
+  .fd {
+    --fm-bg: #000;
+    --fm-card: #2c2c2e;
+    --fm-text: #fff;
+    --fm-sub: #98989d;
+    --fm-tabon: rgba(255, 255, 255, .16);
+    --fm-line: rgba(255, 255, 255, .12);
+    --fm-shadow: 0 0 0 .5px rgba(255, 255, 255, .08), 0 4px 18px rgba(0, 0, 0, .55);
+  }
+}
+
+/* Máy tính: ẩn toàn bộ phần dành cho điện thoại */
+.fm-head,
+.fm-search,
+.fm-tabs,
+.fm-foot { display: none; }
+
+/* ---------- Điện thoại + tablet ---------- */
+@media (max-width: 1100px) {
+  .fd { background: var(--fm-bg); color: var(--fm-text); }
+  .fd-main { background: var(--fm-bg); }
+
+  /* Header: nút tròn quay lại | tiêu đề | nút "…" */
+  .fm-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex: none;
+    padding: 12px 16px 8px;
+  }
+
+  .fm-circle {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--fm-card);
+    color: var(--fm-text);
+    box-shadow: var(--fm-shadow);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fm-circle:active { opacity: .6; }
+  .fm-circle:disabled { opacity: .35; }
+
+  .fm-circle svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fm-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    font-size: 17px;
+    font-weight: 700;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Ô tìm kiếm dạng viên thuốc có micro */
+  .fm-search {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    height: 44px;
+    margin: 4px 16px 8px;
+    padding: 0 14px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: var(--fm-card);
+    box-shadow: var(--fm-shadow);
+    cursor: text;
+  }
+
+  .fm-search .fd-sico { width: 20px; height: 20px; color: var(--fm-text); }
+  .fm-search .fd-sico svg { stroke-width: 2.6; }
+
+  .fm-search input {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--fm-text);
+    font: inherit;
+    font-size: 17px;                /* >=16px để iPhone không tự phóng to khi gõ */
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .fm-search input::placeholder { color: var(--fm-sub); }
+  .fm-search input::-webkit-search-cancel-button { display: none; }
+
+  .fm-mic { flex: none; width: 20px; height: 20px; color: var(--fm-text); }
+
+  .fm-mic svg {
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  /* Lưới thư mục */
+  .fd-canvas {
+    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
+    gap: 26px 6px;
+    padding: 18px 12px 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .fd-item { gap: 4px; padding: 4px 0; }
+  .fd-item:active img { opacity: .6; }
+
+  .fd-item img {
+    width: 100%;
+    max-width: 112px;
+    height: auto;
+    aspect-ratio: 1;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .fd-item span {
+    display: -webkit-box;
+    max-width: 100%;
+    padding: 0 2px;
+    overflow: hidden;
+    background: none;
+    color: var(--fm-text);
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.25;
+    white-space: normal;
+    word-break: break-word;
+    /* -webkit-line-clamp: 2; */
+    -webkit-box-orient: vertical;
+  }
+
+  .fd-sub {
+    color: var(--fm-sub);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: center;
+    white-space: pre-line;           /* ngày và dung lượng nằm 2 dòng như app Tệp */
+  }
+
+  /* Chế độ "Danh sách" */
+  .fd-canvas.v-mlist { display: block; padding: 8px 16px; }
+
+  .fm-list {
+    overflow: hidden;
+    border-radius: 16px;
+    background: var(--fm-card);
+  }
+
+  .fm-li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 60px;
+    padding: 8px 14px;
+    box-sizing: border-box;
+    cursor: default;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fm-li + .fm-li::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 70px;
+    right: 0;
+    height: 1px;
+    background: var(--fm-line);
+  }
+
+  .fm-li:active { background: var(--fm-tabon); }
+  .fm-li img { flex: none; width: 44px; height: 44px; object-fit: contain; pointer-events: none; }
+  .fm-li-t { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+
+  .fm-li-t span {
+    overflow: hidden;
+    font-size: 16px;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .fm-li-t .fd-sub { text-align: left; }
+
+  /* Chân trang: "4 mục / Đã đồng bộ hóa với iCloud" */
+  .fm-foot {
+    display: block;
+    grid-column: 1 / -1;
+    padding: 34px 0 14px;
+    text-align: center;
+  }
+
+  .fm-foot b { display: block; font-size: 17px; font-weight: 700; }
+  .fm-foot span { display: block; margin-top: 4px; font-size: 15px; }
+
+  .fd-empty { color: var(--fm-sub); }
+
+  /* Thanh tab nổi phía dưới */
+  .fm-tabs {
+    display: flex;
+    flex: none;
+    gap: 4px;
+    width: calc(100% - 32px);
+    max-width: 420px;
+    margin: 6px auto calc(10px + env(safe-area-inset-bottom, 0px));
+    padding: 6px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: var(--fm-card);
+    box-shadow: var(--fm-shadow);
+  }
+
+  .fm-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 58px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: none;
+    color: var(--fm-text);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .fm-tab svg { width: 26px; height: 26px; fill: currentColor; }
+  .fm-tab .fm-hand { fill: none; stroke: var(--fm-card); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+  .fm-tab .fm-badge { stroke: var(--fm-card); stroke-width: 1.6; }
+  .fm-tab.on { background: var(--fm-tabon); color: var(--fm-blue); }
+
+  /* Menu "…" dùng nền sáng/tối theo hệ thống */
+  .fd-pop { color: var(--fm-text); }
+}
+
+/* Tablet (≥600px): thư mục to hơn một chút */
+@media (min-width: 600px) and (max-width: 1100px) {
+  .fd-canvas { grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 32px 10px; padding: 24px 24px 8px; }
+  .fd-item img { max-width: 128px; }
+  .fm-head, .fm-search { margin-left: 24px; margin-right: 24px; }
+  .fm-head { padding-left: 0; padding-right: 0; }
+  .fd-canvas.v-mlist { padding: 8px 24px; }
+}

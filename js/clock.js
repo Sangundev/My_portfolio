@@ -1,15 +1,17 @@
 (() => {
   const dock = document.getElementById('dock');
   if (!dock) return;
+  if (dock.dataset.dockReady) return;                       // chống chạy 2 lần (sinh ra 2 nút More)
+  dock.dataset.dockReady = '1';
 
   const reduce = matchMedia('(prefers-reduced-motion: reduce)');
   const fine = matchMedia('(hover: hover) and (pointer: fine)');
   const originalItems = [...dock.querySelectorAll('.dock-icon, .dock-sep')];
 
-  /* ---------- Nhãn: title → data-label (tránh tooltip mặc định) ---------- */
+  /* ---------- Nhãn: data-label > title > alt (không ghi đè nhãn đã có) ---------- */
   originalItems.forEach(it => {
     if (!it.classList.contains('dock-icon')) return;
-    const label = it.getAttribute('title') || it.querySelector('img')?.alt || '';
+    const label = it.dataset.label || it.getAttribute('title') || it.querySelector('img')?.alt || '';
     it.dataset.label = label;
     it.setAttribute('aria-label', label);
     it.removeAttribute('title');
@@ -25,7 +27,7 @@
     const ic = e.target.closest('.dock-icon');
     if (!ic || reduce.matches || ic.classList.contains('running')) return;
     ic.classList.remove('bounce');
-    void ic.offsetWidth;                                   // khởi động lại animation
+    void ic.offsetWidth;
     ic.classList.add('bounce');
     ic.addEventListener('animationend', () => ic.classList.remove('bounce'), { once: true });
   });
@@ -89,16 +91,17 @@
   const start = () => { if (!raf) raf = requestAnimationFrame(frame); };
 
   dock.addEventListener('pointermove', e => {
-    if (e.pointerType !== 'mouse' || !enabled()) return;
+    if (e.pointerType === 'touch') return;
     if (!over) { over = true; measure(); }
 
+    const mag = enabled();                                  // phóng to có điều kiện; nhãn thì luôn hiện
     const MAX = innerWidth > 1024 ? 1.6 : 1.35;
     const R = sz * 2.5;                                     // bán kính ảnh hưởng
     let best = -1, bd = Infinity;
     items.forEach((_, i) => {
       if (!isIcon[i]) { tgt[i] = 1; return; }
       const d = Math.abs(e.clientX - base[i]);
-      tgt[i] = d < R ? 1 + (MAX - 1) * (Math.cos(Math.PI * d / R) + 1) / 2 : 1;
+      tgt[i] = mag && d < R ? 1 + (MAX - 1) * (Math.cos(Math.PI * d / R) + 1) / 2 : 1;
       if (d < bd) { bd = d; best = i; }
     });
 
@@ -121,19 +124,34 @@
   /* =====================================================
      MORE: màn hình nhỏ gom bớt icon vào popup
      ===================================================== */
+  /* Số icon hiện trên dock:
+     - Điện thoại (≤768px): 3 app + nút More
+     - Còn lại: tự tính theo chiều rộng thật, icon nào không vừa thì cho vào More */
   const visibleCount = () => {
     const w = innerWidth;
-    return w > 1024 ? Infinity : w > 768 ? 9 : w > 480 ? 6 : 5;
+    if (w <= 768) return 3;
+    const sz = parseFloat(getComputedStyle(dock).getPropertyValue('--sz')) || 76;
+    const unit = sz + 3;                                              // icon + khoảng cách
+    const seps = originalItems.filter(n => n.classList.contains('dock-sep')).length;
+    const total = originalItems.length - seps;
+    const avail = w - 32 - (fine.matches ? sz * 1.5 : 0);             // chừa chỗ cho hiệu ứng phóng to
+    if (total * unit + seps * 4 + 6 <= avail) return Infinity;
+    return Math.max(3, Math.floor((avail - 6 - unit - seps * 4) / unit));
   };
+
+  /* Dọn mọi nút More cũ TRƯỚC khi tạo nút mới (luôn chỉ còn đúng 1 nút) */
+  dock.querySelectorAll('.dock-more').forEach(n => n.remove());
 
   const moreButton = document.createElement('div');
   moreButton.className = 'dock-more';
   moreButton.setAttribute('role', 'button');
   moreButton.tabIndex = 0;
-  moreButton.setAttribute('aria-label', 'Xem thêm');
+  moreButton.setAttribute('aria-label', 'Launchpad');
   moreButton.innerHTML =
-    '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>';
+    '<img src="assets/dock/Launchpad.png" alt="" decoding="async" />';
   dock.append(moreButton);
+
+  document.querySelectorAll('.dock-more-panel').forEach(n => n.remove());   // dọn popup cũ nếu có
 
   const morePanel = document.createElement('div');
   morePanel.className = 'dock-more-panel';
@@ -163,6 +181,10 @@
     morePanel.replaceChildren();
     closeMore();
     originalItems.forEach(n => n.remove());
+
+    /* Xoá mọi nút More khác nút của mình (nếu script khác chèn thêm) */
+    dock.querySelectorAll('.dock-more').forEach(n => { if (n !== moreButton) n.remove(); });
+    if (moreButton.parentNode !== dock) dock.append(moreButton);   // phòng nút bị gỡ nhầm
 
     const keep = [], hidden = [];
     let n = 0;

@@ -128,13 +128,11 @@
   backdrop-filter: blur(8px) saturate(180%);
 }
 
-.desk-icon:focus-visible .label,
-.desk-icon.dragging .label {
+.desk-icon:focus-visible .label {
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(255,255,255,.3);
 }
-
 
 /* ---------- 6. NỀN TỐI: chữ icon + Welcome chuyển trắng (class do wallpaper.js gắn) ---------- */
 .desk-icon .label,
@@ -153,9 +151,13 @@ body.wp-dark .welcome {
 .group-item.dragging { will-change: translate, scale; }
 .sticky-note.is-dragging { will-change: translate, scale, rotate; }
 
-.desk-icon.dragging > img { filter: none; }
-.desk-icon.dragging > img,
-.desk-icon.dragging > .group-tile { box-shadow: 0 12px 20px rgba(0,0,0,.2); }
+.desk-icon.dragging > img {
+  box-shadow: none;
+  filter: none;
+}
+.desk-icon.dragging > .group-tile {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 8px 16px rgba(0,0,0,.18);
+}
 
 
 /* ---------- 8. FALLBACK ---------- */
@@ -179,3 +181,31 @@ body.wp-dark .welcome {
 @media (prefers-reduced-motion: reduce) {
   .group-overlay::before { animation: none; transition: none; }
 }
+/* =========================================================
+   9. HOVER / NHẤN: chỉ giữ hiệu ứng nhấc + phóng to icon
+      Không khung, không bóng, không ô xám
+========================================================= */
+.desktop-icons .desk-icon,
+.desktop-icons .desk-icon:hover,
+.desktop-icons .desk-icon:active,
+.desktop-icons .desk-icon:focus {
+  background: none;
+  border: 0;
+  box-shadow: none;
+  outline: none;
+  filter: none;
+  backface-visibility: visible;      /* bỏ lớp vẽ riêng gây khung vuông */
+}
+
+/* !important vì rule hover trong desktop.css có độ ưu tiên rất cao */
+.desktop-icons .desk-icon > img,
+.desktop-icons .desk-icon:hover > img,
+.desktop-icons .desk-icon.dragging > img {
+  filter: none !important;
+  box-shadow: none;
+  background: none;
+  outline: none;
+}
+
+/* ::after chỉ dành cho ô gộp thư mục, còn lại tắt hết */
+.desktop-icons .desk-icon:not(.merge-target)::after { content: none; }
