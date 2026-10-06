@@ -6,6 +6,7 @@
 --win-shadow:0 22px 60px rgba(0,0,0,.28),0 0 0 .5px rgba(0,0,0,.25);
 --win-shadow-off:0 10px 28px rgba(0,0,0,.16),0 0 0 .5px rgba(0,0,0,.2);
 --win-ease:cubic-bezier(.32,.72,0,1);
+--win-spring:cubic-bezier(.3,1.12,.5,1);                /* phóng to có nảy nhẹ */
 }
 @media (prefers-color-scheme:dark){
 :root{
@@ -25,15 +26,15 @@ box-shadow:var(--win-shadow-off);
 -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
 font:400 14px/1.45 var(--ui-font,-apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,sans-serif);
 transition:transform .45s var(--win-ease),opacity .35s ease,visibility 0s;
-animation:win-in .34s var(--win-ease);
 }
+.win.is-new{animation:win-in .34s var(--win-ease)}      /* chỉ khi mở không có Genie; JS gỡ class khi chạy xong */
 .win.is-active{box-shadow:var(--win-shadow)}
 .win.dragging{transition:none;user-select:none}
-.win.anim{                                              /* phóng to / trả về mượt */
+.win.anim{                                              /* phóng to / trả về, có nảy nhẹ */
 transition:transform .45s var(--win-ease),opacity .35s ease,
-  left .34s var(--win-ease),top .34s var(--win-ease),width .34s var(--win-ease),height .34s var(--win-ease);
+  left .42s var(--win-spring),top .42s var(--win-spring),width .42s var(--win-spring),height .42s var(--win-spring);
 }
-.win.is-min{                                            /* bay về dock */
+.win.is-min{                                            /* bay về dock (khi không có Genie) */
 transform:translate(var(--dx,0),var(--dy,0)) scale(.06);opacity:0;visibility:hidden;pointer-events:none;
 transition:transform .5s var(--win-ease),opacity .3s .15s ease,visibility 0s .5s;
 }
@@ -103,7 +104,7 @@ border-radius:10px;font-size:12px;text-align:center;cursor:default;
 .win{left:8px!important;top:8px!important;width:calc(100% - 16px)!important;height:calc(100% - 88px)!important;min-width:0}
 .rs{display:none}
 }
-@media (prefers-reduced-motion:reduce){.win,.win.anim,.win.is-min{animation:none;transition:none}}
+@media (prefers-reduced-motion:reduce){.win,.win.is-new,.win.anim,.win.is-min{animation:none;transition:none}}
 
 /* ===== Tab trong cửa sổ ===== */
 .win-add{
@@ -298,3 +299,17 @@ body.app-open #home-bar{display:block}
 }
 }
 @media (prefers-reduced-motion:reduce){.win.from-icon{animation:none}}
+
+/* ===== Genie: cửa sổ bị hút vào / bung ra từ icon dock (js/genie.js) ===== */
+#genie{position:fixed;inset:0;z-index:102;pointer-events:none}   /* nằm trên dock */
+.gn-s{position:absolute;left:0;top:0;overflow:hidden;transform-origin:0 0;will-change:transform}
+
+.win.gn-clone{                                          /* bản sao cửa sổ, cắt thành các dải */
+position:absolute;left:0;top:0;width:var(--gw);height:var(--gh);margin:0;
+opacity:1;visibility:visible;transform:none;animation:none;transition:none;
+-webkit-backdrop-filter:none;backdrop-filter:none;box-shadow:none;background:#f6f6f8;pointer-events:none;
+}
+@media (prefers-color-scheme:dark){.win.gn-clone{background:#2a2a2e}}
+
+.win.gn-hide{visibility:hidden!important;transition:none!important}   /* cửa sổ thật ẩn trong lúc Genie chạy */
+.win.is-min.gn-skip{transform:none;transition:none}                   /* thu nhỏ bằng Genie: ẩn tức thì, không bay về dock */

@@ -1,0 +1,173 @@
+/* =========================================================
+   css/apps/about.css: cửa sổ About, ảnh Ngoc / Sang, widget nhạc
+   Nạp SAU windows.css.
+========================================================= */
+
+/* ---------- Cửa sổ chữ "About" ---------- */
+.win.is-about .win-body { background: #f6f6f6; color: #1d1d1f; }
+
+.about-page { height: 100%; overflow: auto; }
+
+.about-text {
+  padding: 30px 32px 40px;
+  font-size: 13px;
+  line-height: 1.38;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.about-text p { margin: 0 0 18px; }
+.about-text p:last-child { margin-bottom: 0; }
+
+.about-pics { display: none; }               /* chỉ hiện trên tablet / điện thoại */
+
+/* ---------- Cửa sổ ảnh ---------- */
+.win.is-photo .win-body { padding: 0; overflow: hidden; background: #d9d9db; }
+
+.about-photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* ---------- Widget nhạc: mini-player Spotify kiểu macOS ---------- */
+.win.is-music {
+  min-width: 0; min-height: 0;                 /* bỏ min-height: 200px của .win, nguyên nhân thừa khoảng trống phía dưới */
+  border-radius: 22px; overflow: hidden;       /* bo góc như widget iOS */
+  border: 0 !important; outline: 0 !important; background: transparent !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45) !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;   /* tránh viền mờ ở góc bo */
+}
+
+/* Trình duyệt hỗ trợ: bo góc "liên tục" (squircle) giống iOS; trình duyệt khác tự dùng bo tròn 22px ở trên */
+@supports (corner-shape: squircle) {
+  .win.is-music { border-radius: 28px; corner-shape: squircle; }
+}
+.win.is-music > .win-bar,
+.win.is-music > .win-tabs,
+.win.is-music > .rs { display: none; }
+.win.is-music .win-body { padding: 0; background: transparent; }
+
+.mw {
+  box-sizing: border-box; display: flex; flex-direction: column; gap: 4px;
+  height: 100%; padding: 12px 14px 10px;
+  background: #282828;
+  color: #fff;
+  font: 12px/1.3 var(--ui-font, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif);
+  user-select: none; -webkit-user-select: none;
+}
+.mw svg { display: block; width: 100%; height: 100%; }
+.mw svg:not([fill]) { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+/* hàng trên: bìa + tên bài + nút lưu */
+.mw-top { display: flex; align-items: center; gap: 10px; }
+.mw-cover {
+  flex: none; width: 48px; height: 48px; border-radius: 6px; overflow: hidden;
+  display: grid; place-items: center; background: #2a2a2d;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.mw-cover img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; -webkit-user-drag: none; }
+.mw-cover.noimg img { display: none; }
+.mw-cover.noimg::after { content: '♪'; font-size: 22px; color: rgba(255,255,255,.7); }
+
+.mw-info { flex: 1; min-width: 0; }
+.mw-title { font-size: 13px; font-weight: 700; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mw-artist { margin-top: 2px; font-size: 11.5px; color: rgba(255,255,255,.62); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* nút chung */
+.mw-btn {
+  display: grid; place-items: center; flex: none; width: 22px; height: 22px; padding: 0;
+  border: 0; border-radius: 50%; background: none; color: rgba(255,255,255,.65);
+  cursor: default; transition: color .15s, transform .12s;
+}
+.mw-btn:hover { color: #fff; }
+.mw-btn.on { color: #1ed760; }
+.mw-save, .mw-more, .mw-queue { width: 20px; height: 20px; align-self: center; }
+
+/* hàng điều khiển */
+.mw-ctrl { display: flex; align-items: center; justify-content: center; gap: 16px; }
+.mw-ctrl .mw-btn { width: 20px; height: 20px; }
+.mw-ctrl .mw-btn[data-a="prev"],
+.mw-ctrl .mw-btn[data-a="next"] { color: #fff; width: 18px; height: 18px; }
+.mw-ctrl .mw-btn.on { color: #1ed760; }
+.mw-ctrl .mw-play {
+  width: 32px; height: 32px; padding: 7px; box-sizing: border-box;
+  background: #fff; color: #000;
+}
+.mw-ctrl .mw-play:hover { transform: scale(1.06); color: #000; }
+.mw-ctrl .mw-play:active { transform: scale(.96); }
+.mw-ctrl .mw-play.off { opacity: .5; }
+
+/* thanh tiến trình + thời gian */
+.mw-time { display: flex; align-items: center; gap: 8px; font-size: 10px; color: rgba(255,255,255,.6); font-variant-numeric: tabular-nums; }
+.mw-time span { flex: none; min-width: 26px; }
+.mw-time span:last-child { text-align: right; }
+
+.mw-track { position: relative; flex: 1; height: 12px; cursor: pointer; touch-action: none; }
+.mw-track::before { content: ''; position: absolute; left: 0; right: 0; top: 4px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.25); }
+.mw-track i { position: absolute; left: 0; top: 4px; display: block; height: 4px; width: 0; border-radius: 2px; background: #f2561d; }
+.mw-track:hover i { background: #ff7a45; }
+.mw-volbar i, .mw-volbar:hover i { background: #fff; }
+
+/* hàng dưới: thiết bị + âm lượng */
+.mw-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 2px; color: rgba(255,255,255,.65); }
+.mw-fl, .mw-fr { display: flex; align-items: center; gap: 12px; }
+.mw-fr { flex: 1; justify-content: flex-end; }
+.mw-ic { display: block; flex: none; width: 16px; height: 16px; }
+.mw-vol { display: flex; align-items: center; gap: 6px; flex: 1; max-width: 110px; }
+.mw-vol > svg { flex: none; width: 16px; height: 16px; }
+
+/* menu "..." (Play / Save / Copy link) phủ lên thẻ nhạc */
+.mw { position: relative; }
+/* .mw-more { align-self: flex-start; width: 20px; height: 20px; } */
+.mw-menu {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(24, 24, 26, .98);
+}
+.mw-menu[hidden] { display: none; }
+.mw-x { position: absolute; top: 8px; right: 10px; width: 22px; height: 22px; padding: 0; border: 0; background: none; color: #fff; cursor: default; }
+.mw-mi {
+  display: flex; align-items: center; gap: 8px; width: 150px; height: 28px; padding: 0 10px;
+  border: 0; border-radius: 4px; background: rgba(255,255,255,.14); color: #fff;
+  font: inherit; font-size: 12px; font-weight: 700; cursor: default; text-align: left;
+}
+.mw-mi:hover { background: rgba(255,255,255,.22); }
+.mw-mi svg { flex: none; width: 16px; height: 16px; }
+.mw-mi[data-m="play"] span { text-decoration: underline; }
+.mw-legal { margin-top: 4px; font-size: 9.5px; color: rgba(255,255,255,.7); }
+.mw-legal a { color: inherit; text-decoration: none; }
+.mw-legal a:hover { text-decoration: underline; }
+
+/* ---------- Tablet + điện thoại: 1 cửa sổ About, ảnh nằm trên đầu ---------- */
+@media (max-width: 1100px) {
+  .about-pics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    padding: 16px 16px 0;
+  }
+  .about-pics figure { margin: 0; text-align: center; }
+  .about-pics img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 14px; background: #d9d9db; }
+  .about-pics figcaption { margin-top: 6px; font-size: 13px; font-weight: 600; }
+  .about-text { padding: 20px 20px 48px; font-size: 16px; }
+}
+
+/* ---------- Chế độ tối ---------- */
+@media (prefers-color-scheme: dark) {
+  .win.is-about .win-body { background: #1e1e20; color: #f5f5f7; }
+  .win.is-photo .win-body { background: #2b2b2e; }
+}
+  .win.is-about, .win.is-photo, .win.is-music {
+    transition: none !important;
+    animation: none !important;
+  }
+  .win.about-boot { visibility: hidden !important; pointer-events: none; }
+
+.win.is-about, .win.is-photo, .win.is-music {
+  transition: none !important;
+  animation: none !important;
+}

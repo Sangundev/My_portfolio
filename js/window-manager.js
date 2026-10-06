@@ -1,4 +1,8 @@
-/* Cửa sổ kiểu macOS (desktop) + app toàn màn hình kiểu iOS (tablet / điện thoại ≤1100px) */
+/* Cửa sổ kiểu macOS (desktop) + app toàn màn hình kiểu iOS (tablet / điện thoại ≤1100px)
+   - Nội dung từng cửa sổ nằm ở js/apps/*.js (finder, folders, about, contact, ...),
+     mỗi file tự đăng ký vào window.WMApps.<key> = { title, w, h, cls, build }
+   - Mục mở bằng link ngoài (như CV) khai báo trong LINKS bên dưới
+   - Hiệu ứng Genie (mở / thu nhỏ / khôi phục / đóng) nằm ở js/genie.js, chỉ chạy trên máy tính */
 (() => {
   const layer = document.getElementById('windows');
   if (!layer) return;
@@ -16,7 +20,15 @@
   const setMb = () => document.documentElement.style.setProperty('--mb-h', ($('#menubar')?.offsetHeight || 32) + 'px');
   setMb();
 
-  /* ---------- Nội dung từng cửa sổ (sửa ở đây) ---------- */
+  /* ---------- Cấu hình (sửa ở đây) ---------- */
+  // Mục mở bằng link ngoài (tab mới) thay vì cửa sổ: key -> URL
+  const LINKS = {
+    cv: 'https://drive.google.com/your-cv-link'
+  };
+
+  // App rất nhỏ có thể viết thẳng ở đây; còn lại để ở js/apps/*.js
+  const APPS = {};
+
   const SVG = p => `<svg viewBox="0 0 12 12" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const GLYPH = {
     close: SVG('<path d="M3.5 3.5l5 5m0-5l-5 5"/>'),
@@ -24,6 +36,7 @@
     max:   SVG('<path d="M7 3.5h1.5V5M8.5 3.5l-2 2M5 8.5H3.5V7M3.5 8.5l2-2"/>')
   };
 
+  /* ---------- Hàm dựng nội dung dùng chung (app gọi qua api) ---------- */
   const empty = text => h('div', 'empty', text);
 
   const tiles = list => {
@@ -46,57 +59,10 @@
     return a;
   };
 
-  const APPS = {
-    // finder: {
-    //   title: 'Finder', w: 720, h: 460,
-    //   build: b => b.append(tiles([
-    //     ['Website_project', 'website_project'], ['Mobile_project', 'mobile_project'],
-    //     ['Branding_project', 'branding_project'], ['About Me', 'about'], ['NgocSang.pdf', 'cv']
-    //   ]))
-    // },
-    website_project:  { title: 'Website_project',  build: b => b.append(tiles([['Landing page'], ['Dashboard'], ['E-commerce'], ['Blog']])) },
-    mobile_project:   { title: 'Mobile_project',   build: b => b.append(tiles([['Food delivery'], ['Banking app'], ['Fitness']])) },
-    branding_project: { title: 'Branding_project', build: b => b.append(tiles([['Logo system'], ['Packaging'], ['Brand guideline']])) },
-    about: {
-      title: 'About Me', w: 560, h: 400,
-      build: b => {
-        const p = h('div', 'prose');
-        p.append(
-          h('h3', null, 'Ngoc Sang'),
-          h('p', null, 'Designer làm website, mobile và branding.'),
-          h('p', null, 'Viết vài dòng giới thiệu về bạn ở đây.')
-        );
-        b.append(p);
-      }
-    },
-    contact: {
-      title: 'Contact', w: 440, h: 320,
-      build: b => {
-        const l = h('div', 'links');
-        l.append(
-          link('mailto:your@email.com', 'Email', 'your@email.com'),
-          link('tel:+84000000000', 'Phone', '+84 000 000 000'),
-          link('#', 'Behance', 'behance.net/yourname')
-        );
-        b.append(l);
-      }
-    },
-    cv: {
-      title: 'NgocSang_CV.pdf', w: 880, h: 640,
-      build: b => {
-        const f = h('iframe', 'pdf');
-        f.src = 'assets/files/NgocSang_CV.pdf';
-        f.title = 'NgocSang CV';
-        b.classList.add('flush');
-        b.append(f);
-      }
-    },
-    trash: { title: 'Trash', w: 520, h: 360, build: b => b.append(empty('Trash is empty')) }
-  };
   const soon = b => b.append(empty('Đang cập nhật nội dung'));
-    /* App ở file riêng (js/apps/*.js) tự đăng ký vào window.WMApps; app nhỏ vẫn có thể để trong APPS */
   const appDef = key => APPS[key] || (window.WMApps || {})[key] || {};
   const api = { open: (...a) => open(...a), isMobile, h, empty, tiles, link };
+
   /* ---------- Trạng thái ---------- */
   const wins = new Map();
   let z = 10, active = null, uid = 0, mcOn = false;
@@ -111,7 +77,18 @@
   const animate = el => {
     el.classList.add('anim');
     clearTimeout(el._t);
-    el._t = setTimeout(() => el.classList.remove('anim'), 380);
+    el._t = setTimeout(() => el.classList.remove('anim'), 460);
+  };
+
+  /* Gỡ class animation khi animation của chính phần tử đó kết thúc (bỏ qua animation của phần tử con) */
+  const clearOnAnimEnd = (el, cls) => {
+    const done = e => {
+      if (e && e.target !== el) return;
+      el.classList.remove(cls);
+      el.removeEventListener('animationend', done);
+    };
+    el.addEventListener('animationend', done);
+    setTimeout(done, 700);                                           // phòng khi animation bị tắt nên không có animationend
   };
 
   const findWin = key => { for (const w of wins.values()) if (w.tabs.some(t => t.key === key)) return w; return null; };
@@ -140,21 +117,51 @@
     return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: innerWidth / 2, y: innerHeight };
   }
 
+  /* Genie chỉ chạy trên máy tính, khi không bật "giảm chuyển động" và không đang ở Mission Control */
+  const genieOn = () => !!window.Genie && !isMobile() && !reduce && !mcOn;
+
+  /* Điểm mà cửa sổ hút vào / bung ra: icon dock cùng key (hoặc `src` khi mở), không có thì giữa dock */
+  function iconPoint(key, src) {
+    const dockIcon = [...document.querySelectorAll(`#dock .dock-icon[data-open="${CSS.escape(key)}"]`)]
+      .find(i => i.offsetWidth > 0);
+    const el = (src && src.isConnected && src.offsetWidth > 0 ? src : dockIcon) || $('#dock');
+    if (!el) return { x: innerWidth / 2, y: innerHeight, w: 56 };
+    const r = (el.querySelector?.('img') || el).getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.min(r.width, 64) * 0.9 };
+  }
+
   function minimize(w) {
-    if (w.min) return;
-    const el = w.el, r = el.getBoundingClientRect(), t = dockTarget(w.cur ? w.cur.key : '');
+    if (w.min || w.busy) return;
+    const el = w.el, r = el.getBoundingClientRect(), key = w.cur ? w.cur.key : '';
+    const t = dockTarget(key);
     el.style.setProperty('--dx', t.x - (r.left + r.width / 2) + 'px');
     el.style.setProperty('--dy', t.y - (r.top + r.height / 2) + 'px');
-    el.classList.add('is-min');
     el.classList.remove('is-active');
     w.min = true;
+    if (genieOn()) {
+      w.busy = true;
+      Genie.run(el, 'in', iconPoint(key), () => { el.classList.remove('gn-skip'); w.busy = false; });
+      el.classList.add('is-min', 'gn-skip');           // ẩn cửa sổ thật ngay, chỉ còn bản Genie
+    } else {
+      el.classList.add('is-min');
+    }
     if (active === w) { active = null; focusTop(); }
   }
 
   function restore(w) {
+    if (w.busy) return;
+    const el = w.el;
     w.min = false;
-    w.el.classList.remove('is-min');
-    focus(w);
+    if (genieOn()) {
+      w.busy = true;
+      el.classList.add('gn-hide');
+      el.classList.remove('is-min', 'gn-skip');
+      focus(w);
+      Genie.run(el, 'out', iconPoint(w.cur ? w.cur.key : ''), () => { el.classList.remove('gn-hide'); w.busy = false; });
+    } else {
+      el.classList.remove('is-min');
+      focus(w);
+    }
   }
 
   function toggleMax(w) {
@@ -175,9 +182,16 @@
   }
 
   function closeWin(w) {
+    if (w.busy) return;
     wins.delete(w.id);
-    w.el.classList.add('is-closing');
-    setTimeout(() => w.el.remove(), reduce ? 0 : 260);
+    if (genieOn() && !w.min) {
+      w.busy = true;
+      Genie.run(w.el, 'in', iconPoint(w.cur ? w.cur.key : ''), () => w.el.remove());
+      w.el.classList.add('gn-hide');
+    } else {
+      w.el.classList.add('is-closing');
+      setTimeout(() => w.el.remove(), reduce ? 0 : 260);
+    }
     refresh();
     if (active === w) { active = null; focusTop(); }
     if (mcOn) { if (isMobile()) mobRemove(w); else mcLayoutDesktop(); }
@@ -202,11 +216,11 @@
     const old = w.tabs.find(t => t.key === key);
     if (old) return selectTab(w, old);
 
-      const app = appDef(key);
+    const app = appDef(key);
     const title = app.title || src?.dataset?.label || src?.querySelector?.('.label')?.textContent || key;
 
     const body = h('div', 'win-body');
-        (app.build || soon)(body, title, api);
+    (app.build || soon)(body, title, api);
     body.hidden = true;
 
     const btn = h('div', 'wtab');
@@ -295,6 +309,9 @@
 
   /* ---------- Mở cửa sổ / tab ---------- */
   function open(key, src, into) {
+    // Mục khai báo trong LINKS: mở link ngoài ở tab mới, không tạo cửa sổ
+    if (LINKS[key]) { window.open(LINKS[key], '_blank', 'noopener'); return null; }
+
     let w = findWin(key);
     if (w) {
       if (w.min) restore(w); else focus(w);
@@ -315,7 +332,7 @@
     const off = (wins.size % 6) * 28;
 
     const el = h('section', 'win');
-        if (app.cls) el.classList.add(app.cls);
+    if (app.cls) el.classList.add(app.cls);               // class riêng của app (vd: is-finder, is-about)
     el.setAttribute('role', 'dialog');
     Object.assign(el.style, {
       width: W + 'px', height: H + 'px',
@@ -328,7 +345,7 @@
     const titleEl = h('h2', 'win-title');
     const tabBar = h('div', 'win-tabs');
     tabBar.setAttribute('role', 'tablist');
-    w = { id: ++uid, el, bar, titleEl, tabBar, tabs: [], cur: null, min: false, max: false, prev: null,
+    w = { id: ++uid, el, bar, titleEl, tabBar, tabs: [], cur: null, min: false, max: false, prev: null, busy: false,
           icon: src?.querySelector?.('img')?.src || '' };
     el._w = w;
 
@@ -359,29 +376,43 @@
     el.addEventListener('pointerdown', () => focus(w), true);
     bar.addEventListener('pointerdown', e => startDrag(e, w));
     bar.addEventListener('dblclick', e => { if (!e.target.closest('.lights, .win-add')) toggleMax(w); });
-        el.addEventListener('pointerdown', e => {
-      if (e.target.closest('.win-drag') && !e.target.closest('button, input, .fd-pill')) startDrag(e, w);
+
+    // Vùng .win-drag nằm trong nội dung app (Finder, widget nhạc, ...) cũng kéo / phóng to được cửa sổ
+    el.addEventListener('pointerdown', e => {
+      if (e.target.closest('.win-drag') && !e.target.closest('button, input, a, .fd-pill')) startDrag(e, w);
     });
     el.addEventListener('dblclick', e => {
-      if (e.target.closest('.win-drag') && !e.target.closest('button, input, .fd-pill')) toggleMax(w);
+      if (e.target.closest('.win-drag') && !e.target.closest('button, input, a, .fd-pill')) toggleMax(w);
     });
 
     layer.append(el);
 
-    if (isMobile() && src && src.getBoundingClientRect && !reduce) {   // app phóng ra từ chính icon
+    const fromIcon = isMobile() && src && src.getBoundingClientRect && !reduce;
+    if (fromIcon) {                                                    // điện thoại / tablet: app phóng ra từ chính icon
       const r = src.getBoundingClientRect(), L = layer.getBoundingClientRect();
       el.style.transformOrigin =
         `${r.left + r.width / 2 - L.left - el.offsetLeft}px ${r.top + r.height / 2 - L.top - el.offsetTop}px`;
       el.classList.add('from-icon');
-      el.addEventListener('animationend', () => {
+      el.addEventListener('animationend', e => {
+        if (e.target !== el) return;
         el.style.transformOrigin = '';
         el.classList.remove('from-icon');
-      }, { once: true });
+      });
+    } else if (!genieOn()) {                                           // không có Genie: hiệu ứng phồng nhẹ mặc định
+      el.classList.add('is-new');
+      clearOnAnimEnd(el, 'is-new');
     }
+
     wins.set(w.id, w);
     addTab(w, key, src);
     focus(w);
     refresh();
+
+    if (genieOn()) {                                                   // máy tính: bung ra từ icon vừa bấm (dock hoặc desktop)
+      w.busy = true;
+      el.classList.add('gn-hide');
+      Genie.run(el, 'out', iconPoint(key, src), () => { el.classList.remove('gn-hide'); w.busy = false; });
+    }
     return w;
   }
 
@@ -516,7 +547,7 @@
 
     const items = list.map((w, i) => {
       const snap = w.el.cloneNode(true);                               // bản chụp nhanh, không phải cửa sổ thật
-      snap.classList.remove('is-min', 'is-active', 'is-closing', 'anim', 'dragging', 'from-icon', 'is-max');
+      snap.classList.remove('is-min', 'is-active', 'is-closing', 'anim', 'dragging', 'from-icon', 'is-max', 'is-new', 'gn-hide', 'gn-skip');
       snap.removeAttribute('role');
       snap.querySelectorAll('iframe').forEach(f => f.replaceWith(empty('PDF')));
 
