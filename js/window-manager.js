@@ -126,8 +126,9 @@
       .find(i => i.offsetWidth > 0);
     const el = (src && src.isConnected && src.offsetWidth > 0 ? src : dockIcon) || $('#dock');
     if (!el) return { x: innerWidth / 2, y: innerHeight, w: 56 };
-    const r = (el.querySelector?.('img') || el).getBoundingClientRect();
-    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.min(r.width, 64) * 0.9 };
+    const im = el.querySelector?.('img') || el;
+    const r = im.getBoundingClientRect();
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, w: Math.min(r.width, 64) * 0.9, el: im };
   }
 
   function minimize(w) {

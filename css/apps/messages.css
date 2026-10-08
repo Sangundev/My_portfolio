@@ -1,0 +1,449 @@
+/* App Contact: giao diện Messages của macOS, 2 cuộc trò chuyện (js/apps/contact.js) */
+
+.win.is-contact {
+  --ct-blue: #0a7aff;
+  --ct-navy: #08121f;
+  --ct-line: #e3e3e6;
+  --ct-gray: #8a8a8e;
+  --ct-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  background: #fff;
+}
+
+.is-contact .win-body {
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+  background: #fff;
+}
+
+/* Desktop: bỏ thanh tiêu đề, để 3 nút đèn giao thông nằm đè lên sidebar như Messages thật.
+   Kéo cửa sổ qua vùng .win-drag (đầu sidebar + thanh "To:") */
+@media (min-width: 1101px) {
+  .win.is-contact .win-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 6;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    pointer-events: none;                 /* để bấm xuyên xuống "Details" */
+  }
+  .win.is-contact .win-bar .lights { pointer-events: auto; }
+  .win.is-contact .win-title,
+  .win.is-contact .win-add { display: none; }
+}
+
+.ct-app {
+  position: relative;
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--ct-font);
+  color: #111;
+}
+.ct-app [hidden] { display: none !important; }
+
+/* =============== Sidebar =============== */
+.ct-side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: 236px;
+  background: rgba(244, 244, 246, .94);
+  -webkit-backdrop-filter: blur(24px) saturate(1.6);
+  backdrop-filter: blur(24px) saturate(1.6);
+  border-right: 1px solid var(--ct-line);
+}
+
+.ct-side-top { flex: none; height: 52px; }   /* chừa chỗ cho 3 nút đèn */
+
+.ct-list { flex: 1; overflow: hidden; }
+
+/* dòng hội thoại */
+.ct-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: 0;
+  background: none;
+  color: #111;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background .15s;
+}
+.ct-row:hover { background: rgba(0, 0, 0, .04); }
+.ct-row:focus-visible { outline: 3px solid rgba(10, 122, 255, .45); outline-offset: -3px; }
+.ct-row.on { background: var(--ct-blue); color: #fff; }
+
+.ct-row-t { flex: 1; min-width: 0; }
+.ct-row-h { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
+.ct-row-h strong { font-weight: 600; }
+.ct-row-h time { font-size: 11px; color: var(--ct-gray); }
+.ct-row-t p {
+  margin: 1px 0 0;
+  font-size: 12px;
+  color: var(--ct-gray);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ct-row.on .ct-row-h time,
+.ct-row.on .ct-row-t p { color: rgba(255, 255, 255, .85); }
+
+.ct-ph { height: 62px; margin-left: 12px; border-bottom: 1px solid var(--ct-line); }
+
+.ct-avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(#b6bcc7, #8f96a3);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+}
+.ct-avatar.ct-t2 { background: linear-gradient(#ffb36b, #ff8a3d); }
+.ct-row.on .ct-avatar { box-shadow: 0 0 0 2px rgba(255, 255, 255, .55); }
+.ct-big { width: 72px; height: 72px; font-size: 26px; }
+
+/* =============== Khung chat =============== */
+.ct-main {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.ct-head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 46px;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--ct-line);
+  background: rgba(250, 250, 251, .9);
+  font-size: 12px;
+  color: var(--ct-gray);
+}
+.ct-chip {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 2px 9px;
+  border-radius: 6px;
+  background: #ededf0;
+  color: #333;
+}
+.ct-details {
+  padding: 4px 0 4px 10px;
+  border: 0;
+  background: none;
+  color: var(--ct-blue);
+  font: 12px var(--ct-font);
+  cursor: pointer;
+}
+.ct-details:hover { text-decoration: underline; }
+
+/* thanh chuyển tab (chỉ hiện trên điện thoại) */
+.ct-seg { display: none; }
+.ct-seg-b {
+  padding: 4px 12px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: #555;
+  font: 500 12px var(--ct-font);
+  cursor: pointer;
+}
+.ct-seg-b.on { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
+
+.ct-msgs {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 12px 22px 22px;
+  outline: none;
+}
+
+.ct-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 16px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--ct-gray);
+}
+.ct-meta b { font-weight: 600; }
+
+.ct-item { position: relative; margin-top: 8px; }
+.ct-meta + .ct-item { margin-top: 0; }
+
+/* =============== Câu hỏi (bong bóng nhận, bên trái) =============== */
+.ct-q {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 88%;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ct-pill {
+  --bg: var(--ct-navy);
+  position: relative;
+  min-width: 0;
+  padding: 11px 18px;
+  border-radius: 20px;
+  background: var(--bg);
+  color: var(--ct-blue);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.25;
+  transition: background .2s, color .2s, transform .2s;
+}
+.ct-q:hover .ct-pill,
+.ct-q:focus-visible .ct-pill { --bg: #1f1f1f; color: #fff; }
+.ct-q:active .ct-pill { transform: scale(.98); }
+.ct-q:focus-visible { outline: none; }
+.ct-q:focus-visible .ct-pill { box-shadow: 0 0 0 3px rgba(10, 122, 255, .45); }
+
+/* Đuôi bong bóng chuẩn iOS: ::before là gốc đuôi cùng màu, ::after (màu nền) khoét cong phần đuôi.
+   Nền chat là trắng nên ::after dùng #fff. Chỉ bong bóng cuối chuỗi mới có class .tail */
+.ct-pill.tail::before,
+.ct-pill.tail::after { content: ''; position: absolute; bottom: 0; }
+.ct-pill.tail::before {
+  left: -8px;
+  width: 20px;
+  height: 20px;
+  background: var(--bg);
+  border-bottom-right-radius: 15px;
+  transition: background .2s;
+}
+.ct-pill.tail::after {
+  left: -10px;
+  width: 10px;
+  height: 20px;
+  background: #fff;
+  border-bottom-right-radius: 10px;
+}
+
+/* nút + / − */
+.ct-tog {
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--ct-blue);
+  transition: background .2s, box-shadow .2s;
+}
+.ct-tog::before,
+.ct-tog::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 10px;
+  height: 2px;
+  margin: -1px 0 0 -5px;
+  border-radius: 1px;
+  background: #fff;
+  transition: transform .25s, background .2s;
+}
+.ct-tog::after { transform: rotate(90deg); }
+.ct-item.open .ct-tog::after { transform: rotate(0); }
+
+.ct-item:not(.open) .ct-q:hover .ct-tog { background: transparent; box-shadow: inset 0 0 0 1.5px #555; }
+.ct-item:not(.open) .ct-q:hover .ct-tog::before,
+.ct-item:not(.open) .ct-q:hover .ct-tog::after { background: #555; }
+
+/* sticker */
+.ct-sticker {
+  position: absolute;
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, .2));
+  pointer-events: none;
+  z-index: 2;
+}
+.ct-tr { top: -13px; right: -9px; transform: rotate(12deg); }
+.ct-tl { top: -9px; left: -15px; transform: rotate(-14deg); }
+
+/* =============== Câu trả lời (bong bóng gửi, bên phải) =============== */
+.ct-a {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows .35s cubic-bezier(.2, .8, .2, 1);
+}
+.ct-item.open .ct-a { grid-template-rows: 1fr; }
+
+.ct-a-in {
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  padding-right: 12px;                    /* chừa chỗ cho đuôi bong bóng */
+}
+
+.ct-bubble {
+  position: relative;
+  box-sizing: border-box;
+  max-width: 72%;
+  margin: 8px 0 2px;
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 20px;
+  background: var(--ct-blue);
+  color: #fff;
+  font: 600 15px/1.35 var(--ct-font);
+  text-align: left;
+  white-space: pre-line;                  /* \n trong nội dung thành xuống dòng */
+  opacity: 0;
+  transform: translateY(-8px) scale(.96);
+  transform-origin: 100% 0;
+  transition: opacity .25s .05s, transform .3s .05s;
+}
+.ct-item.open .ct-bubble { opacity: 1; transform: none; }
+
+/* đuôi bên phải (đối xứng với bên trái) */
+.ct-bubble::before,
+.ct-bubble::after { content: ''; position: absolute; bottom: 0; }
+.ct-bubble::before {
+  right: -8px;
+  width: 20px;
+  height: 20px;
+  background: var(--ct-blue);
+  border-bottom-left-radius: 15px;
+}
+.ct-bubble::after {
+  right: -10px;
+  width: 10px;
+  height: 20px;
+  background: #fff;
+  border-bottom-left-radius: 10px;
+}
+
+.ct-deliv {
+  margin: 2px 0 0;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ct-gray);
+}
+
+/* bong bóng "open me" */
+.ct-hint {
+  position: absolute;
+  top: -8px;
+  left: 250px;
+  padding: 7px 18px;
+  border-radius: 18px;
+  background: linear-gradient(#fff, #e8e8eb);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .18), inset 0 1px 0 #fff;
+  color: #111;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 3;
+  animation: ct-float 2.4s ease-in-out infinite;
+  transition: opacity .25s, transform .25s;
+}
+.ct-hint.gone { opacity: 0; transform: scale(.8); }
+@keyframes ct-float { 50% { transform: translateY(-4px); } }
+
+/* lời mời liên hệ ở cuối */
+.ct-end { display: flex; justify-content: flex-end; padding-right: 12px; margin-top: 18px; }
+.ct-end .ct-bubble { opacity: 1; transform: none; margin: 0; cursor: pointer; }
+.ct-end .ct-bubble:hover { filter: brightness(1.08); }
+.ct-end .ct-bubble:focus-visible { outline: 3px solid rgba(10, 122, 255, .4); outline-offset: 2px; }
+
+/* =============== Bảng Details =============== */
+.ct-panel {
+  position: absolute;
+  top: 46px;
+  right: 0;
+  bottom: 0;
+  z-index: 4;
+  width: 236px;
+  padding: 22px 16px;
+  background: rgba(250, 250, 251, .97);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  border-left: 1px solid var(--ct-line);
+  box-shadow: -8px 0 24px rgba(0, 0, 0, .06);
+  transform: translateX(105%);
+  visibility: hidden;
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility .3s;
+}
+.ct-app.details .ct-panel { transform: none; visibility: visible; }
+
+.ct-who { display: flex; flex-direction: column; align-items: center; gap: 4px; margin-bottom: 20px; text-align: center; }
+.ct-who .ct-avatar { margin-bottom: 6px; }
+.ct-who strong { font-size: 16px; }
+.ct-who small { font-size: 12px; color: var(--ct-gray); }
+
+.ct-links { display: grid; gap: 8px; }
+.ct-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--ct-line);
+  text-decoration: none;
+  transition: transform .2s, box-shadow .2s;
+}
+.ct-link strong { color: var(--ct-blue); font-size: 14px; }
+.ct-link small { color: var(--ct-gray); font-size: 12px; word-break: break-all; }
+.ct-link:hover { transform: translateX(3px); box-shadow: 0 0 0 1px var(--ct-blue); }
+.ct-link:focus-visible { outline: 3px solid rgba(10, 122, 255, .4); }
+
+/* =============== Tablet / điện thoại (app toàn màn hình kiểu iOS) =============== */
+@media (max-width: 1100px) {
+  .ct-side { width: 200px; }
+  .ct-side-top { height: 14px; }
+}
+
+@media (max-width: 760px) {
+  .ct-side { display: none; }                 /* thay bằng thanh chuyển tab ở header */
+  .ct-to { display: none; }
+  .ct-seg {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    gap: 2px;
+    margin-right: -40px;                      /* canh giữa dù nút Details nằm bên phải */
+    padding: 2px;
+    border-radius: 8px;
+    background: #ededf0;
+    max-width: 260px;
+    align-self: center;
+  }
+  .ct-head { height: 48px; justify-content: space-between; gap: 12px; }
+  .ct-msgs { padding: 12px 14px calc(30px + env(safe-area-inset-bottom)); }   /* chừa chỗ cho thanh home */
+  .ct-q { max-width: 94%; }
+  .ct-bubble { max-width: 82%; }
+  .ct-hint { left: auto; right: 14px; }
+  .ct-panel { width: min(280px, 86%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-a, .ct-bubble, .ct-tog::after, .ct-hint, .ct-panel { transition: none; animation: none; }
+}

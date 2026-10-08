@@ -161,13 +161,12 @@
   .win.is-about .win-body { background: #1e1e20; color: #f5f5f7; }
   .win.is-photo .win-body { background: #2b2b2e; }
 }
-  .win.is-about, .win.is-photo, .win.is-music {
-    transition: none !important;
-    animation: none !important;
-  }
-  .win.about-boot { visibility: hidden !important; pointer-events: none; }
 
+/* ---------- About: mở là ra đúng vị trí, không hiệu ứng chạy từ giữa ---------- */
+/* about.js thêm class này lúc mới mở rồi gỡ sau khi đã ghim vị trí xong */
+.win.about-hide { visibility: hidden !important; }
+
+/* chỉ tắt animation mở; KHÔNG tắt transition để chế độ xem tất cả cửa sổ còn chuyển động mượt */
 .win.is-about, .win.is-photo, .win.is-music {
-  transition: none !important;
   animation: none !important;
 }
