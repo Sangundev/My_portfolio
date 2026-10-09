@@ -11,7 +11,7 @@
 ========================================================= */
 (() => {
   /* ---------- DỮ LIỆU (sửa ở đây) ---------- */
-  const BASE = "assets/photos";
+  const BASE = "assets/Photos";
   const EXT = 'jpg';
   const EXTS = ['jpg', 'jpeg', 'png', 'webp'];        // các đuôi sẽ thử lần lượt
   const ALBUMS = [
