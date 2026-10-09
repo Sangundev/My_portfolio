@@ -6,17 +6,19 @@
        el   : phần tử cửa sổ (.win)
        dir  : 'in'  = hút vào icon (thu nhỏ, đóng)
               'out' = bung ra từ icon (mở, khôi phục)
-       pt   : { x, y, w } tâm icon trên màn hình + bề ngang icon (px)
+       pt   : { x, y, w, el? } tâm icon trên màn hình + bề ngang icon (px).
+              el (tuỳ chọn): phần tử icon; nếu nằm trong #dock thì cửa sổ chỉ hiện phía trên mép icon.
        done : gọi khi chạy xong (luôn bất đồng bộ)
    - Cửa sổ thật phải được ẩn bởi người gọi trong lúc chạy (xem window-manager.js)
    - Yêu cầu CSS: .gn-s { position:absolute; left:0; top:0; transform-origin:0 0; overflow:hidden; will-change:transform }
+                  .gn-clone phải có kích thước rõ ràng (width/height lấy từ --gw / --gh)
 
-   CÁCH CHẠY MỚI (để mượt như iOS):
+   CÁCH CHẠY (để mượt như iOS):
    1. Tính SẴN toàn bộ khung hình (keyframes matrix3d) ngay từ đầu.
    2. Giao cho Web Animations API chạy: transform + opacity được trình duyệt
       chạy thẳng trên luồng compositor (GPU). Trong lúc chạy, JavaScript KHÔNG làm gì,
       nên dù luồng chính có bận (đóng cửa sổ, cập nhật dock...) hiệu ứng vẫn mượt.
-   3. Animation được tạo ở trạng thái tạm dừng, chờ 2 khung hình cho các lớp dựng xong
+   3. Animation được tạo ở trạng thái tạm dừng, chờ 3 khung hình cho các lớp dựng xong
       rồi mới phát => không bị mất đoạn đầu.
    4. Bản sao được làm nhẹ (bỏ backdrop-filter, animation, shadow) và số dải tự giảm
       theo độ nặng của cửa sổ.
@@ -29,7 +31,7 @@
   const EXTRA = 0.8;                           // px chồng giữa các dải để không hở đường chỉ
   const KEYFRAMES = 36;                        // số khung tính sẵn (nhiều hơn = chuyển động chính xác hơn)
   const MIN_STRIPS = 8;                        // ít nhất bao nhiêu dải
-  const MAX_STRIPS = 12;                       // nhiều nhất khi cửa sổ nhẹ
+  const MAX_STRIPS = 12;                       // nhiều nhất khi cửa sổ nhẹ (tăng lên ~20-24 nếu muốn đường cong mịn hơn)
   const MAX_STRIPS_BUSY = 8;                   // khi nhiều Genie chạy cùng lúc
   const NODE_BUDGET = 2500;                    // tổng số node DOM được phép nhân bản (N dải x số node cửa sổ)
   const UNDER_DOCK = false;                    // true = cửa sổ chui xuống dưới dock (đẹp hơn nhưng dock phải làm mờ lại mỗi khung => giật)
@@ -48,7 +50,8 @@
     st.textContent =
       '#genie .gn-s{contain:layout paint style;backface-visibility:hidden;transform-origin:0 0}' +
       '#genie .gn-clone,#genie .gn-clone *{animation:none!important;transition:none!important;will-change:auto!important}' +
-      '#genie .gn-clone{box-shadow:none!important;border-radius:0!important;contain:strict}' +
+      // không dùng contain:strict: nó ép size containment, nếu .gn-clone chưa có kích thước rõ ràng thì sập về 0x0
+      '#genie .gn-clone{box-shadow:none!important;border-radius:0!important;contain:layout paint style}' +
       (KEEP_BLUR ? '' :
         '#genie .gn-clone,#genie .gn-clone *{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}');
     document.head.append(st);
@@ -107,8 +110,12 @@
     const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!r.width || !r.height || document.hidden || reduce) { later(done); return; }
 
+    // pt thiếu / sai => hút về giữa mép dưới màn hình thay vì báo lỗi
+    if (!pt || !Number.isFinite(pt.x) || !Number.isFinite(pt.y)) {
+      pt = { x: innerWidth / 2, y: innerHeight, w: 56 };
+    }
+
     injectCss();
-        const tBuild = performance.now();
     active++;
     const host = getLayer();
     if (UNDER_DOCK) underDock(host);
@@ -120,7 +127,8 @@
     const N = stripCount(el, r.height);
     const hs = r.height / N;
     const cx = r.left + r.width / 2;
-    const se = clamp((pt.w || 56) / r.width, 0.01, 1);            // tỉ lệ bề ngang khi tới icon (đúng bằng icon, không chặn dưới 5%)
+    const se = clamp((pt.w || 56) / r.width, 0.01, 1);            // tỉ lệ bề ngang khi tới icon
+    const rad = parseFloat(getComputedStyle(el).borderTopLeftRadius) || 0;   // bo góc đúng theo cửa sổ (widget nhạc bo lớn hơn)
 
     /* --- Bản chụp nhanh của cửa sổ (không phải cửa sổ thật) --- */
     const snap = el.cloneNode(true);
@@ -142,7 +150,6 @@
       i.loading = 'eager';
       i.decoding = 'async';
     });
-    snap.querySelectorAll('input, textarea, button, a').forEach(n => { n.tabIndex = -1; });
     snap.style.cssText = `--gw:${r.width}px;--gh:${r.height}px`;
 
     /* --- Các dải: mỗi dải là 1 bản sao, chỉ hở ra đúng phần của nó --- */
@@ -153,8 +160,10 @@
       s.className = 'gn-s';
       s.style.width = r.width + 'px';
       s.style.height = (hs + EXTRA) + 'px';
-      if (i === 0) s.style.borderRadius = '12px 12px 0 0';             // chỉ 2 dải ngoài cùng cần bo góc
-      if (i === N - 1) s.style.borderRadius = '0 0 12px 12px';
+      if (rad) {                                                       // chỉ 2 dải ngoài cùng cần bo góc
+        if (i === 0) s.style.borderRadius = `${rad}px ${rad}px 0 0`;
+        if (i === N - 1) s.style.borderRadius = `0 0 ${rad}px ${rad}px`;
+      }
       const c = i === 0 ? snap : snap.cloneNode(true);
       c.style.top = (-i * hs) + 'px';
       s.append(c);
@@ -203,7 +212,6 @@
     let finished = false;
     const anims = [];
     let safety = 0;
-    let cap = null;                                               // bản sao icon dock, nằm đè lên cửa sổ
 
     const end = () => {
       if (finished) return;
@@ -212,16 +220,15 @@
       anims.forEach(a => { try { a.cancel(); } catch {} });
       active = Math.max(0, active - 1);
       wrap.remove();
-      if (cap) cap.remove();
       later(done);
     };
 
     // Đặt tư thế đầu ngay (giống hệt cửa sổ thật) rồi mới hiện lên
     strips.forEach((s, i) => { s.style.transform = frames[0].m[i]; });
     wrap.style.opacity = String(frames[0].op);
-    host.append(wrap);
 
-       // Cửa sổ chỉ hiện phía TRÊN mép icon dock => trông như chui vào sau icon (không cần hạ z-index nên dock không giật)
+    // Icon nằm trong dock => cửa sổ chỉ hiện phía TRÊN mép icon, trông như chui vào sau icon
+    // (không cần hạ z-index nên dock không phải làm mờ lại mỗi khung)
     const ie = pt.el;
     if (ie && ie.isConnected && ie.closest && ie.closest('#dock')) {
       const ir = ie.getBoundingClientRect();
@@ -229,9 +236,9 @@
         const cut = ir.top + ir.height * 0.1;                     // chui sâu vào icon thêm 10% cho liền mạch
         wrap.style.clipPath = `inset(0 0 ${Math.max(0, document.documentElement.clientHeight - cut)}px 0)`;
       }
-    }  host.append(wrap);
-    void wrap.offsetHeight;                                       // TẠM: ép dựng ngay để đo  
-    console.log(`[genie] ${dir} N=${N} nodes=${el.getElementsByTagName('*').length} dựng ${(performance.now() - tBuild).toFixed(1)}ms`);
+    }
+    host.append(wrap);
+
     if (typeof wrap.animate === 'function') {
       // Mỗi dải 1 animation transform; cả lớp 1 animation opacity. Tất cả chạy trên compositor.
       const timing = { duration: dur, easing: 'linear', fill: 'both' };
@@ -245,7 +252,7 @@
       anims.forEach(a => a.pause());                              // tạm dừng, chờ các lớp dựng xong
       opAnim.onfinish = end;
 
-      // Chờ 2 khung hình rồi mới phát => không mất đoạn đầu do trình duyệt đang dựng lớp
+      // Chờ 3 khung hình rồi mới phát => không mất đoạn đầu do trình duyệt đang dựng lớp
       requestAnimationFrame(() => requestAnimationFrame(() => requestAnimationFrame(() => {
         if (finished) return;
         anims.forEach(a => a.play());

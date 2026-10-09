@@ -20,29 +20,36 @@
   <link rel="preload" as="image" href="assets/menubar/Logo.png" />
   <link rel="preload" as="image" href="assets/folders/folder.png" />
 
-  <!-- style.css: reset, biến, style chung — phải nạp đầu tiên -->
+  <!-- CSS: style.css chứa reset, biến, style chung nên phải nạp đầu tiên -->
   <link rel="stylesheet" href="css/style.css" />
   <link rel="stylesheet" href="css/menubar.css" />
   <link rel="stylesheet" href="css/dock.css" />
   <link rel="stylesheet" href="css/windows.css" />
-  <link rel="stylesheet" href="css/apps/finder.css" />
   <link rel="stylesheet" href="css/desktop.css" />
   <link rel="stylesheet" href="css/liquid-glass.css" />
   <link rel="stylesheet" href="css/responsive.css" />
   <link rel="stylesheet" href="css/sticky-note.css" />
   <link rel="stylesheet" href="css/app-mode.css" />
-  <link rel="stylesheet" href="css/apps/folders.css">
-  <link rel="stylesheet" href="css/apps/about.css">
-  <link rel="stylesheet" href="css/apps/messages.css">
-  <!-- defer: tải song song, chạy đúng thứ tự sau khi parse xong DOM -->
-  <!-- thay các script cuối bằng: -->
+
+  <!-- CSS của từng app (nạp sau windows.css) -->
+  <link rel="stylesheet" href="css/apps/finder.css" />
+  <link rel="stylesheet" href="css/apps/folders.css" />
+  <link rel="stylesheet" href="css/apps/about.css" />
+  <link rel="stylesheet" href="css/apps/messages.css" />
+  <link rel="stylesheet" href="css/apps/contact.css" />
+
+  <!-- JS: defer = tải song song, chạy đúng thứ tự sau khi parse xong DOM.
+       Các app đăng ký vào window.WMApps nên phải đứng TRƯỚC window-manager.js -->
   <script src="js/clock.js" defer></script>
   <script src="js/dock.js" defer></script>
   <script src="js/genie.js" defer></script>
+
   <script src="js/apps/finder.js" defer></script>
   <script src="js/apps/folders.js" defer></script>
   <script src="js/apps/about.js" defer></script>
   <script src="js/apps/messages.js" defer></script>
+  <script src="js/apps/contact.js" defer></script>
+
   <script src="js/window-manager.js" defer></script>
   <script src="js/desktop.js" defer></script>
   <script src="js/wallpaper.js" defer></script>
@@ -135,9 +142,6 @@
 
     </div>
   </main>
-
-  <!-- DOCK -->
-  <!-- DOCK -->
   <!-- DOCK -->
   <nav id="dock" aria-label="Dock">
     <div class="dock-icon" role="button" tabindex="0" data-open="finder" title="Finder"><img
@@ -146,8 +150,10 @@
         src="assets/dock/Folder.png" alt="" decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" data-open="messages" title="Messages"><img
         src="assets/dock/Messages.png" alt="" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" data-open="contact" title="Mail"><img src="assets/dock/Mail.png"
-        alt="" decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" title="Mail"><img src="assets/dock/Mail.png" alt=""
+        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" data-open="contact" title="Contact"><img
+        src="assets/dock/contacts.png" alt="" decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" title="Maps"><img src="assets/dock/Maps.png" alt=""
         decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" data-open="mobile_project" title="Photos"><img

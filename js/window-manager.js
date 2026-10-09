@@ -260,7 +260,7 @@
   /* ---------- Kéo thả (desktop) ---------- */
   function startDrag(e, w) {
     if (e.button !== 0 || isMobile() || w.max || e.target.closest('.lights, .win-add')) return;
-    const el = w.el, bar = w.bar;
+    const el = w.el, bar = e.currentTarget;                 // phần tử nhận sự kiện (thanh tiêu đề hoặc vùng .win-drag)
     const sx = e.clientX, sy = e.clientY, ox = el.offsetLeft, oy = el.offsetTop;
     bar.setPointerCapture(e.pointerId);
     el.classList.add('dragging');
@@ -364,7 +364,8 @@
     add.setAttribute('aria-label', 'Tab mới');
     add.addEventListener('click', e => { e.stopPropagation(); open('finder', null, w); });
 
-    bar.append(lights, titleEl, add);
+    bar.append(lights, titleEl);
+    if (!app.single) bar.append(add);                       // app như Messages không có nút "+ tab"
     el.append(bar, tabBar);
 
     ['n', 'e', 's', 'w', 'ne', 'nw', 'se', 'sw'].forEach(d => {
