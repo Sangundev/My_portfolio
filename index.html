@@ -31,6 +31,7 @@
   <link rel="stylesheet" href="css/sticky-note.css" />
   <link rel="stylesheet" href="css/app-mode.css" />
   <link rel="stylesheet" href="css/apps/photos.css" />
+  <link rel="stylesheet" href="css/apps/doc.css" />
 
   <!-- CSS của từng app (nạp sau windows.css) -->
   <link rel="stylesheet" href="css/apps/finder.css" />
@@ -38,6 +39,8 @@
   <link rel="stylesheet" href="css/apps/about.css" />
   <link rel="stylesheet" href="css/apps/messages.css" />
   <link rel="stylesheet" href="css/apps/contact.css" />
+  <link rel="stylesheet" href="css/apps/map.css" />
+  <link rel="stylesheet" href="css/apps/freeform.css" />
 
   <!-- JS: defer = tải song song, chạy đúng thứ tự sau khi parse xong DOM.
        Các app đăng ký vào window.WMApps nên phải đứng TRƯỚC window-manager.js -->
@@ -51,10 +54,14 @@
   <script src="js/apps/messages.js" defer></script>
   <script src="js/apps/contact.js" defer></script>
   <script src="js/apps/photos.js" defer></script>
+  <script src="js/apps/map.js" defer></script>
+  <script src="js/apps/doc.js" defer></script>
+  <script src="js/apps/freeform.js" defer></script> <!-- trước window-manager.js -->
 
   <script src="js/window-manager.js" defer></script>
   <script src="js/desktop.js" defer></script>
   <script src="js/wallpaper.js" defer></script>
+  <!-- <script src="js/apps/tool/build-map-data.mjs" defer></script> -->
 
 
 </head>
@@ -87,10 +94,10 @@
   <main id="desktop">
 
     <!-- Welcome -->
-    <section class="welcome">
+    <!-- <section class="welcome">
       <p class="welcome-sub">Welcome to my</p>
       <h1 class="welcome-title">Portfolio</h1>
-    </section>
+    </section> -->
 
     <!-- Sticky note -->
     <aside class="sticky-note" aria-label="To do list">
@@ -156,21 +163,21 @@
         decoding="async" /></div> -->
     <div class="dock-icon" role="button" tabindex="0" data-open="contact" title="Contact"><img
         src="assets/dock/contacts.png" alt="" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Maps"><img src="assets/dock/Maps.png" alt=""
-        decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" data-open="map" title="Maps"><img src="assets/dock/Maps.png"
+        alt="" decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" data-open="photos" title="Photos"><img
         src="assets/dock/Photos.png" alt="" decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" data-open="about" title="Notes"><img src="assets/dock/Notes.png"
+    <div class="dock-icon" role="button" tabindex="0" data-open="notes" title="Notes"><img src="assets/dock/Notes.png"
         alt="" decoding="async" /></div>
+    <div class="dock-icon" role="button" tabindex="0" data-open="freeform" title="Freeform"><img
+        src="assets/dock/Freeform.png" alt="" decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" title="Safari"><img src="assets/dock/Safari.png" alt=""
         decoding="async" /></div>
-    <div class="dock-icon" role="button" tabindex="0" title="Freeform"><img src="assets/dock/Freeform.png" alt=""
-        decoding="async" /></div>
 
-    <div class="dock-sep" role="separator"></div>
+    <!-- <div class="dock-sep" role="separator"></div> -->
 
-    <div class="dock-icon" role="button" tabindex="0" title="WPS Office"><img src="assets/dock/Wps.png" alt=""
-        decoding="async" /></div>
+    <!-- <div class="dock-icon" role="button" tabindex="0" title="WPS Office"><img src="assets/dock/Wps.png" alt=""
+        decoding="async" /></div> -->
     <div class="dock-icon" role="button" tabindex="0" title="VS Code"><img src="assets/dock/Vs.png" alt=""
         decoding="async" /></div>
     <div class="dock-icon" role="button" tabindex="0" title="Framer"><img src="assets/dock/Framer.png" alt=""

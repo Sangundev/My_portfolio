@@ -868,3 +868,13 @@
   .fm-head { padding-left: 0; padding-right: 0; }
   .fd-canvas.v-mlist { padding: 8px 24px; }
 }
+/* Điện thoại / tablet: bỏ thanh tiêu đề "Finder", app đã có header riêng */
+@media (max-width: 1100px) {
+  .win.is-finder > .win-bar,
+  .win.is-finder > .win-tabs { display: none !important; }
+
+  .win.is-finder > .win-body {
+    padding: 0;
+    border-radius: inherit;
+  }
+}

@@ -312,6 +312,8 @@
 .ph-canvas.ph-in { animation: ph-fade .25s ease; }
 .ph-canvas.ph-in .ph-al,
 .ph-canvas.ph-in .ph-ph { animation: ph-pop .5s var(--ph-ease) backwards; animation-delay: calc(var(--i, 0) * 22ms); }
+.ph-canvas.ph-in .ph-al:nth-child(n+19),
+.ph-canvas.ph-in .ph-ph:nth-child(n+25) { animation: none; }   /* chỉ ô đầu mới cần hiệu ứng */
 
 @keyframes ph-fade { from { opacity: 0; } }
 @keyframes ph-pop { from { opacity: 0; transform: translateY(12px) scale(.96); } }
@@ -340,7 +342,9 @@
   background: linear-gradient(to top, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0) 46%);
 }
 
-.ph-al:hover { transform: translateY(-3px) scale(1.012); box-shadow: 0 2px 6px rgba(0, 0, 0, .18), 0 16px 34px rgba(0, 0, 0, .16); }
+@media (hover: hover) {
+  .ph-al:hover { transform: translateY(-3px) scale(1.012); box-shadow: 0 2px 6px rgba(0, 0, 0, .18), 0 16px 34px rgba(0, 0, 0, .16); }
+}
 .ph-al:active { transform: scale(.98); transition-duration: .12s; }
 .ph-al.sel { box-shadow: 0 0 0 3px var(--ph-sel), 0 8px 22px rgba(0, 0, 0, .12); }
 .ph-al:focus-visible { box-shadow: 0 0 0 3px var(--ph-blue); }
@@ -384,7 +388,9 @@
   pointer-events: none;
 }
 
-.ph-ph:hover::after { opacity: .14; }
+@media (hover: hover) {
+  .ph-ph:hover::after { opacity: .14; }
+}
 .ph-ph:active { transform: scale(.985); }
 .ph-ph.sel { outline: 3px solid var(--ph-sel); outline-offset: -3px; }
 .ph-ph:focus-visible { outline: 3px solid var(--ph-blue); outline-offset: -3px; }
@@ -440,7 +446,7 @@
   inset: 60px 92px 40px;
   border-radius: 10px;
   will-change: transform;
-  touch-action: pan-y;
+  touch-action: none;                 /* để JS tự xử lý vuốt ngang / vuốt xuống */
 }
 
 .ph-lb-frame.ld { background: none; }
@@ -520,7 +526,7 @@
   border-radius: 14px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, .2), 0 12px 32px rgba(0, 0, 0, .18);
   backface-visibility: hidden;
-  will-change: transform, opacity;
+  will-change: transform;
   cursor: pointer;
   outline: none;
   -webkit-tap-highlight-color: transparent;
@@ -796,7 +802,7 @@
   .pm-tab.on { background: rgba(120, 120, 128, .14); color: var(--ph-blue); }
 
   /* Xem ảnh */
-  .ph-lb-frame { inset: 56px 0 24px; border-radius: 0; }
+  .ph-lb-frame { inset: 56px 0 calc(24px + env(safe-area-inset-bottom, 0px)); border-radius: 0; }
   .ph-lb-top { padding-left: 12px; padding-right: 12px; }
   .ph-lb-top .ph-pill { height: 40px; padding: 0 2px; }
   .ph-lb-top .ph-btn { width: 40px; height: 36px; padding: 8px; }
@@ -826,4 +832,37 @@
 
 @media (prefers-reduced-motion: reduce) {
   .ph *, .ph *::before, .ph *::after { animation: none !important; transition: none !important; }
+}
+/* Chạm nhanh hơn: bỏ độ trễ / zoom khi chạm đúp */
+.ph-al, .ph-ph, .ph-row, .pm-tab, .ph-btn, .pm-circle { touch-action: manipulation; }
+
+/* Menu "…" trên điện thoại: mục đủ lớn để chạm (28px quá nhỏ) */
+@media (max-width: 1100px) {
+  .ph-pop { min-width: 220px; }
+  .ph-mi { height: 42px; font-size: 16px; padding-right: 16px; }
+  .ph-mhead { font-size: 12px; padding-top: 8px; }
+}
+
+/* Màn hình "Đang tải…" (nằm NGOÀI .ph nên không dùng biến --ph-*) */
+.ph-loading {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  height: 100%;
+  min-height: 120px;
+  font-size: 13px;
+  opacity: .6;
+}
+/* Điện thoại / tablet: bỏ thanh tiêu đề "Photos", app đã có header riêng */
+@media (max-width: 1100px) {
+  .win.is-photos > .win-bar,
+  .win.is-photos > .win-tabs { display: none !important; }
+
+  .win.is-photos > .win-body {
+    padding: 0;
+    border-radius: inherit;
+  }
+
+  /* Khi không còn thanh tiêu đề, chừa chỗ cho tai thỏ / thanh trạng thái */
+  .pm-head { padding-top: calc(12px + env(safe-area-inset-top, 0px)); }
 }

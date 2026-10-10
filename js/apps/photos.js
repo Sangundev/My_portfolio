@@ -11,11 +11,12 @@
 ========================================================= */
 (() => {
   /* ---------- DỮ LIỆU (sửa ở đây) ---------- */
-  const BASE = "assets/Photos";
+  const BASE = "assets/photos";            // khớp đúng tên thư mục thật (Linux/GitHub Pages phân biệt hoa thường)
+  const USE_THUMBS = true;                 // lưới dùng <folder>/thumbs/<n>.webp, lightbox dùng ảnh gốc
   const EXT = 'jpg';
   const EXTS = ['jpg', 'jpeg', 'png', 'webp'];        // các đuôi sẽ thử lần lượt
   const ALBUMS = [
-    { id: 'travel', name: 'Travel', folder: 'travels', hue: 160 },
+    { id: 'travel', name: 'Travel', folder: 'travels', hue: 160},
      { id: 'family', name: 'Family',      folder: 'family', hue: 30  },
     { id: 'food',   name: 'Food',        folder: 'food',   hue: 48  }
   ];
@@ -33,13 +34,19 @@
   const MAX = 200; // chặn trên cho an toàn
 
   const makePhoto = (key, g, n, ext = EXT) => {
+    const src = `${BASE}/${g.folder}/${n}.${ext}`;
     const p = {
       id: `${key}-${n}`, album: g, title: `${g.name} ${n}`,
-      src: `${BASE}/${g.folder}/${n}.${ext}`, hue: (g.hue + n * 11) % 360
+      src,
+      thumb: USE_THUMBS ? `${BASE}/${g.folder}/thumbs/${n}.webp` : src,
+      hue: (g.hue + n * 11) % 360
     };
     BY[p.id] = p;
     return p;
   };
+
+  /* Ảnh bìa của album; album trống thì chỉ hiện gradient */
+  const cover = (a) => a.photos[0] || { src: "", thumb: "", hue: a.hue };
 
   const exists = (src) =>
     new Promise((res) => {
@@ -52,34 +59,23 @@
   /* Gọi 1.jpg, 2.jpg, ... cho đến khi gặp ảnh không có thì dừng */
   async function load(key, g) {
     g.photos = [];
+    let ext = EXTS[0];
     for (let n = 1; n <= MAX; n++) {
-      let found = null;
-      for (const ext of EXTS) {                                  // thử từng đuôi cho ảnh số n
-        const src = `${BASE}/${g.folder}/${n}.${ext}`;
-        if (await exists(src)) { found = makePhoto(key, g, n, ext); break; }
-      }
+      const order = [ext, ...EXTS.filter((e) => e !== ext)];     // thử đuôi vừa tìm được trước
+      const found = await Promise.any(
+        order.map((e) =>
+          exists(`${BASE}/${g.folder}/${n}.${e}`).then((ok) => (ok ? e : Promise.reject())),
+        ),
+      ).catch(() => null);
       if (!found) break;                                         // không có đuôi nào -> hết ảnh
-      g.photos.push(found);
+      ext = found;
+      g.photos.push(makePhoto(key, g, n, found));
     }
-    if (!g.photos.length) g.photos.push(makePhoto(key, g, 1));   // thư mục trống: giữ 1 ô gradient
+    // thư mục trống: để mảng rỗng để màn hình EMPTY hiện đúng
   }
 
   const GROUPS = [...ALBUMS.map((a) => [a.id, a]), ...Object.entries(SETS)];
   let ready = null; // chỉ quét một lần dù mở app nhiều lần
-  ALBUMS.forEach((a) => {
-    a.photos = Array.from({ length: a.count }, (_, i) => {
-      const p = {
-        id: `${a.id}-${i + 1}`,
-        album: a,
-        title: `${a.name} ${i + 1}`,
-        src: `${BASE}/${a.folder}/${i + 1}.${EXT}`,
-        hue: (a.hue + i * 11) % 360,
-      };
-      ALL.push(p);
-      BY[p.id] = p;
-      return p;
-    });
-  });
 
   const AZ = [130, 160, 200, 250, 320]; // cột tối thiểu của lưới album theo mức zoom
   const PZ = [70, 95, 130, 180, 240]; // cột tối thiểu của lưới ảnh theo mức zoom
@@ -99,6 +95,13 @@
   };
   // icon, tiêu đề (EN), tiêu đề (VI), mô tả (EN), mô tả (VI)
   const EMPTY = {
+    album: [
+      "photo",
+      "No Photos",
+      "Chưa có ảnh",
+      "Photos you add will appear here.",
+      "Ảnh bạn thêm sẽ hiện ở đây.",
+    ],
     favorites: [
       "heart",
       "No Favorites",
@@ -241,21 +244,28 @@
   const paint = (el, p) => {
     el.classList.add("ph-g");
     el.style.setProperty("--hue", p.hue);
+    const first = p.thumb || p.src;
+    if (!first) return el;                       // không có ảnh: giữ gradient
     const im = new Image();
     im.alt = "";
     im.decoding = "async";
     im.loading = "lazy";
     im.draggable = false;
+    let fell = first === p.src;
     im.addEventListener("load", () => el.classList.add("ld"));
-    im.addEventListener("error", () => im.remove());
-    im.src = p.src;
-    el.append(im);
+    im.addEventListener("error", () => {
+      if (!fell && p.src) { fell = true; im.src = p.src; }   // thiếu thumbnail thì dùng ảnh gốc
+      else im.remove();
+    });
+    im.src = first;
+    el.prepend(im);                              // prepend để ảnh luôn nằm dưới nhãn / tim
     return el;
   };
 
   /* ---------- BUILD ---------- */
   function build(body, _title, api) {
-    const { isMobile } = api;
+    const isMob = () =>
+      typeof api.isMobile === "function" ? api.isMobile() : !!api.isMobile;
     body.classList.add("flush", "ph-body");
 
     const small = () => window.matchMedia("(max-width:1100px)").matches;
@@ -298,7 +308,7 @@
         row.setAttribute("role", "button");
         row.tabIndex = 0;
         const ic = h("span", album ? "ph-sth" : "ph-ico");
-        if (album) paint(ic, album.photos[0]);
+        if (album) paint(ic, cover(album));
         else ic.innerHTML = I[icon];
         row.append(ic, h("span", null, label));
         row.addEventListener("click", () => show(id, true));
@@ -597,8 +607,13 @@
       tCount.textContent = txt;
       footB.textContent = txt;
     };
-    input.addEventListener("input", filter);
-    mInput.addEventListener("input", filter);
+    let ft = 0;
+    const filterSoon = () => {
+      clearTimeout(ft);
+      ft = setTimeout(filter, 120);
+    };
+    input.addEventListener("input", filterSoon);
+    mInput.addEventListener("input", filterSoon);
 
     /* --- Chọn ô --- */
     const paintSel = () => {
@@ -619,7 +634,7 @@
       el.dataset.name = name.toLowerCase();
       el.addEventListener("click", (e) => {
         e.stopPropagation();
-        if (small() || isMobile() || e.detail === 0 || vmode === "3d")
+        if (small() || isMob() || e.detail === 0 || vmode === "3d")
           act(); // cảm ứng / phím Enter / dạng 3D: mở luôn
         else setSel(key); // chuột: bấm = chọn
       });
@@ -636,7 +651,7 @@
       );
       t.style.setProperty("--i", Math.min(i, 18));
       t.setAttribute("aria-label", a.name);
-      paint(t, a.photos[0]);
+      paint(t, cover(a));
       t.append(h("span", "ph-all", a.name));
       return t;
     };
@@ -676,7 +691,7 @@
 
       if (d.kind === "empty" || !d.list.length) {
         total = 0;
-        const e = EMPTY[d.kind === "empty" ? cur : "favorites"] || EMPTY.shared;
+        const e = EMPTY[cur] || EMPTY.album;
         canvas.append(emptyV(e[0], T(e[1], e[2]), T(e[3], e[4])));
         filter();
         return;
@@ -794,8 +809,9 @@
           { duration: 300, easing: "cubic-bezier(.22,.8,.24,1)" },
         );
       }
-      const nx = L.list[L.i + (dir || 1)]; // nạp trước ảnh kế tiếp
-      if (nx) new Image().src = nx.src;
+      [L.list[L.i + 1], L.list[L.i - 1]].forEach((x) => {   // nạp trước ảnh kế và ảnh trước
+        if (x) new Image().src = x.src;
+      });
     }
 
     /* Vị trí ô ảnh <-> khung xem: scale đều (không méo ảnh), căn theo tâm */
@@ -974,19 +990,30 @@
     function cfDraw() {
       const c = cf;
       if (!c) return;
-      c.vis.forEach((it, i) => {
-        const d = i - c.pos,
+      const lo = Math.max(0, Math.floor(c.pos - 6));
+      const hi = Math.min(c.vis.length - 1, Math.ceil(c.pos + 6));
+      for (let i = c.lo; i <= c.hi; i++)           // ẩn ảnh vừa trượt ra khỏi cửa sổ
+        if ((i < lo || i > hi) && c.vis[i]) c.vis[i].style.visibility = "hidden";
+      for (let i = lo; i <= hi; i++) {
+        const it = c.vis[i],
+          d = i - c.pos,
           a = Math.abs(d);
         if (a > 5.5) {
           it.style.visibility = "hidden";
-          return;
+          continue;
+        }
+        if (!it._on) {                             // chỉ tải ảnh khi lần đầu vào tầm nhìn
+          it._on = true;
+          paint(it, it._p);
         }
         const ang = -Math.sign(d) * CF_ANGLE * cfCurve(a);
         it.style.visibility = "";
         it.style.opacity =
           a > 3.5 ? String(Math.max(0, 1 - (a - 3.5) / 2)) : "1";
         it.style.transform = `translate3d(${(d * c.S).toFixed(1)}px, 0, ${(-Math.min(a, 4) * 34).toFixed(1)}px) rotateY(${ang.toFixed(2)}deg)`;
-      });
+      }
+      c.lo = lo;
+      c.hi = hi;
       const k = Math.max(0, Math.min(c.vis.length - 1, Math.round(c.pos)));
       if (k !== c.k) {
         c.k = k;
@@ -1043,6 +1070,11 @@
       if (!c) return;
       c.vis = c.items.filter((it) => !it.hidden);
       c.k = -1;
+      c.items.forEach((it) => {
+        it.style.visibility = "hidden";
+      });
+      c.lo = 0;
+      c.hi = -1;
       if (c.n !== c.vis.length) {
         const first = c.n < 0;
         c.n = c.vis.length;
@@ -1090,7 +1122,9 @@
         );
         el.dataset.label = name;
         el.setAttribute("aria-label", name);
-        paint(el, isAlbum ? it.photos[0] : it);
+        el._p = isAlbum ? cover(it) : it;   // ảnh được tải lười trong cfDraw
+        el.classList.add("ph-g");
+        el.style.setProperty("--hue", el._p.hue);
         if (isAlbum) el.append(h("span", "ph-all", name));
         else tileMap.set(it.id, el);
         stage.append(el);
@@ -1103,6 +1137,8 @@
         root: root3,
         items,
         vis: items.slice(),
+        lo: 0,
+        hi: -1,
         cap,
         pos: 0,
         target: 0,
@@ -1169,6 +1205,9 @@
         g = null;
         if (!s.on || !cf) return;
         cf.drag = false;
+        setTimeout(() => {
+          if (cf) cf.moved = false;
+        }, 0); // sau khi click "ảo" đã bị chặn
         const fling =
           e.type === "pointerup" && performance.now() - s.lt < 90 ? s.v : 0; // dừng tay rồi mới thả thì không văng
         cf.target = cfSnap(cf.pos + fling * 260);
@@ -1311,13 +1350,25 @@
     cls: "is-photos", // class thêm vào cửa sổ (photos.css dùng để ẩn thanh tiêu đề trên máy tính)
     single: true, // không có nút "+ tab"
     build: (body, t, api) => {
+      body.classList.add("flush", "ph-body");
+      const ld = h("div", "ph-loading", "Đang tải…");
+      body.append(ld);
       ready =
         ready ||
         Promise.all(GROUPS.map(([k, g]) => load(k, g))).then(() => {
           ALL.length = 0;
           ALBUMS.forEach((a) => ALL.push(...a.photos));
         });
-      ready.then(() => build(body, t, api));
+      ready.then(
+        () => {
+          ld.remove();
+          build(body, t, api);
+        },
+        () => {
+          ready = null; // lần mở sau quét lại
+          ld.textContent = "Không tải được ảnh";
+        },
+      );
     },
   };
 })();
