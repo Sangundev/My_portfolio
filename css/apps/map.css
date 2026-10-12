@@ -1,14 +1,39 @@
 /* =========================================================
    css/apps/map.css: app Design Journey (bản đồ 3D TP.HCM)
    Nạp SAU windows.css. Cảnh 3D dựng thuần CSS (transform-style: preserve-3d),
-   JS (map.js) chỉ đổi biến camera. Luôn dùng tông tối (cảnh ban đêm).
+   JS (map.js) chỉ đổi transform của camera.
+   Phong cách diorama BAN NGÀY: tường kem / xám sáng, mái ngói cam, mái xanh teal, mái phẳng xám,
+   kính xanh ngọc / xanh trời. Nền ngoài (backdrop) vẫn tối để mô hình nổi bật.
+   Tối ưu mượt: không backdrop-filter trên cảnh động, chỉ vẽ các mặt bên hướng camera,
+   contain + will-change, tạm dừng hoạt ảnh khi kéo / khi app bị che.
+
+   LƯU Ý HÌNH HỌC (đã kiểm chứng trong Chromium):
+   - KHÔNG đặt backface-visibility: hidden trên các mặt bên (.s) của khối nhà: các mặt này được xoay theo
+     cách khiến trình duyệt coi là "mặt sau" và ẩn mất tường. Việc ẩn mặt khuất do data-v (map.js) đảm nhận.
+   - --e PHẢI giữ 0px. Cho mặt tường nhô quá cạnh góc làm các mặt phẳng cắt nhau; Chromium cắt đôi mặt khi sắp
+     xếp độ sâu và làm mất cả một dải (khe hở tệ hơn nhiều lần).
+   - Hộp xếp chồng được nâng Z_LIFT = 1/16 THEO TỪNG TẦNG trong map.js (cuboid(..., lv)): tầng k được nâng
+     k / 16 để tường tầng trên luôn bắt đầu CAO HƠN mặt mái tầng dưới (h + 1/64), không bao giờ cắt nó.
+     Trước đây chỉ nâng một lần nên tầng thứ 3 trở đi (Landmark 81, mũ tháp, bể nước trên mái) lại cắt mái.
 ========================================================= */
+.mp-bx.br { --b: #cfcdc6; }
+.mp-bx.br .t { background-color: #4d5361; }
+.mp-bx.br.bh.av .t { background-image: linear-gradient(0deg,  transparent calc(50% - .17px), #f4c430 calc(50% - .17px) calc(50% + .17px), transparent 0); }
+.mp-bx.br.bv.av .t { background-image: linear-gradient(90deg, transparent calc(50% - .17px), #f4c430 calc(50% - .17px) calc(50% + .17px), transparent 0); }
+.mp-bx.br.bh.mn .t { background-image: repeating-linear-gradient(90deg, rgba(255,255,255,.7) 0 1.6px, transparent 1.6px 3px); background-size: 100% .3px; background-position: 0 50%; background-repeat: repeat-x; }
+.mp-bx.br.bv.mn .t { background-image: repeating-linear-gradient(0deg,  rgba(255,255,255,.7) 0 1.6px, transparent 1.6px 3px); background-size: .3px 100%; background-position: 50% 0; background-repeat: repeat-y; }
+.mp-bx.pr { --b: #b9b6ad; }
+.mp-bx.pr .t { background-color: #a9a69d; }
+.mp-bx.rl { --b: #e9e7df; }
+.mp-bx.rl .t { background-color: #f2f0ea; }
 
 .mp {
   --mp-ease: cubic-bezier(.22, .8, .24, 1);
-  --mp-glass: rgba(22, 26, 48, .72);
+  --mp-glass: rgba(22, 26, 48, .9);
   --mp-text: #f2f3fa;
   --mp-sub: #8f96bd;
+  --bw: 1000px;                          /* JS ghi kích thước đế bản đồ vào đây */
+  --bh: 760px;
   position: relative;
   flex: 1;
   width: 100%;
@@ -23,6 +48,7 @@
   -webkit-font-smoothing: antialiased;
   user-select: none;
   -webkit-user-select: none;
+  contain: layout paint;
 }
 
 .mp [hidden] { display: none !important; }
@@ -35,7 +61,10 @@
 
 .mp .ic { display: block; width: 100%; height: 100%; }
 
-.mp .ic svg {
+/* một quy tắc chung cho mọi icon SVG (icon, mũi tên trong chip và trong bảng khoảng cách) */
+.mp .ic svg,
+.mp-seg .ar svg,
+.mp-dist .ar svg {
   display: block;
   width: 100%;
   height: 100%;
@@ -46,6 +75,9 @@
   stroke-linejoin: round;
 }
 
+.mp-seg .ar svg { stroke-width: 2.4; }
+.mp-dist .ar svg { stroke-width: 2.2; }
+
 /* ---------- Cảnh 3D ---------- */
 .mp-view {
   position: absolute;
@@ -55,6 +87,7 @@
   overflow: hidden;
   cursor: grab;
   touch-action: none;
+  contain: layout paint;
 }
 
 .mp-view.drag { cursor: grabbing; }
@@ -66,141 +99,228 @@
   width: 0;
   height: 0;
   transform-style: preserve-3d;
+  backface-visibility: hidden;
 }
+
+/* will-change CHỈ bật khi đang kéo / zoom / bay camera. Để bật vĩnh viễn, trình duyệt giữ ảnh raster ở mức zoom ban đầu
+   rồi phóng to lên => canvas mặt đất bị mờ. Dừng chuyển động thì được vẽ lại sắc nét ở đúng mức zoom. */
+.mp.moving .mp-world { will-change: transform; }
 
 .mp-board,
 .mp-city {
   position: absolute;
   left: 0;
   top: 0;
-  width: 1000px;
-  height: 760px;
+  width: var(--bw);
+  height: var(--bh);
   transform-style: preserve-3d;
 }
 
-.mp-layer { position: absolute; left: 0; top: 0; width: 1000px; height: 760px; }
+.mp-layer { position: absolute; left: 0; top: 0; width: var(--bw); height: var(--bh); }
 
 .mp-shadow {
-  left: -80px;
-  top: -40px;
-  width: 1160px;
-  height: 840px;
+  left: -50px;
+  top: -30px;
+  width: calc(var(--bw) + 100px);
+  height: calc(var(--bh) + 60px);
   background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent);
   transform: translateZ(-64px);
 }
 
-.mp-top svg { display: block; width: 1000px; height: 760px; }
+/* ô cắt (map.js tạo): vùng chứa 0x0 để trình duyệt cắt / ẩn cả cụm nhà cùng lúc */
+.mp-tile {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  transform-style: preserve-3d;
+}
 
-/* ---------- Khối nhà (hộp 3D: 1 mặt trên + 4 mặt bên) ---------- */
+.mp-top canvas { display: block; width: var(--bw); height: var(--bh); }
+
+/* ---------- Khối nhà (hộp 3D: 1 mặt trên + 4 mặt bên, chỉ bật mặt hướng camera) ----------
+   Mặc định là tường kem ban ngày. Class "dz" (map-city.js gắn cho mọi nhà) giữ nguyên làm khoá chọn kiểu. */
 .mp-bx {
+  backface-visibility: hidden;
   --h: 20px;
-  --b: #2b3358;
+  --b: #e6dfd0;
+  --e: 0px;                             /* KHÔNG chồng mí: các mặt gặp nhau đúng ở cạnh góc (xem ghi chú đầu file) */
   position: absolute;
   transform-style: preserve-3d;
 }
 
-.mp-bx > i {
-  position: absolute;
-  display: block;
-  box-sizing: border-box;
-  box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .05);
-}
-
+/* mặt trên (mái): màu phẳng + viền sáng mảnh để tách các khối liền kề.
+   Nâng nhẹ 1/64 px so với đỉnh tường để tránh z-fight ở cạnh mái. */
 .mp-bx .t {
   inset: 0;
-  transform: translateZ(var(--h));
-  background-color: color-mix(in srgb, var(--b), #fff 16%);
-  background-image: linear-gradient(135deg, rgba(255, 255, 255, .09), rgba(0, 0, 0, .12));
+  transform: translateZ(calc(var(--h) + .015625px));
+  background-color: #dcdad3;
+  background-image: linear-gradient(135deg, rgba(255, 255, 255, .4), rgba(0, 0, 0, .07));
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.45);
 }
 
-/* Mặt bên: lưới cửa sổ */
-.mp-bx .s {
+/* Mặt bên: một lớp kết cấu cửa sổ (map.js vẽ sẵn, gán --tw theo kiểu cửa) + một lớp bóng. Rẻ và nét. */
+/* mặt không có cửa sổ: bóng đúng chiều (chân tối, mái sáng) */
+.mp-bx .fr, .mp-bx .bk {
+  background-image: linear-gradient(180deg, rgba(0,0,0,.16), transparent 30%, rgba(255,255,255,.1));
+}
+.mp-bx .lf, .mp-bx .rt {
+  background-image: linear-gradient(90deg, rgba(0,0,0,.16), transparent 30%, rgba(255,255,255,.1));
+}
+
+/* mặt trước / sau: phào mái -> tầng trệt -> cửa sổ -> AO */
+.mp-bx.lit .fr, .mp-bx.lit .bk {
   background-image:
-    repeating-linear-gradient(90deg, transparent 0 6px, rgba(12, 16, 34, .5) 6px 8px),
-    repeating-linear-gradient(0deg, transparent 0 8px, rgba(12, 16, 34, .5) 8px 10px),
-    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(0, 0, 0, .2));
+    linear-gradient(0deg, rgba(255,255,255,.42) 0 1.2px, transparent 1.2px),
+    linear-gradient(180deg, rgba(20,34,52,.32) 0, rgba(20,34,52,.32) var(--ch),
+                    rgba(255,255,255,.22) var(--ch) calc(var(--ch) + .5px), transparent 0),
+    var(--tw),
+    linear-gradient(180deg, rgba(0,0,0,.16), transparent 30%, rgba(255,255,255,.1));
+  background-size: 100% 100%, 100% 100%, var(--cw) var(--ch), 100% 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
 }
 
-.mp-bx .rt,
-.mp-bx .lf {                           /* trục x của mặt này chạy theo chiều cao nhà -> đổi góc kẻ */
+/* mặt trái / phải: trục ngang = chiều cao, dùng texture chuyển vị --tw2 */
+.mp-bx.lit .lf, .mp-bx.lit .rt {
   background-image:
-    repeating-linear-gradient(0deg, transparent 0 6px, rgba(12, 16, 34, .5) 6px 8px),
-    repeating-linear-gradient(90deg, transparent 0 8px, rgba(12, 16, 34, .5) 8px 10px),
-    linear-gradient(90deg, rgba(0, 0, 0, .2), rgba(255, 255, 255, .05));
+    linear-gradient(270deg, rgba(255,255,255,.42) 0 1.2px, transparent 1.2px),
+    linear-gradient(90deg, rgba(20,34,52,.32) 0, rgba(20,34,52,.32) var(--ch),
+                    rgba(255,255,255,.22) var(--ch) calc(var(--ch) + .5px), transparent 0),
+    var(--tw2),
+    linear-gradient(90deg, rgba(0,0,0,.16), transparent 30%, rgba(255,255,255,.1));
+  background-size: 100% 100%, 100% 100%, var(--ch) var(--cd), 100% 100%;
+  background-position: 0 0;
+  background-repeat: no-repeat, no-repeat, repeat, no-repeat;
 }
 
-.mp-bx .fr { left: 0; top: 100%; width: 100%; height: var(--h); transform-origin: 0 0; transform: rotateX(90deg); background-color: var(--b); }
-.mp-bx .bk { left: 0; top: 0; width: 100%; height: var(--h); transform-origin: 0 0; transform: rotateX(90deg); background-color: color-mix(in srgb, var(--b), #000 38%); }
-.mp-bx .rt { left: 100%; top: 0; width: var(--h); height: 100%; transform-origin: 0 0; transform: rotateY(-90deg); background-color: color-mix(in srgb, var(--b), #000 24%); }
-.mp-bx .lf { left: 0; top: 0; width: var(--h); height: 100%; transform-origin: 0 0; transform: rotateY(-90deg); background-color: color-mix(in srgb, var(--b), #000 12%); }
+/* map.js ghi data-v = các mặt đang hướng về camera (L / R / F / B). Mặt quay lưng thì bỏ hẳn khỏi cảnh */
+.mp-world[data-v]:not([data-v*="L"]) .mp-bx .lf,
+.mp-world[data-v]:not([data-v*="R"]) .mp-bx .rt,
+.mp-world[data-v]:not([data-v*="F"]) .mp-bx .fr,
+.mp-world[data-v]:not([data-v*="B"]) .mp-bx .bk { display: none; }
 
-.mp-bx.tn0 { --b: #2b3358; }
-.mp-bx.tn1 { --b: #252b4d; }
-.mp-bx.tn2 { --b: #343c66; }
-.mp-bx.tn3 { --b: #1f2544; }
-.mp-bx.tw  { --b: #3a4776; }          /* tháp cao: kính xanh hơn */
+/* Nhà của công ty: nhuộm nhẹ theo --c */
+.mp-bx.co { --b: color-mix(in srgb, var(--c) 16%, #f3ecdc); }
+.mp-bx.co .t { background-color: color-mix(in srgb, var(--c) 34%, #e6e2d6); }
 
-/* Nhà của công ty: nhuộm màu theo --c */
-.mp-bx.co { --b: color-mix(in srgb, var(--c) 38%, #1d2347); }
-.mp-bx.co .t { background-color: color-mix(in srgb, var(--c) 60%, #1b2040); }
-
-.mp-pad {                              /* bệ trắng dưới ghim */
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  margin: -15px 0 0 -15px;
-  border-radius: 7px;
-  background: linear-gradient(145deg, #fff, #d3d9f4);
-  box-shadow: 0 0 22px var(--c), 0 0 0 1px rgba(255, 255, 255, .6);
+/* ---------- Vật liệu mái / tường ---------- */
+.mp-bx.tl .t { background-color: #c8602f; }                    /* mái ngói cam */
+.mp-bx.sl .t { background-color: #2f7f8f; }                    /* mái xanh teal */
+.mp-bx.gr .t { background-color: #5b9f6c; }                    /* mái xanh lá */
+.mp-bx.fg .t { background-color: #cfd0cc; }                    /* mái bê tông phẳng xám */
+.mp-bx.tl .t,
+.mp-bx.sl .t,
+.mp-bx.gr .t {                                                 /* sống mái */
+  background-image: linear-gradient(0deg, transparent calc(50% - 1px), rgba(255, 255, 255, .24) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
 }
 
-.mp-ring {                             /* vòng sóng lan ra trên mặt đất */
+.mp-bx.st { --b: #dccfb0; }                                    /* đế đá */
+.mp-bx.st .t { background-color: #cdbf9f; }
+
+.mp-bx.gl2,
+.mp-bx.gl2.co { --b: #4fb6b0; }                                /* kính xanh ngọc */
+.mp-bx.gl2 .t,
+.mp-bx.gl2.co .t { background-color: #aee9e4; }
+.mp-bx.gl2.dk { --b: #3a7f93; }                                /* khối kính thấp, sẫm hơn */
+.mp-bx.gl2.dk .t { background-color: #2f6479; }
+
+.mp-bx.gl3,
+.mp-bx.gl3.co { --b: #6f93c9; }                                /* kính xanh trời */
+.mp-bx.gl3 .t,
+.mp-bx.gl3.co .t { background-color: #bcd0ee; }
+
+.mp-bx.cp { --b: #f2f0ea; }                                    /* khối trường / văn phòng trắng */
+.mp-bx.cp .t { background-color: #e4e2dc; }
+
+.mp-bx.wh { --b: #cfd3dc; }                                    /* kho / xưởng: tôn sóng xám nhạt */
+.mp-bx.wh .t { background-color: #c3c8d2; }
+.mp-bx.wh .s {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .35) 0 2px, rgba(0, 0, 0, .08) 2px 5px),
+    linear-gradient(180deg, rgba(255, 255, 255, .1), rgba(0, 0, 0, .1));
+}
+
+/* mái tôn của khối đặc biệt: container, ngói tối */
+.mp-bx.rf { --b: #c9ced9; }
+.mp-bx.rf .t { background-color: #c9ced9; }
+.mp-bx.tile { --b: #8c4d3d; }
+.mp-bx.ct { --b: #b4533c; }
+.mp-bx.ct .t { background-color: #b4533c; }
+
+/* máy kỹ thuật / bể nước trên mái phẳng */
+.mp-bx.rp .t {
+  background-image:
+    linear-gradient(rgba(70, 80, 110, .4), rgba(70, 80, 110, .4)),
+    linear-gradient(rgba(90, 100, 125, .32), rgba(90, 100, 125, .32)),
+    linear-gradient(135deg, rgba(255, 255, 255, .4), rgba(0, 0, 0, .07));
+  background-size: 38% 38%, 20% 26%, 100% 100%;
+  background-position: 30% 62%, 78% 24%, 0 0;
+  background-repeat: no-repeat;
+}
+
+/* ---------- Thành bản đồ (mặt cắt dày của mô hình) ---------- */
+.mp-wall {
   position: absolute;
-  width: 130px;
-  height: 130px;
-  margin: -65px 0 0 -65px;
-  border-radius: 50%;
-  border: 2px solid var(--c);
-  box-shadow: 0 0 18px var(--c), inset 0 0 18px color-mix(in srgb, var(--c) 50%, transparent);
-  animation: mp-ring 2.8s ease-out infinite;
+  box-sizing: border-box;
+  transform-origin: 0 0;
+  border-top: 1.2px solid rgba(235, 240, 255, .95);
   pointer-events: none;
 }
 
-@keyframes mp-ring {
-  from { transform: translateZ(1px) scale(.35); opacity: .9; }
-  to   { transform: translateZ(1px) scale(1.15); opacity: 0; }
+/* ---------- Bệ trắng dưới ghim (mái toà chính) ---------- */
+.mp-flat { position: absolute; pointer-events: none; }
+
+/* sóng tỏa ra từ chân toà: 2 vòng viền nở rộng rồi mờ dần */
+/* sóng nhỏ tỏa ra từ chân toà: quầng sáng nhạt + 2 vòng tròn viền mảnh nở rộng rồi mờ dần */
+.mp-glow {
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+  transform: translateZ(.5px);
+  background: radial-gradient(closest-side,
+    color-mix(in srgb, var(--c) 28%, transparent),
+    color-mix(in srgb, var(--c) 10%, transparent) 65%,
+    transparent 100%);
 }
 
-/* ---------- Vật đứng thẳng luôn quay mặt về camera (ghim, cây) ---------- */
-.mp-mk,
-.mp-tree {
+.mp-glow::before,
+.mp-glow::after {
+  content: "";
   position: absolute;
+  inset: 27%;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 1.5px solid var(--c);
+  opacity: 0;
+  animation: mp-ripple 2.6s ease-out infinite;
+}
+
+.mp-glow::after { animation-delay: 1.3s; }
+
+@keyframes mp-ripple {
+  0%   { inset: 27%; opacity: .9; }
+  100% { inset: -35%; opacity: 0; }
+}
+
+.mp.moving .mp-glow::before,
+.mp.moving .mp-glow::after,
+.mp.off .mp-glow::before,
+.mp.off .mp-glow::after { animation-play-state: paused; }
+
+/* ---------- Vật đứng thẳng luôn quay mặt về camera (ghim, chip, nhãn) ----------
+   transform được map.js ghi trực tiếp lên từng phần tử (không qua biến CSS kế thừa) */
+.mp-lbls { position: absolute; inset: 0; pointer-events: none; }
+.mp-lbls .mp-bob { pointer-events: auto; }
+
+.mp-mk {
+  position: absolute;
+  left: 0;
+  top: 0;
   width: 0;
   height: 0;
   transform-origin: 0 0;
-  transform: translate3d(0, 0, var(--z, 0px)) rotateZ(calc(var(--rz, 0deg) * -1)) rotateX(calc(var(--rx, 0deg) * -1));
-}
-
-.mp-tree::before {
-  content: "";
-  position: absolute;
-  left: -7px;
-  bottom: 5px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50% 50% 45% 45%;
-  background: radial-gradient(circle at 35% 30%, #5fe39a, #1e7a4c 70%);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, .4);
-}
-
-.mp-tree::after {
-  content: "";
-  position: absolute;
-  left: -1px;
-  bottom: 0;
-  width: 2px;
-  height: 6px;
-  background: #4a3524;
 }
 
 .mp-bob {
@@ -213,8 +333,7 @@
   border: 0;
   background: none;
   cursor: pointer;
-  transform-origin: 0 0;
-  transform: scale(var(--ks, 1));       /* giữ chữ đọc được khi zoom */
+  transform-origin: 0 0;                /* map.js ghi scale() để giữ chữ đọc được khi zoom */
 }
 
 .mp-pin {
@@ -225,7 +344,7 @@
   height: 32px;
   border-radius: 50% 50% 50% 0;
   background: linear-gradient(160deg, color-mix(in srgb, var(--c), #fff 28%), var(--c));
-  box-shadow: 0 0 20px color-mix(in srgb, var(--c) 75%, transparent), inset 0 -3px 6px rgba(0, 0, 0, .25);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .35), inset 0 -3px 6px rgba(0, 0, 0, .25);   /* bóng đổ gọn thay cho quầng sáng */
   transform: translateY(-6px) rotate(-45deg);
   animation: mp-bob 2.4s ease-in-out infinite;
 }
@@ -247,20 +366,24 @@
   50%      { transform: translateY(-13px) rotate(-45deg); }
 }
 
+/* nhãn căn giữa bằng layout (margin auto), KHÔNG dùng transform => chữ nằm đúng pixel, sắc nét */
 .mp-lab {
   position: absolute;
-  left: 0;
+  left: -240px;
+  right: -240px;
+  width: max-content;
+  margin: 0 auto;
   bottom: 48px;
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 5px 12px 5px 5px;
   border-radius: 12px;
-  background: rgba(22, 26, 46, .9);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), 0 8px 22px rgba(0, 0, 0, .5), 0 0 22px color-mix(in srgb, var(--c) 30%, transparent);
+  background: rgba(18, 22, 40, .98);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--c) 60%, transparent), 0 6px 14px rgba(0, 0, 0, .4);
   white-space: nowrap;
   text-align: left;
-  transform: translateX(-50%);
+  text-rendering: geometricPrecision;
   transition: opacity .3s ease, transform .35s var(--mp-ease);
 }
 
@@ -276,12 +399,74 @@
 }
 
 .mp-lab b { display: block; font-size: 12px; font-weight: 600; color: #fff; }
-.mp-lab small { display: block; font-size: 10.5px; color: #aab1d6; }
+.mp-lab small { display: block; font-size: 10.5px; color: #c8cef0; }
 
 .mp-bob:hover .mp-lab,
-.mp-mk.on .mp-lab { transform: translateX(-50%) scale(1.08); }
+.mp-mk.on .mp-lab { transform: translateY(-2px); }              /* nhích lên theo pixel nguyên, không phóng to chữ */
+.mp-mk.on .mp-lab {
+  box-shadow: 0 0 0 1.5px var(--c), 0 8px 18px rgba(0, 0, 0, .45);
+}
+.mp-mk.on .mp-pin { filter: drop-shadow(0 1px 2px rgba(0, 0, 0, .5)); }
 .mp-bob:focus-visible .mp-lab { box-shadow: 0 0 0 2px #fff; }
 .mp.has-sel .mp-mk:not(.on) .mp-lab { opacity: .4; }
+.mp.moving .mp-lab { transition: none; }
+
+/* Chip khoảng cách + hướng trên từng chặng hành trình */
+.mp-seg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px 2px 4px;
+  border-radius: 999px;
+  background: rgba(14, 17, 34, .88);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .22), 0 4px 14px rgba(0, 0, 0, .5);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.mp-seg .ar { display: block; width: 15px; height: 15px; color: #fff; }
+.mp-seg b { font-size: 10.5px; font-weight: 700; color: #fff; }
+.mp-seg small { font-size: 10px; color: var(--mp-sub); }
+
+/* Nhãn địa danh nhỏ (sông, sân bay, tháp, tên khu) */
+.mp-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(14, 17, 34, .88);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .02em;
+  color: #dfe3f7;
+  text-rendering: geometricPrecision;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* mọi nhãn phụ chỉ hiện khi zoom gần => toàn cảnh chỉ còn 4 nhãn chính, không chồng nhau */
+.mp-tg,
+.mp-sg { opacity: 0; transition: opacity .3s ease; pointer-events: none; }
+.mp-lbls.near .mp-tg,
+.mp-lbls.near .mp-sg { opacity: 1; }
+.mp.has-sel .mp-lbls .mp-tg,
+.mp.has-sel .mp-lbls .mp-sg { opacity: 0; }
+
+.mp-tag.river { color: #8fc0ff; font-style: italic; }
+.mp-tag.air { color: #cfd6ff; }
+.mp-tag.tower { color: #fff; }
+.mp-tag.zone {                           /* tên khu: chỉ hiện khi zoom gần, ẩn khi đang xem một mốc */
+  background: rgba(14, 17, 34, .62);
+  color: #c3cbf2;
+  letter-spacing: .04em;
+}
+
 
 /* ---------- Lớp phủ giao diện ---------- */
 .mp-title {
@@ -315,14 +500,37 @@
 
 .mp-sign span { display: block; margin-top: 3px; font-size: 11px; color: var(--mp-sub); }
 
+/* Thước tỉ lệ: độ dài thanh đổi theo mức zoom */
+.mp-scale {
+  position: absolute;
+  left: 22px;
+  bottom: 70px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: #d9dcf5;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .8);
+  transition: opacity .3s ease;
+}
+
+.mp-scale .bar {
+  display: block;
+  height: 7px;
+  border: 1.5px solid #d9dcf5;
+  border-top: 0;
+  box-sizing: border-box;
+}
+
 .mp-pill {
   display: flex;
   gap: 2px;
   padding: 4px;
   border-radius: 999px;
   background: var(--mp-glass);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
   box-shadow: 0 0 0 .5px rgba(255, 255, 255, .14), 0 6px 20px rgba(0, 0, 0, .4);
 }
 
@@ -374,7 +582,7 @@
 }
 
 .mp-compass .n { font-size: 12px; font-weight: 600; color: #cfd3ee; }
-.mp-needle { display: block; width: 36px; height: 36px; color: #e9ecff; }
+.mp-needle { display: block; width: 36px; height: 36px; color: #e9ecff; will-change: transform; }
 .mp-compass:focus-visible { outline: 2px solid #0a84ff; border-radius: 12px; }
 
 .mp-legend {
@@ -395,28 +603,31 @@
   padding: 5px 14px 5px 5px;
   border: 0;
   border-radius: 999px;
-  background: rgba(20, 24, 44, .6);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  background: rgba(20, 24, 44, .86);
+  box-shadow: 0 0 0 .5px rgba(255, 255, 255, .1);
   text-align: left;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background .2s ease, transform .2s var(--mp-ease);
+  transition: background .2s ease, transform .2s var(--mp-ease), box-shadow .2s ease;
 }
 
-.mp-lg:hover { background: rgba(40, 46, 80, .8); transform: translateX(-3px); }
+.mp-lg:hover { background: rgba(40, 46, 80, .94); transform: translateX(-3px); }
+.mp-lg.on { box-shadow: 0 0 0 1.5px var(--c); }
 .mp-lg:focus-visible { outline: 2px solid #0a84ff; }
 
-.mp-lg .ic {
+.mp-lg .no {                            /* số thứ tự trên dòng thời gian */
   flex: none;
+  display: grid;
+  place-items: center;
   width: 30px;
   height: 30px;
-  padding: 6px;
   box-sizing: border-box;
   border-radius: 50%;
   border: 1.5px solid var(--c);
   background: color-mix(in srgb, var(--c) 25%, #151a30);
   color: var(--c);
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .mp-lg small { display: block; font-size: 10.5px; color: var(--mp-sub); white-space: nowrap; }
@@ -434,9 +645,7 @@
   width: 360px;
   overflow: hidden;
   border-radius: 14px;
-  background: rgba(26, 29, 47, .93);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
+  background: rgba(26, 29, 47, .97);
   box-shadow: 0 0 0 .5px rgba(255, 255, 255, .16), 0 24px 60px rgba(0, 0, 0, .55);
   opacity: 0;
   visibility: hidden;
@@ -502,6 +711,19 @@
 
 .mp-cover.img::after { display: none; }
 
+.mp-step {                               /* "1 / 4" góc phải ảnh bìa */
+  position: absolute;
+  right: 12px;
+  top: 10px;
+  z-index: 1;
+  padding: 2px 9px;
+  border-radius: 999px;
+  background: rgba(10, 13, 28, .6);
+  font-size: 11px;
+  font-weight: 600;
+  color: #e6e9ff;
+}
+
 .mp-pbody { padding: 16px 18px 22px; }
 
 .mp-hd { display: flex; align-items: center; gap: 12px; margin-top: -4px; }
@@ -520,12 +742,13 @@
 }
 
 .mp-hd h2 { margin: 0; font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.mp-hd h2 .aka { font-size: 13px; font-weight: 500; color: var(--mp-sub); }
 .mp-hd p { margin: 1px 0 0; font-size: 12px; color: #b9bfdf; }
 .mp-hd .yr { color: var(--mp-sub); }
 
 .mp-meta { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 12px; color: #c9cee9; }
-.mp-meta > * { display: flex; align-items: center; gap: 8px; }
-.mp-meta .ic { flex: none; width: 14px; height: 14px; color: var(--mp-sub); }
+.mp-meta > * { display: flex; align-items: flex-start; gap: 8px; }
+.mp-meta .ic { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--mp-sub); }
 .mp-meta a { color: #6aa8ff; text-decoration: none; }
 .mp-meta a:hover { text-decoration: underline; }
 
@@ -534,6 +757,28 @@
 .mp-pbody ul { margin: 0; padding-left: 16px; font-size: 12px; color: #c9cee9; }
 .mp-pbody li { margin: 3px 0; }
 .mp-pbody li::marker { color: var(--c); }
+
+/* Bảng khoảng cách + hướng tới các mốc khác */
+.mp-pbody ul.mp-dist { padding: 0; list-style: none; }
+
+.mp-dist li {
+  display: grid;
+  grid-template-columns: 22px 1fr auto auto;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 7px 10px 7px 8px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, .04);
+  box-shadow: inset 3px 0 0 var(--c);
+}
+
+.mp-dist .ar { display: block; width: 18px; height: 18px; color: var(--c); }
+.mp-dist .nm { font-weight: 600; color: #fff; }
+.mp-dist .dr { font-size: 11px; color: var(--mp-sub); }
+.mp-dist b { min-width: 52px; text-align: right; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+
+.mp-note { margin: 6px 0 0; font-size: 10.5px; color: var(--mp-sub); }
 
 .mp-proj { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .mp-pj { margin: 0; }
@@ -567,6 +812,10 @@
 .mp.open .mp-ctl { left: calc(50% - 187px); }
 .mp.open .mp-legend { opacity: 0; pointer-events: none; }
 
+/* ---------- Mượt: tạm dừng hoạt ảnh vô hạn khi đang kéo / bay camera, hoặc khi app bị che ---------- */
+.mp.moving .mp-pin,
+.mp.off .mp-pin { animation-play-state: paused; }
+
 /* ---------- Tablet + điện thoại ---------- */
 @media (max-width: 1100px) {
   .mp-title { left: 16px; top: 12px; max-width: calc(100% - 90px); }
@@ -574,6 +823,7 @@
   .mp-title p { font-size: 12px; }
   .mp-title .sub,
   .mp-sign { display: none; }
+  .mp-scale { left: 14px; bottom: 74px; }
 
   .mp-compass { top: 10px; right: 12px; }
   .mp.open .mp-compass { right: 12px; }
@@ -611,3 +861,94 @@
 @media (prefers-reduced-motion: reduce) {
   .mp *, .mp *::before, .mp *::after { animation: none !important; transition: none !important; }
 }
+
+/* ---------- Bốn mặt bên của hộp (đặt cuối file để thắng mọi quy tắc nền ở trên) ---------- */
+.mp-bx > i {
+  position: absolute;
+  display: block;
+  box-sizing: border-box;
+  backface-visibility: visible;
+  -webkit-backface-visibility: visible;
+}
+
+/* trước (y = d) */
+.mp-bx .fr { left: calc(100% + var(--e)); top: 100%; width: calc(100% + 2 * var(--e)); height: calc(var(--h) + .015625px); transform-origin: 0 0; transform: rotateX(90deg) rotateY(180deg); background-color: var(--b); }
+/* sau (y = 0) */
+.mp-bx .bk { left: calc(-1 * var(--e)); top: 0; width: calc(100% + 2 * var(--e)); height: calc(var(--h) + .015625px); transform-origin: 0 0; transform: rotateX(90deg); background-color: color-mix(in srgb, var(--b), #000 38%); }
+/* phải (x = w) */
+.mp-bx .rt { left: 100%; top: calc(100% + var(--e)); width: calc(var(--h) + .015625px); height: calc(100% + 2 * var(--e)); transform-origin: 0 0; transform: rotateY(-90deg) rotateX(180deg); background-color: color-mix(in srgb, var(--b), #000 24%); }
+/* trái (x = 0) */
+.mp-bx .lf { left: 0; top: calc(-1 * var(--e)); width: calc(var(--h) + .015625px); height: calc(100% + 2 * var(--e)); transform-origin: 0 0; transform: rotateY(-90deg); background-color: color-mix(in srgb, var(--b), #000 12%); }
+.mp-loading {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  color: var(--mp-sub);
+  font-size: 13px;
+  pointer-events: none;
+}
+/* mái ngói cam / mái xám cho mái dốc dựng từ hộp thu nhỏ */
+.mp-bx.ot { --b: #a9532c; }
+.mp-bx.ot .t { background-color: #c8602f; }
+.mp-bx.gy { --b: #8f95a1; }
+.mp-bx.gy .t { background-color: #b9bec8; }
+/* Landmark 81 + sân bay */
+.mp-bx.gl4 { --b: #7f8ea6; }                                   /* kính xám xanh */
+.mp-bx.gl4 .t { background-color: #aab6c8; }
+.mp-bx.sp { --b: #2b3140; }                                    /* lõi tối / ăng-ten */
+.mp-bx.sp .t { background-color: #2b3140; }
+.mp-bx.ar { --b: #aeb6c4; }                                    /* mái nhà ga xám */
+.mp-bx.ar .t { background-color: #8f98a8; }
+/* nhà phố tân cổ điển (Vạn Phúc) */
+.mp-bx.nc { --b: #f1e8d2; }                                    /* tầng trên: kem */
+.mp-bx.nc .t { background-color: #f4ecd8; }
+.mp-bx.nb { --b: #e2cfa3; }                                    /* tầng trệt: be đậm */
+.mp-bx.nb .t { background-color: #e8dcc0; }
+.mp-bx.ds { --b: #2d3140; }                                    /* ban công / lan can đen */
+.mp-bx.ds .t { background-color: #3a3f50; }
+.mp-bx.mf { --b: #39425e; }                                    /* mái mansard xanh than */
+.mp-bx.mf .t { background-color: #2b3350; }
+/* đường vàng giữa các mốc (nằm sát mặt đất, dưới các toà) */
+.mp-trail { transform: translateZ(.8px); pointer-events: none; }
+.mp-trail svg { display: block; width: var(--bw); height: var(--bh); fill: none; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.mp-trail .g { stroke: rgba(251, 191, 36, .3); stroke-width: 6; }
+.mp-trail .u { stroke: rgba(70, 45, 0, .5); stroke-width: 3.6; }
+.mp-trail .l { stroke: #fbbf24; stroke-width: 2.2; }
+
+/* người đi bộ */
+.mp-walker { pointer-events: none; }
+.mp-man { position: absolute; left: -9px; top: -34px; width: 18px; height: 34px; overflow: visible; transform-origin: 50% 100%; }
+.mp-man .lg { transform-box: fill-box; transform-origin: 50% 0; }
+.mp-walker.walk .lg.a { animation: mp-step .45s ease-in-out infinite alternate; }
+.mp-walker.walk .lg.b { animation: mp-step .45s ease-in-out infinite alternate-reverse; }
+@keyframes mp-step { from { transform: rotate(-26deg); } to { transform: rotate(26deg); } }
+.mp.off .mp-walker .lg { animation-play-state: paused; }
+/* đóng băng khi cửa sổ đang đóng / thu nhỏ: dừng mọi animation + transition, bỏ will-change */
+.mp.frz *,
+.mp.frz *::before,
+.mp.frz *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+.mp.frz .mp-world { will-change: auto; }
+/* tắt 3D khi cửa sổ sắp thu nhỏ / đóng: chỉ còn mặt đất phẳng + nhãn để Genie bóp cho nhẹ */
+.mp.frz .mp-city,
+.mp.frz .mp-glow,
+.mp.frz .mp-wall,
+.mp.frz .mp-shadow { display: none; }
+.mp.frz *,
+.mp.frz *::before,
+.mp.frz *::after {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+.mp.frz .mp-world { will-change: auto; }
+/* màu áo người đi bộ: JS đổi --sh / --sha từ cam sang đen theo hành trình */
+.mp-man .tor { fill: var(--sh, #f97316); }
+.mp-man .arm { fill: var(--sha, #ea6a0c); }
+
+/* nhân vật đang đứng ở mốc nào thì mốc đó ẩn ghim + sóng tỏa (nhãn tên vẫn giữ) */
+.mp-mk.here .mp-bob { display: none; }
+.mp-glow.here { display: none; }
