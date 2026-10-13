@@ -1,32 +1,4 @@
-/* =========================================================
-   js/apps/map-city.js: thành phố diorama ban ngày (phong cách mô hình 3D isometric)
-   Nạp TRƯỚC js/apps/map.js. map.js gọi window.MapCity.create({...}) trong makeBoard().
 
-   PHONG CÁCH: nền lát xám sáng, phố nhựa tối có vạch giữa + vạch qua đường, nhà tường kem / xám sáng,
-   mái ngói cam / xanh teal / xám phẳng, tháp kính xanh ngọc / xanh trời.
-
-   BẢN VÁ "ĐƯỜNG LIỀN MẠCH" (sửa lỗi các lớp chồng lên nhau):
-   - MỘT mạng đường duy nhất trên lưới block 32px. Đại lộ (AVENUES) cũng nằm trên lưới => không còn
-     đường cong / đường chéo đè lên lưới phố, không còn vạch vàng + lề sáng chồng nhau.
-   - Vẽ theo từng lớp cho TOÀN BỘ mạng: lề sáng -> mặt nhựa -> (sông) -> cầu -> vạch giữa -> vạch qua đường -> tên đường.
-     Ngã tư / góc rẽ được lấp vuông vức; vạch giữa dừng trước ngã tư.
-   - Đường tự cắt bỏ ở nơi có công viên, sân bay, bệ điểm mốc, khu công trình đặc trưng và sông
-     (đại lộ băng qua sông bằng cầu). Phố nhỏ dừng đúng bờ sông.
-   - 4 điểm mốc + sân bay + công viên nằm GỌN trong các ô block (bệ 3 x 2 block), mép bệ trùng lề phố.
-   - Sông chạy trong cột block giữa Nasani và Miniai, không còn bị bệ điểm mốc che mất.
-   - Công trình đặc trưng (SIG) né đại lộ; phố nhỏ bị cắt ở phần nằm trong khu đó.
-
-   BẢN VÁ "HÌNH HỌC KHỐI NHÀ" (khe hở / nhô ra / mất toà):
-   - Mỗi khối xếp chồng mang lv = số tầng nằm dưới nó. map.js nâng tầng k lên k / 16 px, nên tường tầng trên luôn
-     cao hơn mái tầng dưới ở MỌI tầng (trước đây từ tầng 3 trở đi tường cắt mái => khe sáng ở cạnh góc).
-   - Mỗi khối mang ax, ay = tâm toà. map.js gom ô LOD theo tâm toà => đế và tháp không bị tách làm đôi.
-   - Công trình đặc trưng (SIG): mỗi toà một gid riêng (tầng trên thừa hưởng gid của đế). resolveOverlaps chỉ bỏ
-     đúng toà bị chồng, không còn xoá cả cụm của một khu.
-   - Mái hiên cửa hàng (K.low) bị giới hạn trong phần đất trống của chính ô đó, không chọc sang nhà bên cạnh.
-   - Khối kết nối kính của Nasani thấp hơn toà chính một chút => mái không còn trùng mặt phẳng (z-fight).
-   - validate(): kiểm tra khối lơ lửng / nhô ra khỏi đế / hai toà chồng nhau. Gọi MapCity.debug.validate()
-     trong console sau khi mở app; kết quả đúng là [].
-========================================================= */
 (() => {
   const M = 0.67;
   const FL = 3.4 * M;
@@ -322,18 +294,6 @@
     lit: DAY,
     ...o,
   });
-  const row = (x0, y, n, w, d, fls) =>
-    Array.from({ length: n }, (_, i) =>
-      hs(
-        x0 + i * (w + 1.5),
-        y,
-        w,
-        d,
-        fls[i % fls.length],
-        i % 3 === 2 ? "sl" : "tl",
-      ),
-    );
-
   const SIG = {
     cbd: [
       { k: "f", x: -34, y: 22, w: 62, d: 50, cls: "plaza" },
@@ -1910,31 +1870,15 @@
     }
 
     /* ----- VẼ SẴN: mặt phẳng, bóng đổ, nhà thấp (chi tiết mái), cây ----- */
+    const ROOF = [
+      ["tl", "#c8602f"], ["sl", "#2f7f8f"], ["gr", "#5b9f6c"], ["fg", "#cfd0cc"],
+      ["wh", "#c3c8d2"], ["gl2", "#aee9e4"], ["gl3", "#bcd0ee"], ["rf", "#c9ced9"],
+      ["ct", null], ["st", "#cdbf9f"], ["cp", "#e4e2dc"],
+    ];
     const roofCol = (m) => {
-      const c = " " + m.cls + " ";
-      return / tl /.test(c)
-        ? "#c8602f"
-        : / sl /.test(c)
-          ? "#2f7f8f"
-          : / gr /.test(c)
-            ? "#5b9f6c"
-            : / fg /.test(c)
-              ? "#cfd0cc"
-              : / wh /.test(c)
-                ? "#c3c8d2"
-                : / gl2 /.test(c)
-                  ? "#aee9e4"
-                  : / gl3 /.test(c)
-                    ? "#bcd0ee"
-                    : / rf /.test(c)
-                      ? "#c9ced9"
-                      : / ct /.test(c)
-                        ? m.b || "#b4533c"
-                        : / st /.test(c)
-                          ? "#cdbf9f"
-                          : / cp /.test(c)
-                            ? "#e4e2dc"
-                            : "#dcdad3";
+      const t = m.cls.split(" ");
+      for (const [k, col] of ROOF) if (t.includes(k)) return col || m.b || "#b4533c";
+      return "#dcdad3";
     };
         /* vẽ cây nhiều loại lên canvas mặt đất. Loại cây băm từ vị trí => cố định mỗi lần mở app */
     function paintTrees(g, T) {

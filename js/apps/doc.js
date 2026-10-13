@@ -1,14 +1,4 @@
-/* =========================================================
-   js/apps/notes.js: app Notes (kiểu Notes của macOS + iOS)
-   - Tự đăng ký vào window.WMApps.notes, window-manager.js sẽ gọi build()
-   - Máy tính (>1100px): 3 cột giống macOS
-       Sidebar (iCloud: All Notes / Quick Notes / Shared / thư mục / Recently Deleted + Tags)
-       | Danh sách ghi chú (Pinned, Today, Previous 7 Days...) | Khung soạn thảo
-   - Điện thoại / tablet (≤1100px): giống Notes trên iPhone
-       Thư mục -> Danh sách ghi chú -> Soạn thảo (nút quay lại + nút tròn nổi để tạo ghi chú)
-   - Ghi chú được lưu trong localStorage (mất khi xoá dữ liệu trình duyệt)
-   - CSS đi kèm: css/apps/notes.css
-========================================================= */
+
 (() => {
   /* ---------- DỮ LIỆU MẪU (sửa ở đây) ---------- */
   const KEY = 'ngocsang-notes-v1';

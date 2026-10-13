@@ -1,21 +1,4 @@
-/* =========================================================
-   css/apps/map.css: app Design Journey (bản đồ 3D TP.HCM)
-   Nạp SAU windows.css. Cảnh 3D dựng thuần CSS (transform-style: preserve-3d),
-   JS (map.js) chỉ đổi transform của camera.
-   Phong cách diorama BAN NGÀY: tường kem / xám sáng, mái ngói cam, mái xanh teal, mái phẳng xám,
-   kính xanh ngọc / xanh trời. Nền ngoài (backdrop) vẫn tối để mô hình nổi bật.
-   Tối ưu mượt: không backdrop-filter trên cảnh động, chỉ vẽ các mặt bên hướng camera,
-   contain + will-change, tạm dừng hoạt ảnh khi kéo / khi app bị che.
 
-   LƯU Ý HÌNH HỌC (đã kiểm chứng trong Chromium):
-   - KHÔNG đặt backface-visibility: hidden trên các mặt bên (.s) của khối nhà: các mặt này được xoay theo
-     cách khiến trình duyệt coi là "mặt sau" và ẩn mất tường. Việc ẩn mặt khuất do data-v (map.js) đảm nhận.
-   - --e PHẢI giữ 0px. Cho mặt tường nhô quá cạnh góc làm các mặt phẳng cắt nhau; Chromium cắt đôi mặt khi sắp
-     xếp độ sâu và làm mất cả một dải (khe hở tệ hơn nhiều lần).
-   - Hộp xếp chồng được nâng Z_LIFT = 1/16 THEO TỪNG TẦNG trong map.js (cuboid(..., lv)): tầng k được nâng
-     k / 16 để tường tầng trên luôn bắt đầu CAO HƠN mặt mái tầng dưới (h + 1/64), không bao giờ cắt nó.
-     Trước đây chỉ nâng một lần nên tầng thứ 3 trở đi (Landmark 81, mũ tháp, bể nước trên mái) lại cắt mái.
-========================================================= */
 .mp-bx.br { --b: #cfcdc6; }
 .mp-bx.br .t { background-color: #4d5361; }
 .mp-bx.br.bh.av .t { background-image: linear-gradient(0deg,  transparent calc(50% - .17px), #f4c430 calc(50% - .17px) calc(50% + .17px), transparent 0); }
@@ -920,19 +903,12 @@
 /* người đi bộ */
 .mp-walker { pointer-events: none; }
 .mp-man { position: absolute; left: -9px; top: -34px; width: 18px; height: 34px; overflow: visible; transform-origin: 50% 100%; }
-.mp-man .lg { transform-box: fill-box; transform-origin: 50% 0; }
-.mp-walker.walk .lg.a { animation: mp-step .45s ease-in-out infinite alternate; }
-.mp-walker.walk .lg.b { animation: mp-step .45s ease-in-out infinite alternate-reverse; }
-@keyframes mp-step { from { transform: rotate(-26deg); } to { transform: rotate(26deg); } }
-.mp.off .mp-walker .lg { animation-play-state: paused; }
-/* đóng băng khi cửa sổ đang đóng / thu nhỏ: dừng mọi animation + transition, bỏ will-change */
-.mp.frz *,
-.mp.frz *::before,
-.mp.frz *::after {
-  animation-play-state: paused !important;
-  transition: none !important;
-}
-.mp.frz .mp-world { will-change: auto; }
+ .mp-man .ride { display: none; }
+.mp-walker.walk .ride { display: block; }
+.mp-walker.walk .stand { display: none; }
+.mp-walker.walk .wh { transform-box: fill-box; transform-origin: 50% 50%; animation: mp-spin .5s linear infinite; }
+@keyframes mp-spin { to { transform: rotate(360deg); } }
+.mp.off .mp-walker .wh { animation-play-state: paused; }
 /* tắt 3D khi cửa sổ sắp thu nhỏ / đóng: chỉ còn mặt đất phẳng + nhãn để Genie bóp cho nhẹ */
 .mp.frz .mp-city,
 .mp.frz .mp-glow,
@@ -952,20 +928,6 @@
 /* nhân vật đang đứng ở mốc nào thì mốc đó ẩn ghim + sóng tỏa (nhãn tên vẫn giữ) */
 .mp-mk.here .mp-bob { display: none; }
 .mp-glow.here { display: none; }
-
-/* =========================================================
-   css/apps/map-ios.css: giao diện Apple Maps chuẩn iOS (sáng + tối tự động)
-   THAY THẾ map-macos-light.css. Nạp SAU map.css. Không cần sửa map.js.
-
-   Chuẩn hoá theo iOS HIG:
-   - Token màu hệ thống: label / secondaryLabel / tertiaryLabel / separator / fill, accent #007aff (tối: #0a84ff)
-   - Vùng chạm tối thiểu 44pt trên thiết bị cảm ứng, nút nhấn phản hồi bằng :active (hover chỉ khi có chuột)
-   - Cỡ chữ theo Dynamic Type (17 / 15 / 13 / 12), bo góc liên tục
-   - Điện thoại: thẻ thông tin = bottom sheet có grabber + nút đóng tròn (bỏ 3 chấm macOS), tôn trọng safe-area
-   - Tuyến đường xanh có viền trắng, chip khoảng cách = nhãn tuyến xanh chữ trắng như Apple Maps
-   - Ghim tròn viền trắng có glyph (thay ghim giọt nước kiểu Google)
-   - Dark mode theo prefers-color-scheme (thêm class "light" vào .mp để ép sáng)
-========================================================= */
 
 /* ---------- Token ---------- */
 .mp {
@@ -1550,6 +1512,37 @@
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
 }
-
-/* Máy yếu giật khi kéo bản đồ lúc thẻ thông tin đang mở: bỏ comment dòng dưới
-.mp.moving .mp-info { -webkit-backdrop-filter: none; backdrop-filter: none; background: var(--mat-solid); } */
+.mp-hd > .ic {
+  position: relative;
+  flex: none;
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  padding: 6px;
+  background: #fff;
+}
+.mp-hd > .ic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.mp-hd > .ic { padding: 6px; }
+/* logo thay số thứ tự (legend) và icon toà nhà (nhãn bản đồ) */
+.mp-lg .no,
+.mp-lab .ic {
+  padding: 4px;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: #fff;
+  text-shadow: none;
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, .15);
+}
+.mp-lg .no img,
+.mp-lab .ic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

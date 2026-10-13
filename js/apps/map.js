@@ -1,29 +1,4 @@
-/* =========================================================
-   js/apps/map.js: app Design Journey (bản đồ 3D TP.HCM, phong cách diorama ban ngày)
-   - Tự đăng ký vào window.WMApps.map, window-manager.js sẽ gọi build()
-   - Vị trí các mốc dựng từ TỌA ĐỘ THẬT (lat/lng) rồi được CĂN VÀO Ô BLOCK gần nhất (bệ 3 x 2 block)
-   - Khung bản đồ ôm sát 4 điểm mốc (PADX / PADY), viền hình chữ nhật bo góc
-   - Mặt đất VẼ MỘT LẦN lên canvas; chỉ công trình cao + 4 điểm mốc là khối 3D
-   - Zoom gần: nhà thấp mới dựng thành khối 3D, và chỉ ở các ô gần tâm màn hình (LOD + cắt ô)
-   - Camera: kéo = di chuyển (có quán tính), cuộn / chụm = zoom mượt, Shift + kéo (hoặc chuột phải) = xoay / nghiêng
-   - CSS đi kèm: css/apps/map.css
-   - Ảnh (tuỳ chọn): assets/journey/<id>/cover.jpg, 1.jpg, 2.jpg
 
-   THAY ĐỔI SO VỚI BẢN TRƯỚC (sửa hình học 3D):
-   - cuboid(): THÊM tham số lv = số tầng nằm dưới hộp. Hộp ở tầng k được nâng k * Z_LIFT (trước đây chỉ nâng
-     đúng 1 lần). Nhờ đó tường tầng trên luôn bắt đầu CAO HƠN mặt mái tầng dưới (h + 1/64) ở MỌI tầng; trước đây
-     từ tầng thứ 3 trở đi (Landmark 81, mũ tháp, bể nước trên mái, lan can cầu) tường lại thấp hơn mái 1/64 và cắt
-     mặt mái => Chromium cắt đôi mặt, lộ khe sáng dọc cạnh góc.
-   - cuboid(): lượng tử hoá theo CẠNH (x và x + w), không theo (x, w) riêng lẻ => hai hộp liền kề dùng chung
-     đúng một toạ độ cạnh, không còn khe / chồng mí 1/64 px.
-   - tileOf(): gom theo TÂM TOÀ (ax, ay do map-city.js gắn) thay vì tâm từng khối. Đế và tháp của cùng một toà
-     luôn nằm chung một ô LOD => không còn cảnh tháp còn mà đế biến mất khi cắt ô.
-   - makeBoard(): gắn window.MapCity.debug = C. Dùng MapCity.debug.validate() trong console để kiểm tra
-     khối lơ lửng / nhô ra / chồng lên nhau.
-   - variantOf(): kiểu cửa sổ băm theo TOÀ (gid / màu công ty) thay vì theo từng khối.
-   - apply(): chỉ ghi style nhãn khi vị trí đổi (bớt ghi DOM mỗi khung hình).
-   - Yêu cầu map-city.js bản mới (C.roadsBase / C.roadsTop / C.placeSites / C.validate).
-========================================================= */
 (() => {
   /* ---------- BẢN ĐỒ: khung toạ độ + tỉ lệ ---------- */
   const PX_KM = 12.5; // 1 km = 12,5 px
@@ -128,12 +103,13 @@
         "Xây dựng những sản phẩm đầu tiên cho portfolio",
       ],
       projects: [
-        { name: "Đồ án tiêu biểu", img: "assets/journey/hutech/1.jpg" },
-        { name: "Bài tập nhóm", img: "assets/journey/hutech/2.jpg" },
+        { name: "Đồ án tiêu biểu", img: "assets/photos/ten-file-1.jpg" },
+        { name: "Bài tập nhóm", img: "assets/photos/ten-file-2.jpg" },
       ],
       lesson:
         "Nơi mình học cách biến một ý tưởng mơ hồ thành thứ nhìn thấy được và giải thích được.",
-      cover: "assets/journey/hutech/cover.jpg",
+           cover: "assets/journey/hutech/cover.jpg",
+        logo: "assets/system/hutech/H.png",
     },
     {
       id: "miniai",
@@ -158,6 +134,7 @@
       lesson:
         "Những dự án đầu tiên dạy tôi cách biến yêu cầu mơ hồ thành giao diện rõ ràng.",
       cover: "assets/journey/miniai/cover.jpg",
+      logo: "assets/system/miniai/M.png",
     },
     {
       id: "digibird",
@@ -180,7 +157,8 @@
       ],
       lesson:
         "Lần đầu được làm việc với khách hàng nước ngoài, tôi học được cách lắng nghe, phân tích và giải quyết vấn đề trong môi trường thực tế.",
-      cover: "assets/journey/digibird/cover.jpg",
+           cover: "assets/journey/digibird/cover.jpg",
+      logo: "assets/system/digibird/D.png",
     },
     {
       id: "nasani",
@@ -205,7 +183,8 @@
       ],
       lesson:
         "Một design system tốt giúp cả team đi nhanh hơn mà vẫn giữ được sự nhất quán.",
-      cover: "assets/journey/nasani/cover.jpg",
+          cover: "assets/journey/nasani/cover.jpg",
+      logo: "assets/system/nasani/N.png",
     },
   ];
 
@@ -1110,7 +1089,7 @@
         "div",
         "mp-mk",
         `<button class="mp-bob" type="button" aria-label="${esc(c.name)}, ${esc(c.years)}">
-          <span class="mp-lab">${ic("building")}<span><b>${esc(c.name)}</b><small>${esc(c.years)}</small></span></span>
+          <span class="mp-lab"><span class="ic"><img src="${esc(c.logo)}" alt=""></span><span><b>${esc(c.name)}</b><small>${esc(c.years)}</small></span></span>
           <span class="mp-pin"></span></button>`,
       );
       mk.style.cssText = `--c:${c.color};`;
@@ -1303,8 +1282,7 @@
       : [(hc.pad[0] + hc.pad[2]) / 2, (hc.pad[1] + hc.pad[3]) / 2];
     const wb = { el: man, x: startPt[0], y: startPt[1], z: 1.5, k: 0.35 }; // k = hệ số cỡ nhân vật so với zoom
     bills.push(wb);
-    setHere(COMPANIES[0]); // lúc mở app nhân vật đang đứng ở HUTECH
-    setHere(COMPANIES[0]); // lúc mở app nhân vật đang đứng ở HUTECH
+    setHere(COMPANIES[0]);
 
     /* màu áo theo mốc đích [R, G, B]: đổi dần khi nhân vật đi tới mốc đó */
     const SHIRT = {
@@ -1551,7 +1529,7 @@
       const b = el(
         "button",
         "mp-lg",
-        `<span class="no">${i + 1}</span><span><small>${esc(c.years)}</small><b>${esc(c.name)}</b></span>`,
+`<span class="no"><img src="${esc(c.logo)}" alt=""></span><span><small>${esc(c.years)}</small><b>${esc(c.name)}</b></span>`,
       );
       b.type = "button";
       b.style.setProperty("--c", c.color);
@@ -1877,7 +1855,7 @@
       scroll.innerHTML = `
         <div class="mp-cover"><span class="mp-step">${idx} / ${COMPANIES.length}</span></div>
         <div class="mp-pbody">
-          <div class="mp-hd">${ic("building")}<div><h2>${esc(c.name)}${c.aka ? ` <span class="aka">(${esc(c.aka)})</span>` : ""}</h2><p>${esc(c.role)}</p><p class="yr">${esc(c.years)}</p></div></div>
+                   <div class="mp-hd"><span class="ic"><img src="${esc(c.logo)}" alt=""></span><div><h2>${esc(c.name)}${c.aka ? ` <span class="aka">(${esc(c.aka)})</span>` : ""}</h2><p>${esc(c.role)} <span class="yr">· ${esc(c.years)}</span></p></div></div>
           <div class="mp-meta">
             <span>${ic("pin")}<span>${esc(c.address)}</span></span>
             <a href="${esc(maps)}" target="_blank" rel="noopener noreferrer">${ic("link")}<span>${esc(TXT.maps)}</span></a>

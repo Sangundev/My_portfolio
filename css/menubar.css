@@ -1,73 +1,68 @@
+:root{ --mb-h:24px; }   /* chiều cao menu bar thật của macOS; muốn to hơn thì đổi số này */
+
 #menubar{
-  position:fixed; top:0; left:0; right:0; height:34px;
-  background:rgba(255,255,255,.7); backdrop-filter:blur(10px);
+  position:fixed; top:0; left:0; right:0; height:var(--mb-h);
+  background:rgba(255,255,255,.7);
+  -webkit-backdrop-filter:blur(20px) saturate(1.6);
+  backdrop-filter:blur(20px) saturate(1.6);
   border-bottom:1px solid rgba(0,0,0,.06);
   display:flex; align-items:center; justify-content:space-between;
-  padding:0 40px; font-size:13px; z-index:100;
+  padding:0 8px;
+  font:13px/1 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
+  color:#111; z-index:100;
+  user-select:none; -webkit-user-select:none;
 }
-.menubar-left{ display:flex; align-items:center; gap:24px; }
-.logo{ width:auto; height:24px; }
-.menu-item{ cursor:pointer; color:#111; }
-.menu-item.active{ font-weight:600; text-decoration:underline; text-underline-offset:3px; }
-.menu-item:hover{ opacity:.7; }
 
-.menubar-right{ display:flex; align-items:center; font-size:13px; }
-
-.status-icon{
-  width:auto; height:14px; object-fit:contain;
-  opacity:.75; margin-right:12px;
+.menubar-left{ display:flex; align-items:center; gap:0; height:100%; }
+.logo{ width:auto; height:15px; margin:0 12px 0 8px; }
+.menu-item{
+  display:flex; align-items:center; height:20px; padding:0 9px;
+  border-radius:4px; cursor:default; color:#111; white-space:nowrap;
 }
-.status-icon:last-of-type{ margin-right:24px; }
+.menu-item.active{ font-weight:700; }          /* giống tên app trên macOS: chữ đậm, không gạch chân */
+.menu-item:hover{ background:rgba(0,0,0,.1); }
+
+.menubar-right{ display:flex; align-items:center; height:100%; }
+.status-icons{ display:flex; align-items:center; height:100%; }
+.sb{
+  display:flex; align-items:center; justify-content:center;
+  height:20px; padding:0 7px; border-radius:4px; color:#111;
+}
+.sb:hover{ background:rgba(0,0,0,.1); }
+.sb svg{ display:block; }
 
 #clock{
-  display:inline-block;
-  min-width:1px;
-  color:#111;
-  font-variant-numeric:tabular-nums;
-  white-space:nowrap;
+  display:flex; align-items:center; height:20px; padding:0 8px; border-radius:4px;
+  color:#111; font-weight:500; font-variant-numeric:tabular-nums; white-space:nowrap;
 }
+#clock:hover{ background:rgba(0,0,0,.1); }
 
-/* TABLET 769px - 1024px */
+/* TABLET <= 1024px */
 @media (max-width:1024px){
-  #menubar{ height:34px; padding:0 24px; }
-  .menubar-left{ gap:18px; }
-  .logo{ height:22px; }
-  .menu-item{ font-size:12px; }
-  .status-icon{ height:13px; margin-right:9px; }
-  .status-icon:last-of-type{ margin-right:16px; }
-  #clock{ font-size:12px; }
+  .menu-item{ font-size:12.5px; }
 }
 
 /* MOBILE <= 768px */
 @media (max-width:768px){
-  #menubar{ height:32px; padding:0 14px; font-size:11px; }
-  .menubar-left{ gap:10px; min-width:0; }
-  .logo{ height:20px; flex-shrink:0; }
+  #menubar{ font-size:12px; padding:0 4px; }
+  .logo{ margin:0 8px 0 6px; }
 
   /* Chỉ ẩn CV; giữ Contact để điện thoại vẫn mở được */
   .menubar-left .menu-item[data-open="cv"]{ display:none; }
 
+  .menubar-left{ min-width:0; }
   .menubar-left .menu-item.active{
-    font-size:11px; max-width:110px;
+    max-width:110px;
     overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
   }
-
   .menubar-right{ flex-shrink:0; }
-  .status-icon{ height:12px; margin-right:7px; }
-  .status-icon:nth-of-type(1),
-  .status-icon:nth-of-type(2),
-  .status-icon:nth-of-type(3),
-  .status-icon:nth-of-type(4){ display:none; }
-  .status-icon:last-of-type{ margin-right:8px; }
-  #clock{ font-size:11px; white-space:nowrap; }
+  .sb-search, .sb-siri{ display:none; }
+  #clock{ font-size:12px; }
 }
 
 /* SMALL MOBILE <= 480px */
 @media (max-width:480px){
-  #menubar{ height:30px; padding:0 10px; }
-  .logo{ height:18px; }
-  .menubar-left{ gap:7px; }
-  .menubar-left .menu-item.active{ font-size:10px; max-width:90px; }
-  .status-icon{ height:11px; margin-right:5px; }
-  #clock{ font-size:10px; }
+  .menubar-left .menu-item.active{ max-width:90px; }
+  .sb-cc{ display:none; }
+  #clock{ font-size:11px; padding:0 6px; }
 }

@@ -1,0 +1,172 @@
+/* css/apps/spotify.css: widget Spotify kiểu iOS (nạp SAU windows.css) */
+
+.win.is-spotify {
+  min-width: 0; min-height: 0;
+  border-radius: 22px; overflow: hidden;
+  border: 0 !important; outline: 0 !important; background: transparent !important;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45) !important;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
+@supports (corner-shape: squircle) {
+  .win.is-spotify { border-radius: 28px; corner-shape: squircle; }
+}
+.win.is-spotify > .win-bar,
+.win.is-spotify > .win-tabs,
+.win.is-spotify > .rs { display: none; }
+.win.is-spotify .win-body { padding: 0; background: transparent; }
+
+/* ghim widget vào góc phải trên, ngay dưới thanh menu */
+/* .win.is-spotify {
+  position: fixed !important;
+  top: 36px !important;
+  right: 18px !important;
+  left: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+} */
+
+.sp {
+  position: relative; box-sizing: border-box; height: 100%;
+  display: block;
+  padding: 10px 0 0;
+  background: #282828; color: #fff;
+  font: 12px/1.3 var(--ui-font, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif);
+  user-select: none; -webkit-user-select: none;
+}
+.sp svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+
+/* iframe Spotify chạy ngầm (ẩn, nhưng KHÔNG dùng display:none để nhạc vẫn phát) */
+.sp-host {
+  position: absolute; left: 0; top: 0; width: 300px; height: 80px;
+  opacity: 0; pointer-events: none; z-index: -1; overflow: hidden;
+}
+.sp-host iframe { width: 100%; height: 100%; border: 0; }
+
+/* desktop: player Spotify gốc */
+.sp-desk iframe {
+  display: block; width: 100%; height: 152px; border: 0;
+  border-radius: 0 0 22px 22px; color-scheme: normal;
+}
+
+/* thẻ giao diện (chỉ dùng trên điện thoại/tablet) */
+.sp-card { display: none; flex: 1; min-height: 0; flex-direction: column; justify-content: space-between; }
+
+.sp-top { display: flex; align-items: center; gap: 12px; }
+.sp-art {
+  flex: none; width: 44px; height: 44px; border-radius: 9px; object-fit: cover;
+  background: #1c1c1e; pointer-events: none; -webkit-user-drag: none;
+}
+.sp-info { flex: 1; min-width: 0; }
+.sp-title, .sp-artist { font-size: 14.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sp-title { font-weight: 600; }
+.sp-artist { color: rgba(255,255,255,.6); }
+
+.sp-time {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10.5px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.55);
+}
+.sp-time span { flex: none; min-width: 26px; }
+.sp-time span:last-child { text-align: right; }
+.sp-track { flex: 1; height: 4px; border-radius: 2px; overflow: hidden; background: rgba(255,255,255,.25); }
+.sp-track i {
+  display: block; width: 100%; height: 100%; background: rgba(255,255,255,.75);
+  transform-origin: left center; transform: scaleX(0);
+}
+
+.sp-ctrl { display: flex; align-items: center; justify-content: center; gap: 36px; }
+.sp-btn {
+  display: grid; place-items: center; flex: none; width: 30px; height: 30px; padding: 4px;
+  box-sizing: border-box; border: 0; border-radius: 50%; background: none; color: #fff;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .12s, opacity .15s;
+}
+.sp-btn:active { transform: scale(.88); opacity: .7; }
+.sp-btn.sp-play { width: 38px; height: 38px; padding: 5px; }
+.sp-btn[disabled] { opacity: .35; pointer-events: none; }
+.sp-btn .ic-pause { display: none; }
+.sp.playing .sp-btn .ic-play { display: none; }
+.sp.playing .sp-btn .ic-pause { display: block; }
+
+/* thanh sóng nhạc: mảnh 2px, cao tối đa 14px, màu xám nhạt như iOS */
+.sp-eq { display: flex; align-items: center; gap: 2px; height: 14px; flex: none; }
+.sp-eq i {
+  display: block; width: 2px; height: 14px; border-radius: 1px;
+  background: rgba(255,255,255,.55);
+  transform: scaleY(.4); transform-origin: center; will-change: transform;
+}
+.sp-eq i:nth-child(1) { transform: scaleY(.45); }
+.sp-eq i:nth-child(2) { transform: scaleY(.8); }
+.sp-eq i:nth-child(3) { transform: scaleY(1); }
+.sp-eq i:nth-child(4) { transform: scaleY(.6); }
+.sp-eq i:nth-child(5) { transform: scaleY(.35); }
+.sp.playing .sp-eq i { animation: sp-eq .9s ease-in-out infinite; }
+.sp.playing .sp-eq i:nth-child(2) { animation-delay: .12s; }
+.sp.playing .sp-eq i:nth-child(3) { animation-delay: .24s; }
+.sp.playing .sp-eq i:nth-child(4) { animation-delay: .36s; }
+.sp.playing .sp-eq i:nth-child(5) { animation-delay: .48s; }
+@keyframes sp-eq { 0%,100% { transform: scaleY(.3); } 50% { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .sp.playing .sp-eq i { animation: none !important; }
+}
+
+/* viên thuốc Dynamic Island: chỉ dùng trên điện thoại/tablet */
+.sp-mini { display: none; }
+
+@media (max-width: 1024px) {
+  .win.is-spotify {
+    position: fixed !important;
+    top: calc(var(--safe-top, 0px) + (var(--menubar-h, 44px) - 37px) / 2) !important;
+    left: 0 !important; right: 0 !important; bottom: auto !important;
+    margin: 0 auto !important;
+    transform: none !important;
+    width: 200px !important; height: 37px !important;
+    border-radius: 20px !important;
+    corner-shape: round !important;
+    overflow: hidden !important;
+    isolation: isolate;
+    background: #000 !important; box-shadow: none !important;
+    z-index: 9999 !important;
+    scale: 1;
+    -webkit-font-smoothing: antialiased;
+    transition: width .5s cubic-bezier(.2,.9,.25,1.05), height .5s cubic-bezier(.2,.9,.25,1.05),
+                border-radius .5s ease, background .3s ease, scale .25s cubic-bezier(.2,.9,.25,1.1);
+  }
+  .win.is-spotify.sp-press { scale: 1.04; }
+  .win.is-spotify.sp-open {
+    width: min(340px, calc(100vw - 24px)) !important; height: 162px !important;
+    border-radius: 40px !important;
+    corner-shape: round !important;
+    background: #282828 !important;
+    box-shadow: 0 10px 30px rgba(0,0,0,.5) !important;
+  }
+
+  .win.is-spotify .win-body,
+  .win.is-spotify .sp { border-radius: inherit; overflow: hidden; }
+  .win.is-spotify .win-body { height: 100%; }
+
+  .win.is-spotify .sp { display: flex; flex-direction: column; background: #000; padding: 16px 26px 14px; transition: background .3s; }
+  .win.is-spotify .sp-card { display: flex; }
+  .win.is-spotify .sp-desk { display: none; }
+  .win.is-spotify.sp-open .sp { background: #282828; }
+
+  /* trạng thái thu: ẩn thẻ, chỉ hiện viên thuốc */
+  .win.is-spotify:not(.sp-open) .sp-card { opacity: 0; pointer-events: none; }
+  .win.is-spotify.sp-open .sp-card { opacity: 1; transition: opacity .25s .18s; }
+
+  .sp-mini {
+    position: absolute; inset: 0; z-index: 3;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 14px 0 7px; cursor: pointer;
+    background: #000; border-radius: inherit;
+    transition: opacity .2s;
+    touch-action: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .win.is-spotify.sp-open .sp-mini { opacity: 0; pointer-events: none; }
+  .sp-mini img {
+    width: 22px; height: 22px; border-radius: 6px; object-fit: cover;
+    background: #1c1c1e;
+    pointer-events: none; -webkit-user-drag: none;
+  }
+}

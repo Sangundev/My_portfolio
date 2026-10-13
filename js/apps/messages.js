@@ -127,25 +127,77 @@
 
     const app = h("div", "ct-app");
     let cur = 0;
+    const small = () => matchMedia("(max-width: 1100px)").matches;
 
     /* ===== Sidebar ===== */
     const side = h("aside", "ct-side");
     side.append(h("div", "ct-side-top win-drag")); // chừa chỗ cho 3 nút đèn, kéo được cửa sổ
+
+    const svg = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true">${d}</svg>`;
+
+    /* iOS: hàng "Edit" + nút lọc, tiêu đề lớn (CSS chỉ hiện ở <= 1100px) */
+    const iosTop = h("div", "ct-ios-top");
+    const iosEdit = h("button", "ct-ios-edit", "Edit");
+    iosEdit.type = "button";
+    const iosFilter = h("button", "ct-ios-filter");
+    iosFilter.type = "button";
+    iosFilter.setAttribute("aria-label", "Filter");
+    iosFilter.innerHTML = svg('<path d="M4 7h16M7 12h10M10 17h4"/>');
+    iosTop.append(iosEdit, iosFilter);
+    side.append(iosTop, h("div", "ct-ios-title", "Messages"));
+
     const list = h("div", "ct-list");
     const rows = CONVOS.map((c, i) => {
-      const r = h("button", "ct-row");
+      const r = h("button", "ct-row unread");
       r.type = "button";
       const t = h("div", "ct-row-t");
       const hd = h("div", "ct-row-h");
-      hd.append(h("strong", null, c.name), h("time", null, TIME));
+      const rr = h("div", "ct-row-r");
+      const chev = h("span", "ct-chev");
+      chev.innerHTML = svg('<path d="M9 5l7 7-7 7"/>');
+      rr.append(h("time", null, TIME), chev);
+      hd.append(h("strong", null, c.name), rr);
       t.append(hd, h("p", null, c.preview));
-      r.append(avatar(c), t);
-      r.addEventListener("click", () => select(i));
+      r.append(h("span", "ct-dot"), avatar(c), t);
+      r.addEventListener("click", () => {
+        r.classList.remove("unread"); // đọc rồi thì mất chấm xanh
+        select(i);
+        if (small()) setChat(true); // điện thoại: chạm vào mới mở tin nhắn
+      });
       list.append(r);
       return r;
     });
-    for (let i = 0; i < 7; i++) list.append(h("div", "ct-ph"));
     side.append(list);
+
+    /* iOS: ô tìm kiếm + nút soạn tin nổi ở đáy */
+    const bar = h("div", "ct-ios-bar");
+    const search = h("label", "ct-ios-search");
+    search.innerHTML = svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>');
+    const sInput = h("input");
+    sInput.type = "search";
+    sInput.placeholder = "Search";
+    sInput.setAttribute("aria-label", "Search");
+    sInput.addEventListener("input", () => {
+      const k = sInput.value.trim().toLowerCase();
+      rows.forEach((r, i) => {
+        const c = CONVOS[i];
+        r.hidden = !!k && !(c.name + " " + c.preview).toLowerCase().includes(k);
+      });
+    });
+    search.append(sInput);
+    const compose = h("button", "ct-ios-compose");
+    compose.type = "button";
+    compose.setAttribute("aria-label", "Contact me");
+    compose.innerHTML = svg(
+      '<path d="M12 5H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2v-6"/><path d="M18.5 3.5a2 2 0 0 1 3 3L12 16l-4 1 1-4z"/>',
+    );
+    compose.addEventListener("click", () => {
+      select(0);
+      setChat(true);
+      toggleDetails(true);
+    });
+    bar.append(search, compose);
+    side.append(bar);
 
     /* ===== Khung chat ===== */
     const main = h("section", "ct-main");
@@ -171,6 +223,54 @@
     details.type = "button";
     details.setAttribute("aria-expanded", "false");
     head.append(to, seg, details);
+
+    /* ===== Header kiểu Finder (chỉ hiện ở điện thoại / tablet, CSS quyết định) ===== */
+    const mBack = h("button", "ct-mback");
+    mBack.type = "button";
+    mBack.setAttribute("aria-label", "Back");
+    mBack.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6l-6 6 6 6"/></svg>';
+    const mBadge = h("span", "ct-mbadge");
+    mBack.append(mBadge);
+
+    const mMore = h("button", "ct-mcircle");
+    mMore.type = "button";
+    mMore.setAttribute("aria-label", "Details");
+    mMore.innerHTML =
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 12h.01M12 12h.01M18 12h.01" stroke-width="3.2"/></svg>';
+
+    const mAv = h("span", "ct-mav");
+    const mTitle = h("div", "ct-mtitle", title || "Messages");
+    const mCenter = h("div", "ct-mcenter");
+    mCenter.append(mAv, mTitle);
+    const mHead = h("div", "ct-mhead");
+    mHead.append(mBack, mCenter, mMore);
+
+    function setChat(on) {
+      app.classList.toggle("in-chat", on);
+      if (!on) toggleDetails(false);
+      syncM();
+    }
+    function updateBadge() {
+      const n = rows.filter((r) => r.classList.contains("unread")).length;
+      mBadge.textContent = n;
+      mBadge.hidden = !n;
+    }
+    function syncM() {
+      const d = app.classList.contains("details");
+      const chat = app.classList.contains("in-chat");
+      mAv.replaceChildren(avatar(CONVOS[cur]));
+      updateBadge();
+      mBack.style.visibility = chat ? "visible" : "hidden"; // màn danh sách: không có mũi tên
+      mMore.style.visibility = chat ? "visible" : "hidden";
+      mTitle.textContent = d ? "Details" : chat ? CONVOS[cur].name : title || "Messages";
+      mMore.classList.toggle("on", d);
+    }
+    mBack.addEventListener("click", () => {
+      if (app.classList.contains("details")) toggleDetails(false);
+      else setChat(false);
+    });
+    mMore.addEventListener("click", () => toggleDetails());
 
     /* ===== Bảng Details ===== */
     const panel = h("aside", "ct-panel");
@@ -200,6 +300,7 @@
       app.classList.toggle("details", next);
       details.setAttribute("aria-expanded", String(next));
       panel.inert = !next;
+      syncM();
     }
     details.addEventListener("click", () => toggleDetails());
 
@@ -331,11 +432,22 @@
         b.setAttribute("aria-selected", String(k === i));
       });
       chip.textContent = CONVOS[i].name;
+      syncM();
     }
     select(0);
 
-    main.append(head, ...panes, panel);
-    app.append(side, main);
+    const comp = h("div", "ct-comp");
+    const plus = h("span", "ct-comp-plus");
+    plus.setAttribute("aria-hidden", "true");
+    plus.innerHTML =
+      '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+    const field = h("button", "ct-comp-field", "Message · tap to contact me");
+    field.type = "button";
+    field.addEventListener("click", () => toggleDetails(true));
+    comp.append(plus, field);
+
+    main.append(head, ...panes, comp, panel);
+    app.append(mHead, side, main);
     body.append(app);
   }
 

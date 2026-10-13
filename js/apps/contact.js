@@ -1,11 +1,4 @@
-/* =========================================================
-   js/apps/contact.js: thẻ "Get In Touch" (không khung cửa sổ, nằm thẳng trên desktop)
-   - Thẻ giấy có vân, kéo được bằng cách giữ vào thẻ
-   - Số điện thoại / email / LinkedIn là link thật (tel:, mailto:, https:)
-   - Rê chuột vào thẻ: hiện nút đỏ ở góc trên trái để đóng (trên cảm ứng luôn hiện)
-   CSS đi kèm: css/apps/contact.css
-   Đăng ký: window.WMApps.contact  (mở bằng data-open="contact")
-========================================================= */
+
 (() => {
   /* ---------- DỮ LIỆU (sửa ở đây) ---------- */
   const INFO = {

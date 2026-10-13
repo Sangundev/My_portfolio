@@ -878,3 +878,143 @@
     border-radius: inherit;
   }
 }
+/* =========================================================
+   FINDER MOBILE: tinh chỉnh giống app Tệp iPhone + liquid glass
+========================================================= */
+.fd {
+  --fm-grad: linear-gradient(#e8e8ec 0, #f6f6f8 150px, #fff 320px);
+  --fm-glass: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
+  --fm-edge: rgba(255, 255, 255, .95);
+  --fm-shine: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -2px 4px -2px rgba(255,255,255,.6);
+  --fm-drop: 0 6px 20px rgba(0, 0, 0, .12);
+}
+@media (prefers-color-scheme: dark) {
+  .fd {
+    --fm-grad: linear-gradient(#1c1c1e 0, #0a0a0b 160px, #000 320px);
+    --fm-glass: linear-gradient(160deg, rgba(88,88,94,.72), rgba(44,44,46,.62));
+    --fm-edge: rgba(255, 255, 255, .2);
+    --fm-shine: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 4px -2px rgba(255,255,255,.1);
+    --fm-drop: 0 6px 20px rgba(0, 0, 0, .55);
+  }
+}
+
+@media (max-width: 1100px) {
+  /* Nền: dải xám mềm ở trên như iOS */
+  .fd,
+  .fd-main { background: var(--fm-grad); }
+  .fd-main { position: relative; }
+
+  /* Nút tròn + ô tìm kiếm: kính */
+  .fm-circle,
+  .fm-search {
+    background: var(--fm-glass);
+    border: 1px solid var(--fm-edge);
+    box-shadow: var(--fm-shine), var(--fm-drop);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+    transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s;
+  }
+  .fm-circle:active { transform: scale(.92); opacity: 1; }
+  .fm-circle:disabled { opacity: 1; }          /* không làm mờ nút Back */
+  .fm-circle { width: 44px; height: 44px; }
+  .fm-circle svg { width: 22px; height: 22px; stroke-width: 2.8; }
+
+  .fm-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+
+  .fm-search { height: 44px; margin: 6px 16px 10px; }
+  .fm-search .fd-sico svg { stroke-width: 3; }
+  .fm-search input { font-size: 18px; font-weight: 500; }
+
+  /* Lưới: chừa chỗ cho thanh tab nổi phía dưới */
+  .fd-canvas {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 24px 4px;
+    padding: 16px 8px 120px;
+  }
+  .fd-canvas.v-mlist { padding: 8px 16px 120px; }
+
+  /* Thư mục: bóng nhẹ như icon thật */
+  .fd-item img {
+    filter: drop-shadow(0 2px 3px rgba(0, 0, 0, .18));
+  }
+
+  /* Tên: 2 dòng, không bị cắt giữa chữ */
+  .fd-item span {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    font-size: 14.5px;
+    font-weight: 500;
+    letter-spacing: -.02em;
+    line-height: 1.25;
+    text-align: center;
+    overflow: hidden;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+  .fd-sub {
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--fm-sub);
+  }
+
+  /* Chân trang */
+  .fm-foot { padding: 30px 0 10px; }
+  .fm-foot b { font-size: 17px; }
+  .fm-foot span { font-size: 15px; color: var(--fm-text); }
+
+  /* Thanh tab: nổi hẳn lên, danh sách cuộn trượt phía sau */
+  .fm-tabs {
+    position: absolute;
+    left: 50%;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));   /* tránh thanh home */
+    transform: translateX(-50%);
+    z-index: 5;
+    width: calc(100% - 64px);
+    max-width: 320px;
+    margin: 0;
+    padding: 5px;
+    gap: 2px;
+    background: var(--fm-glass);
+    border: 1px solid var(--fm-edge);
+    box-shadow: var(--fm-shine), 0 10px 30px rgba(0, 0, 0, .18);
+    -webkit-backdrop-filter: blur(26px) saturate(190%);
+    backdrop-filter: blur(26px) saturate(190%);
+  }
+  .fm-tab {
+    height: 52px;
+    gap: 2px;
+    font-size: 11.5px;
+    font-weight: 700;
+    transition: background .2s, transform .18s;
+  }
+  .fm-tab:active { transform: scale(.94); }
+  .fm-tab svg { width: 24px; height: 24px; }
+  .fm-tab.on {
+    background: var(--fm-tabon);
+    box-shadow: inset 0 0 0 .5px rgba(255, 255, 255, .25);
+  }
+
+  /* Menu "…" cũng là kính */
+  .fd-pop {
+    background: var(--fm-glass);
+    border: 1px solid var(--fm-edge);
+    box-shadow: var(--fm-shine), 0 12px 32px rgba(0, 0, 0, .25);
+    -webkit-backdrop-filter: blur(26px) saturate(180%);
+    backdrop-filter: blur(26px) saturate(180%);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1100px) {
+  .fd-canvas { padding: 24px 24px 130px; }
+  .fm-tabs { max-width: 380px; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .fm-circle, .fm-search, .fm-tabs, .fd-pop {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--fm-card);
+  }
+}

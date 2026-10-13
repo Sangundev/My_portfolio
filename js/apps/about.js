@@ -1,13 +1,4 @@
-/* =========================================================
-   js/apps/about.js: giao diện About gồm 4 cửa sổ mở cùng lúc
-   - about        : cửa sổ chữ "About"
-   - about_ngoc   : cửa sổ ảnh "Ngoc"
-   - about_sang   : cửa sổ ảnh "Sang"
-   - about_music  : mini-player kiểu Spotify trên macOS (không có thanh tiêu đề)
-   Bấm About Me (desktop) -> mở cả 4, hiện ra ngay đúng vị trí đã định.
-   Tablet / điện thoại: chỉ mở 1 cửa sổ About, ảnh nằm trên đầu bài.
-   CSS đi kèm: css/apps/about.css
-========================================================= */
+
 (() => {
   /* ---------- DỮ LIỆU (sửa ở đây) ---------- */
   const PHOTOS = [

@@ -1,29 +1,4 @@
-/* =========================================================
-   js/genie.js: hiệu ứng Genie của macOS (chạy bằng GPU, không tính toán mỗi khung hình)
-   - Cửa sổ được chia thành các dải ngang. Mỗi dải được bẻ thành hình thang
-     (matrix3d), hai dải kề nhau dùng chung cạnh => mép cửa sổ là đường cong liền.
-   - Genie.run(el, dir, pt, done)
-       el   : phần tử cửa sổ (.win)
-       dir  : 'in'  = hút vào icon (thu nhỏ, đóng)
-              'out' = bung ra từ icon (mở, khôi phục)
-       pt   : { x, y, w, el? } tâm icon trên màn hình + bề ngang icon (px).
-              el (tuỳ chọn): phần tử icon; nếu nằm trong #dock thì cửa sổ chỉ hiện phía trên mép icon.
-       done : gọi khi chạy xong (luôn bất đồng bộ)
-   - Cửa sổ thật phải được ẩn bởi người gọi trong lúc chạy (xem window-manager.js)
-   - Yêu cầu CSS: .gn-s { position:absolute; left:0; top:0; transform-origin:0 0; overflow:hidden; will-change:transform }
-                  .gn-clone phải có kích thước rõ ràng (width/height lấy từ --gw / --gh)
 
-   CÁCH CHẠY (để mượt như iOS):
-   1. Tính SẴN toàn bộ khung hình (keyframes matrix3d) ngay từ đầu.
-   2. Giao cho Web Animations API chạy: transform + opacity được trình duyệt
-      chạy thẳng trên luồng compositor (GPU). Trong lúc chạy, JavaScript KHÔNG làm gì,
-      nên dù luồng chính có bận (đóng cửa sổ, cập nhật dock...) hiệu ứng vẫn mượt.
-   3. Animation được tạo ở trạng thái tạm dừng, chờ 3 khung hình cho các lớp dựng xong
-      rồi mới phát => không bị mất đoạn đầu.
-   4. Bản sao được làm nhẹ (bỏ backdrop-filter, animation, shadow) và số dải tự giảm
-      theo độ nặng của cửa sổ.
-   5. Máy không hỗ trợ element.animate: tự dùng vòng requestAnimationFrame với cùng dữ liệu.
-========================================================= */
 (() => {
   /* ---------- CẤU HÌNH (chỉnh ở đây) ---------- */
   const SLOT_LAG = 0.45;                       // độ trễ giữa dải đáy (đi trước) và dải đỉnh (đi sau)
@@ -142,7 +117,7 @@
     snap.querySelectorAll('iframe').forEach(f => {
       const d = document.createElement('div');
       d.className = 'empty';
-      d.textContent = 'PDF';
+      d.textContent = f.classList.contains('pdf') ? 'PDF' : '';
       f.replaceWith(d);
     });
     snap.querySelectorAll('[hidden], .rs').forEach(n => n.remove());   // tab đang ẩn, tay kéo giãn: không cần trong bản sao

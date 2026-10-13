@@ -1,41 +1,105 @@
-/* App Contact: giao diện Messages của macOS, 2 cuộc trò chuyện (js/apps/messages.js) */
+/* =========================================================
+   css/apps/contact.css: giao diện Messages (js/apps/contact.js)
+   - Desktop (> 1100px): kiểu macOS Messages, sidebar + khung chat
+   - Tablet / điện thoại (<= 1100px): kiểu iOS, màn danh sách -> màn chat
+   Thứ tự: 1) token màu  2) khung chung  3) sidebar  4) khung chat
+           5) bảng Details  6) riêng desktop  7) riêng iOS  8) giảm chuyển động / trong suốt
+   Mỗi class chỉ khai báo MỘT lần (trừ biến thể dark / media bắt buộc).
+========================================================= */
 
+/* =========================================================
+   1. TOKEN (màu sáng mặc định; chế độ tối ghi đè bên dưới)
+========================================================= */
 .win.is-messages {
-  --ct-blue: #2cfcea;
-  --ct-blue1:#007AFF;
-  --ct-navy: #08121f;
+  --ct-blue: #2cfcea;                 /* nền bong bóng trả lời + hàng đang chọn (chế độ sáng) */
+  --ct-blue1: #007aff;                /* xanh iOS: link, nút Details */
   --ct-line: #e3e3e6;
   --ct-gray: #8a8a8e;
   --ct-font: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
-  background: #fff;
+
+  --ct-bg: #fff;
+  --ct-tx: #111;
+  --ct-side: rgba(244, 244, 246, .94);
+  --ct-head: rgba(250, 250, 251, .9);
+  --ct-panel: rgba(250, 250, 251, .97);
+  --ct-card: #fff;
+  --ct-chip: #ededf0;
+  --ct-chip-tx: #333;
+  --ct-hover: rgba(0, 0, 0, .04);
+
+  --ct-pill: #1d1d1f;                 /* nền bong bóng câu hỏi (đen kiểu Apple) */
+  --ct-pill-tx: #fff;
+  --ct-reply: var(--ct-blue);         /* nền bong bóng trả lời */
+  --ct-reply-tx: #1d1d1f;             /* chữ trên bong bóng trả lời (nền sáng nên chữ tối) */
+  --ct-tab: var(--ct-blue);           /* nền hội thoại đang chọn ở sidebar */
+  --ct-tab-tx: #1d1d1f;
+
+  /* màn danh sách kiểu iOS */
+  --ios-list-bg: linear-gradient(#e8e8ec 0, #f6f6f8 140px, #fff 300px);
+  --ios-tx: #000;
+  --ios-gray: #8a8a8e;
+  --ios-sep: rgba(60, 60, 67, .2);
+  --ios-dot: #007aff;
+
+  /* liquid glass */
+  --g-fill: var(--lg-fill, linear-gradient(160deg, rgba(255, 255, 255, .55), rgba(255, 255, 255, .3)));
+  --g-edge: rgba(255, 255, 255, .55);
+  --g-shine: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -2px 4px -2px rgba(255, 255, 255, .35);
+  --g-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+  --g-blur: blur(18px) saturate(170%);
+
+  color-scheme: light;
 }
 
-.win.is-messages {
-  --ct-blue: #2cfcea;
-  position: relative;
-  padding: 0;
-  overflow: hidden;
-  background: #fff;
-}
+@media (prefers-color-scheme: dark) {
+  .win.is-messages {
+    --ct-blue: #0a84ff;
+    --ct-gray: #98989d;
+    --ct-line: rgba(255, 255, 255, .12);
 
-/* Desktop: bỏ thanh tiêu đề, để 3 nút đèn giao thông nằm đè lên sidebar như Messages thật.
-   Kéo cửa sổ qua vùng .win-drag (đầu sidebar + thanh "To:") */
-@media (min-width: 1101px) {
-  .win.is-messages .win-bar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 6;
-    background: none;
-    border: 0;
-    box-shadow: none;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    pointer-events: none;                 /* để bấm xuyên xuống "Details" */
+    --ct-bg: #1c1c1e;
+    --ct-tx: #f5f5f7;
+    --ct-side: rgba(44, 44, 46, .92);
+    --ct-head: rgba(38, 38, 40, .92);
+    --ct-panel: rgba(44, 44, 46, .97);
+    --ct-card: #2c2c2e;
+    --ct-chip: #3a3a3c;
+    --ct-chip-tx: #f5f5f7;
+    --ct-hover: rgba(255, 255, 255, .06);
+
+    --ct-reply-tx: #fff;              /* nền xanh đậm => chữ trắng (không cần !important) */
+    --ct-tab-tx: #fff;
+
+    /* khung cửa sổ (thanh tiêu đề) */
+    --win-bg: rgba(28, 28, 30, .96);
+    --win-bar: rgba(44, 44, 46, .9);
+    --win-tx: #f5f5f7;
+    --win-line: rgba(255, 255, 255, .12);
+    --win-edge: rgba(255, 255, 255, .14);
+    --win-hover: rgba(255, 255, 255, .08);
+
+    --ios-list-bg: linear-gradient(#1c1c1e 0, #0a0a0b 160px, #000 320px);
+    --ios-tx: #fff;
+    --ios-gray: #98989d;
+    --ios-sep: rgba(255, 255, 255, .18);
+    --ios-dot: #0a84ff;
+
+    --g-fill: linear-gradient(160deg, rgba(255, 255, 255, .16), rgba(255, 255, 255, .06));
+    --g-edge: rgba(255, 255, 255, .22);
+    --g-shine: inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 -2px 4px -2px rgba(255, 255, 255, .12);
+    --g-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+
+    color-scheme: dark;
   }
-  .win.is-messages .win-bar .lights { pointer-events: auto; }
-  .win.is-messages .win-title,
-  .win.is-messages .win-add { display: none; }
 }
+
+/* =========================================================
+   2. KHUNG CHUNG
+   (position / padding / overflow đã có sẵn trong .win của windows.css)
+========================================================= */
+.win.is-messages,
+.is-messages .win-body,
+.is-messages .ct-main { background: var(--ct-bg); }
 
 .ct-app {
   position: relative;
@@ -43,24 +107,31 @@
   height: 100%;
   overflow: hidden;
   font-family: var(--ct-font);
-  color: #111;
+  background: var(--ct-bg);
+  color: var(--ct-tx);
 }
 .ct-app [hidden] { display: none !important; }
 
-/* =============== Sidebar =============== */
+/* phần chỉ hiện ở một chế độ: mặc định ẩn, media query bật lại */
+.ct-ios-top, .ct-ios-title, .ct-ios-bar, .ct-dot, .ct-chev,
+.ct-mhead, .ct-comp,
+.ct-seg, .ct-ph { display: none; }
+
+/* =========================================================
+   3. SIDEBAR
+========================================================= */
 .ct-side {
+  position: relative;
   flex: none;
   display: flex;
   flex-direction: column;
   width: 236px;
-  background: rgba(244, 244, 246, .94);
-  -webkit-backdrop-filter: blur(24px) saturate(1.6);
-  backdrop-filter: blur(24px) saturate(1.6);
+  background: var(--ct-side);
   border-right: 1px solid var(--ct-line);
+  -webkit-backdrop-filter: blur(30px) saturate(180%);
+  backdrop-filter: blur(30px) saturate(180%);
 }
-
 .ct-side-top { flex: none; height: 52px; }   /* chừa chỗ cho 3 nút đèn */
-
 .ct-list { flex: 1; overflow: hidden; }
 
 /* dòng hội thoại */
@@ -72,20 +143,22 @@
   padding: 9px 12px;
   border: 0;
   background: none;
-  color: #111;
+  color: var(--ct-tx);
   font: inherit;
   text-align: left;
   cursor: pointer;
   transition: background .15s;
 }
-.ct-row:hover { background: rgba(0, 0, 0, .04); }
+.ct-row:hover { background: var(--ct-hover); }
 .ct-row:focus-visible { outline: 3px solid rgba(10, 122, 255, .45); outline-offset: -3px; }
-.ct-row.on { background: var(--ct-blue); color: #fff; }
+.ct-row.on,
+.ct-row.on:hover { background: var(--ct-tab); color: var(--ct-tab-tx); }
 
 .ct-row-t { flex: 1; min-width: 0; }
 .ct-row-h { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; }
 .ct-row-h strong { font-weight: 600; }
 .ct-row-h time { font-size: 11px; color: var(--ct-gray); }
+.ct-row-r { display: flex; align-items: center; gap: 2px; flex: none; }
 .ct-row-t p {
   margin: 1px 0 0;
   font-size: 12px;
@@ -95,9 +168,7 @@
   text-overflow: ellipsis;
 }
 .ct-row.on .ct-row-h time,
-.ct-row.on .ct-row-t p { color: rgba(255, 255, 255, .85); }
-
-.ct-ph { height: 62px; margin-left: 12px; border-bottom: 1px solid var(--ct-line); }
+.ct-row.on .ct-row-t p { color: var(--ct-tab-tx); opacity: .85; }
 
 .ct-avatar {
   flex: none;
@@ -106,24 +177,26 @@
   width: 38px;
   height: 38px;
   border-radius: 50%;
+  overflow: hidden;
   background: linear-gradient(#b6bcc7, #8f96a3);
   color: #fff;
   font-size: 15px;
   font-weight: 600;
 }
 .ct-avatar.ct-t2 { background: linear-gradient(#ffb36b, #ff8a3d); }
+.ct-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .ct-row.on .ct-avatar { box-shadow: 0 0 0 2px rgba(255, 255, 255, .55); }
 .ct-big { width: 72px; height: 72px; font-size: 26px; }
-.ct-avatar { overflow: hidden; }
-.ct-avatar img { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-/* =============== Khung chat =============== */
+
+/* =========================================================
+   4. KHUNG CHAT
+========================================================= */
 .ct-main {
   position: relative;
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  background: #fff;
 }
 
 .ct-head {
@@ -133,8 +206,10 @@
   justify-content: space-between;
   height: 46px;
   padding: 0 16px;
+  background: var(--ct-head);
   border-bottom: 1px solid var(--ct-line);
-  background: rgba(250, 250, 251, .9);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  backdrop-filter: blur(20px) saturate(170%);
   font-size: 12px;
   color: var(--ct-gray);
 }
@@ -143,8 +218,10 @@
   margin-left: 4px;
   padding: 2px 9px;
   border-radius: 6px;
-  background: #ededf0;
-  color: #333;
+  background: var(--ct-chip);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine);
+  color: var(--ct-chip-tx);
 }
 .ct-details {
   padding: 4px 0 4px 10px;
@@ -156,19 +233,6 @@
 }
 .ct-details:hover { text-decoration: underline; }
 
-/* thanh chuyển tab (chỉ hiện trên điện thoại) */
-.ct-seg { display: none; }
-.ct-seg-b {
-  padding: 4px 12px;
-  border: 0;
-  border-radius: 6px;
-  background: none;
-  color: #555;
-  font: 500 12px var(--ct-font);
-  cursor: pointer;
-}
-.ct-seg-b.on { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0, 0, 0, .18); }
-
 .ct-msgs {
   flex: 1;
   min-height: 0;
@@ -179,7 +243,7 @@
   outline: none;
   scrollbar-width: none;                 /* Firefox: ẩn thanh cuộn */
 }
-.ct-msgs::-webkit-scrollbar { display: none; }   /* Chrome / Safari: ẩn thanh cuộn, vẫn cuộn bằng chuột và vuốt */
+.ct-msgs::-webkit-scrollbar { display: none; }   /* Chrome / Safari: vẫn cuộn bằng chuột và vuốt */
 
 .ct-meta {
   display: flex;
@@ -195,7 +259,7 @@
 .ct-item { position: relative; margin-top: 8px; }
 .ct-meta + .ct-item { margin-top: 0; }
 
-/* =============== Câu hỏi (bong bóng nhận, bên trái) =============== */
+/* ----- Câu hỏi (bong bóng nhận, bên trái) ----- */
 .ct-q {
   display: flex;
   align-items: center;
@@ -209,28 +273,29 @@
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
+.ct-q:focus-visible { outline: none; }
 
 .ct-pill {
-  --bg: var(--ct-navy);
+  --bg: var(--ct-pill);
   position: relative;
   min-width: 0;
   padding: 11px 18px;
   border-radius: 20px;
   background: var(--bg);
-  color: var(--ct-blue);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+  color: var(--ct-pill-tx);
   font-size: 15px;
   font-weight: 600;
   line-height: 1.25;
   transition: background .2s, color .2s, transform .2s;
 }
 .ct-q:hover .ct-pill,
-.ct-q:focus-visible .ct-pill { --bg: #1f1f1f; color: #fff; }
+.ct-q:focus-visible .ct-pill { color: var(--ct-blue); }        /* rê chuột: chỉ chữ đổi màu, nền giữ đen */
 .ct-q:active .ct-pill { transform: scale(.98); }
-.ct-q:focus-visible { outline: none; }
 .ct-q:focus-visible .ct-pill { box-shadow: 0 0 0 3px rgba(10, 122, 255, .45); }
 
-/* Đuôi bong bóng chuẩn iOS: ::before là gốc đuôi cùng màu, ::after (màu nền) khoét cong phần đuôi.
-   Nền chat là trắng nên ::after dùng #fff. Chỉ bong bóng cuối chuỗi mới có class .tail */
+/* Đuôi bong bóng chuẩn iOS: ::before là gốc đuôi cùng màu, ::after (màu nền chat) khoét cong phần đuôi.
+   Chỉ bong bóng cuối chuỗi mới có class .tail */
 .ct-pill.tail::before,
 .ct-pill.tail::after { content: ''; position: absolute; bottom: 0; }
 .ct-pill.tail::before {
@@ -245,18 +310,19 @@
   left: -10px;
   width: 10px;
   height: 20px;
-  background: #fff;
+  background: var(--ct-bg);
   border-bottom-right-radius: 10px;
 }
 
-/* nút + / − */
+/* nút + / −  (đóng: viền xám, mở: nền xanh + dấu trừ) */
 .ct-tog {
   position: relative;
   flex: none;
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: var(--ct-blue);
+  background: transparent;
+  box-shadow: inset 0 0 0 1.5px var(--ct-gray);
   transition: background .2s, box-shadow .2s;
 }
 .ct-tog::before,
@@ -269,15 +335,17 @@
   height: 2px;
   margin: -1px 0 0 -5px;
   border-radius: 1px;
-  background: #fff;
+  background: var(--ct-gray);
   transition: transform .25s, background .2s;
 }
 .ct-tog::after { transform: rotate(90deg); }
+.ct-item.open .ct-tog {
+  background: linear-gradient(160deg, #5ac8fa, var(--ct-blue));
+  box-shadow: var(--g-shine);
+}
+.ct-item.open .ct-tog::before,
+.ct-item.open .ct-tog::after { background: var(--ct-reply-tx); }
 .ct-item.open .ct-tog::after { transform: rotate(0); }
-
-/* .ct-item:not(.open) .ct-q:hover .ct-tog { background: transparent; box-shadow: inset 0 0 0 1.5px #555; }
-.ct-item:not(.open) .ct-q:hover .ct-tog::before,
-.ct-item:not(.open) .ct-q:hover .ct-tog::after { background: #555; } */
 
 /* sticker */
 .ct-sticker {
@@ -291,7 +359,7 @@
 .ct-tr { top: -13px; right: -9px; transform: rotate(12deg); }
 .ct-tl { top: -9px; left: -15px; transform: rotate(-14deg); }
 
-/* =============== Câu trả lời (bong bóng gửi, bên phải) =============== */
+/* ----- Câu trả lời (bong bóng gửi, bên phải) ----- */
 .ct-a {
   display: grid;
   grid-template-rows: 0fr;
@@ -342,16 +410,11 @@
   right: -10px;
   width: 10px;
   height: 20px;
-  background: #fff;
+  background: var(--ct-bg);
   border-bottom-left-radius: 10px;
 }
 
-.ct-deliv {
-  margin: 2px 0 0;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--ct-gray);
-}
+.ct-deliv { margin: 2px 0 0; font-size: 11px; font-weight: 500; color: var(--ct-gray); }
 
 /* bong bóng "open me" */
 .ct-hint {
@@ -360,9 +423,12 @@
   left: 300px;                           /* nằm bên phải nút +, không đè lên nó */
   padding: 7px 18px;
   border-radius: 18px;
-  background: linear-gradient(#fff, #e8e8eb);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, .18), inset 0 1px 0 #fff;
-  color: #111;
+  background: var(--g-fill);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), 0 6px 16px rgba(0, 0, 0, .15);
+  -webkit-backdrop-filter: var(--g-blur);
+  backdrop-filter: var(--g-blur);
+  color: var(--ct-tx);
   font-size: 12px;
   pointer-events: none;
   z-index: 3;
@@ -383,7 +449,9 @@
 .ct-end .ct-bubble:hover { filter: brightness(1.08); }
 .ct-end .ct-bubble:focus-visible { outline: 3px solid rgba(10, 122, 255, .4); outline-offset: 2px; }
 
-/* =============== Bảng Details =============== */
+/* =========================================================
+   5. BẢNG DETAILS
+========================================================= */
 .ct-panel {
   position: absolute;
   top: 46px;
@@ -392,11 +460,11 @@
   z-index: 4;
   width: 236px;
   padding: 22px 16px;
-  background: rgba(250, 250, 251, .97);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border-left: 1px solid var(--ct-line);
-  box-shadow: -8px 0 24px rgba(0, 0, 0, .06);
+  background: var(--g-fill), var(--ct-panel);
+  border-left: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), -10px 0 30px rgba(0, 0, 0, .1);
+  -webkit-backdrop-filter: blur(26px) saturate(170%);
+  backdrop-filter: blur(26px) saturate(170%);
   transform: translateX(105%);
   visibility: hidden;
   transition: transform .3s cubic-bezier(.2, .8, .2, 1), visibility .3s;
@@ -415,142 +483,480 @@
   gap: 2px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 0 0 1px var(--ct-line);
+  background: var(--g-fill);
+  border: 1px solid var(--g-edge);
+  box-shadow: var(--g-shine), 0 4px 12px rgba(0, 0, 0, .08);
+  -webkit-backdrop-filter: blur(12px) saturate(150%);
+  backdrop-filter: blur(12px) saturate(150%);
   text-decoration: none;
   transition: transform .2s, box-shadow .2s;
 }
 .ct-link strong { color: var(--ct-blue1); font-size: 14px; }
 .ct-link small { color: var(--ct-gray); font-size: 12px; word-break: break-all; }
-.ct-link:hover { transform: translateX(3px); box-shadow: 0 0 0 1px var(--ct-blue1); }
+.ct-link:hover { transform: translateX(3px); box-shadow: var(--g-shine), 0 6px 16px rgba(0, 0, 0, .12), 0 0 0 1px var(--ct-blue1); }
 .ct-link:focus-visible { outline: 3px solid rgba(10, 122, 255, .4); }
 
-/* =============== Tablet / điện thoại (app toàn màn hình kiểu iOS) =============== */
-@media (max-width: 1100px) {
-  .ct-side { width: 200px; }
-  .ct-side-top { height: 14px; }
+/* =========================================================
+   6. RIÊNG DESKTOP (> 1100px)
+   Bỏ thanh tiêu đề, để 3 nút đèn nằm đè lên sidebar như Messages thật.
+   Kéo cửa sổ qua vùng .win-drag (đầu sidebar + thanh "To:")
+========================================================= */
+@media (min-width: 1101px) {
+  .win.is-messages .win-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 6;
+    background: none;
+    border: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    pointer-events: none;                 /* để bấm xuyên xuống "Details" */
+  }
+  .win.is-messages .win-bar .lights { pointer-events: auto; }
+  .win.is-messages .win-title,
+  .win.is-messages .win-add { display: none; }
+
+  .win.is-messages .ct-side { box-shadow: inset -1px 0 0 var(--g-edge); }
+  .win.is-messages .ct-row.on { box-shadow: var(--g-shine); }
 }
 
-@media (max-width: 760px) {
-  .ct-side { display: none; }                 /* thay bằng thanh chuyển tab ở header */
-  .ct-to { display: none; }
-  .ct-seg {
-    display: flex;
-    flex: 1;
-    justify-content: center;
-    gap: 2px;
-    margin-right: -40px;                      /* canh giữa dù nút Details nằm bên phải */
-    padding: 2px;
-    border-radius: 8px;
-    background: #ededf0;
-    max-width: 260px;
-    align-self: center;
+/* =========================================================
+   7. RIÊNG iOS (điện thoại / tablet, <= 1100px)
+   Màn 1: danh sách (tiêu đề lớn, Edit + lọc, chấm xanh chưa đọc, ô tìm kiếm nổi ở đáy)
+   Màn 2: khung chat, header nổi (Back / avatar / Details) + thanh nhập tin
+========================================================= */
+@media (max-width: 1100px) {
+  .win.is-messages > .win-bar { display: none; }   /* bỏ thanh tiêu đề cũ */
+  .win.is-messages .ct-app { display: flex !important; flex-direction: column !important; }
+
+  /* bỏ thanh "To:" và phần đệm đèn giao thông của desktop */
+  .win.is-messages .ct-head,
+  .win.is-messages .ct-side-top { display: none !important; }
+
+  /* ---------- Nút / thanh kính (dùng chung) ---------- */
+  .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-search, .ct-ios-compose, .ct-comp-plus, .ct-comp-field) {
+    background: var(--g-fill);
+    border: 1px solid var(--g-edge);
+    box-shadow: var(--g-shine), var(--g-shadow);
+    -webkit-backdrop-filter: var(--g-blur);
+    backdrop-filter: var(--g-blur);
   }
-  .ct-head { height: 48px; justify-content: space-between; gap: 12px; }
-  .ct-msgs { padding: 12px 14px calc(30px + env(safe-area-inset-bottom)); }   /* chừa chỗ cho thanh home */
+  .win.is-messages :is(.ct-ios-search, .ct-ios-compose) {
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    backdrop-filter: blur(24px) saturate(190%);
+  }
+  /* nhấn xuống: nhún nhẹ như kính thật */
+  .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-compose, .ct-mback, .ct-mcircle, .ct-comp-field) {
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1), box-shadow .18s;
+  }
+  .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-compose, .ct-mback, .ct-mcircle, .ct-comp-field):active {
+    transform: scale(.94);
+  }
+
+  /* ---------- Màn 1: danh sách ---------- */
+  .win.is-messages .ct-app:not(.in-chat) .ct-main { display: none !important; }
+
+  .win.is-messages .ct-app:not(.in-chat) .ct-side {
+    display: flex !important;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    width: 100% !important;
+    max-width: none !important;
+    border: 0 !important;
+    background: var(--ios-list-bg) !important;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* hàng trên cùng: nút Edit (trái) + nút lọc (phải) */
+  .win.is-messages .ct-ios-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: none;
+    padding: 14px 16px 0;
+  }
+  .win.is-messages .ct-ios-edit,
+  .win.is-messages .ct-ios-filter {
+    display: grid;
+    place-items: center;
+    height: 40px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    color: var(--ios-tx);
+  }
+  .win.is-messages .ct-ios-edit { padding: 0 18px; font: 600 17px/1 var(--ct-font); }
+  .win.is-messages .ct-ios-filter { width: 40px; }
+  .win.is-messages .ct-ios-filter svg {
+    display: block; width: 22px; height: 22px;
+    fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round;
+  }
+
+  /* tiêu đề lớn */
+  .win.is-messages .ct-ios-title {
+    display: block;
+    flex: none;
+    margin: 14px 0 8px;
+    padding: 0 16px;
+    color: var(--ios-tx);
+    font: 800 34px/1.1 -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter', system-ui, sans-serif;
+    letter-spacing: -.02em;
+  }
+
+  .win.is-messages .ct-list {
+    flex: 1;
+    min-height: 0;
+    padding: 0 0 120px;                 /* chừa chỗ cho ô tìm kiếm nổi */
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+  }
+  .win.is-messages .ct-list::-webkit-scrollbar { display: none; }
+
+  /* dòng hội thoại: chấm xanh | avatar | tên + giờ + mũi tên / xem trước 2 dòng */
+  .win.is-messages .ct-row,
+  .win.is-messages .ct-row.on,
+  .win.is-messages .ct-row.on:hover {
+    position: relative;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px 12px 12px;
+    background: transparent;
+    color: var(--ios-tx);
+    box-shadow: none;
+  }
+  .win.is-messages .ct-row:hover { background: transparent; }
+  .win.is-messages .ct-row:active { background: var(--ct-hover); }
+  .win.is-messages .ct-row::after {     /* đường kẻ bắt đầu từ chữ, như iOS */
+    content: '';
+    position: absolute;
+    left: 88px;
+    right: 16px;
+    bottom: 0;
+    height: 1px;
+    background: var(--ios-sep);
+  }
+  .ct-row-r { gap: 6px; }
+
+  .win.is-messages .ct-dot {
+    display: block;
+    flex: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--ios-dot);
+    visibility: hidden;
+  }
+  .win.is-messages .ct-row.unread .ct-dot { visibility: visible; }
+
+  .win.is-messages .ct-avatar { width: 42px; height: 42px; font-size: 18px; }
+  .win.is-messages .ct-row.on .ct-avatar { box-shadow: none; }
+
+  .win.is-messages .ct-row-h { align-items: center; font-size: 17px; }
+  .win.is-messages .ct-row-h strong { font-weight: 700; color: var(--ios-tx); }
+  .win.is-messages .ct-row-h time,
+  .win.is-messages .ct-row.on .ct-row-h time { font-size: 15px; color: var(--ios-gray); opacity: 1; }
+
+  .win.is-messages .ct-chev { display: block; width: 14px; height: 14px; color: var(--ios-gray); opacity: .75; }
+  .win.is-messages .ct-chev svg {
+    display: block; width: 100%; height: 100%;
+    fill: none; stroke: currentColor; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .win.is-messages .ct-row-t p,
+  .win.is-messages .ct-row.on .ct-row-t p {
+    margin-top: 2px;
+    font-size: 15px;
+    line-height: 1.3;
+    color: var(--ios-gray);
+    opacity: 1;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  /* ô tìm kiếm + nút soạn tin, nổi ở đáy */
+  .win.is-messages .ct-ios-bar {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 22px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .1));
+  }
+  .win.is-messages .ct-ios-search {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 46px;
+    padding: 0 16px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    color: var(--ios-tx);
+  }
+  .win.is-messages .ct-ios-search svg,
+  .win.is-messages .ct-ios-compose svg {
+    flex: none; display: block; width: 22px; height: 22px;
+    fill: none; stroke: currentColor; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round;
+  }
+  .win.is-messages .ct-ios-search input {
+    flex: 1;
+    min-width: 0;
+    border: 0;
+    outline: 0;
+    background: none;
+    color: var(--ios-tx);
+    font: 500 18px/1 var(--ct-font);
+  }
+  .win.is-messages .ct-ios-search input::placeholder { color: var(--ios-tx); opacity: .85; }
+  .win.is-messages .ct-ios-search input::-webkit-search-cancel-button { display: none; }
+  .win.is-messages .ct-ios-compose {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    border-radius: 50%;
+    color: var(--ios-tx);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* ---------- Màn 2: khung chat ---------- */
+  .win.is-messages .ct-app.in-chat .ct-side { display: none !important; }
+  .win.is-messages .ct-app.in-chat .ct-main { flex: 1; min-height: 0; width: 100% !important; }
+
+  /* header nổi trên tin nhắn, không nền không viền */
+  .win.is-messages .ct-app.in-chat .ct-mhead {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    z-index: 5;
+    padding: 12px 14px 0;
+    pointer-events: none;                 /* bấm xuyên xuống tin nhắn */
+  }
+  .win.is-messages .ct-mhead > * { pointer-events: auto; }
+
+  /* lớp mờ dần phía sau header (giống iOS) */
+  .win.is-messages .ct-app.in-chat .ct-mhead::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 -26px 0;
+    z-index: -1;
+    background: linear-gradient(180deg, var(--ct-bg) 8%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent);
+    mask-image: linear-gradient(180deg, #000 55%, transparent);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    pointer-events: none;
+  }
+
+  /* nút Back + nút ••• : kính trắng đục, viền sáng */
+  .win.is-messages .ct-mback,
+  .win.is-messages .ct-mcircle {
+    flex: none;
+    border-radius: 999px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, .75), rgba(255, 255, 255, .5));
+    border: 1px solid rgba(255, 255, 255, .8);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .95), inset 0 -2px 4px -2px rgba(255, 255, 255, .6), 0 6px 18px rgba(0, 0, 0, .14);
+    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    backdrop-filter: blur(22px) saturate(190%);
+    color: #111;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .win.is-messages .ct-mback {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 44px;
+    padding: 0 12px 0 8px;
+  }
+  .win.is-messages .ct-mback svg {
+    display: block; width: 24px; height: 24px;
+    fill: none; stroke: currentColor; stroke-width: 2.6;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .win.is-messages .ct-mcircle {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    padding: 9px;
+    box-sizing: border-box;
+    border-radius: 50%;
+  }
+  .win.is-messages .ct-mcircle svg {
+    display: block; width: 100%; height: 100%;
+    fill: none; stroke: currentColor; stroke-width: 2.2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+  .win.is-messages .ct-mcircle.on {
+    background: linear-gradient(160deg, rgba(10, 132, 255, .9), rgba(10, 132, 255, .7));
+    border-color: rgba(255, 255, 255, .45);
+    color: #fff;
+  }
+
+  /* badge số tin chưa đọc: viên đen đậm như iPhone */
+  .win.is-messages .ct-mbadge {
+    min-width: 26px;
+    height: 26px;
+    padding: 0 7px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #111;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+    font: 700 15px/26px var(--ct-font);
+    text-align: center;
+  }
+
+  /* avatar + chip tên đè nhẹ lên đáy avatar */
+  .ct-mcenter {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .ct-mav { display: block; width: 56px; height: 56px; }
+  .win.is-messages .ct-mav .ct-avatar { width: 56px; height: 56px; box-shadow: 0 4px 14px rgba(0, 0, 0, .18); }
+
+  .win.is-messages .ct-mtitle {
+    position: relative;
+    z-index: 2;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: -15px;
+    padding: 2px 10px 2px 12px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .55);
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, .7), inset 0 1px 0 rgba(255, 255, 255, .9), 0 3px 10px rgba(0, 0, 0, .12);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    backdrop-filter: blur(16px) saturate(180%);
+    color: #000;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: -.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  /* mũi tên › nhỏ, mảnh, xám như iOS */
+  .win.is-messages .ct-mtitle::after {
+    content: "›";
+    margin-left: 5px;
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1;
+    color: #8a8a8e;
+    position: relative;
+    top: -1px;
+  }
+
+  /* tin nhắn: chừa chỗ cho header nổi ở trên */
+  .win.is-messages .ct-msgs { padding-bottom: 14px; }
+  .win.is-messages .ct-app.in-chat .ct-msgs { padding-top: 96px; }
+
+  /* thanh nhập tin ở đáy: nền mờ dần, 2 viên kính nổi lên */
+  .ct-comp {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: none;
+    padding: 8px 14px calc(14px + env(safe-area-inset-bottom));
+    background: linear-gradient(0deg, var(--ct-bg) 40%, transparent);
+  }
+  .ct-comp-plus {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: var(--ct-tx);
+  }
+  .ct-comp-plus svg {
+    display: block; width: 22px; height: 22px;
+    fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round;
+  }
+  .ct-comp-field {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 18px;
+    border-radius: 999px;
+    color: var(--ct-gray);
+    font: 400 17px var(--ct-font);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+  }
+
+  /* Details: bảng bắt đầu dưới header */
+  .win.is-messages .ct-panel { top: 0; padding-top: 110px; }
+}
+
+/* iOS + chế độ tối: kính tối, chữ trắng */
+@media (prefers-color-scheme: dark) and (max-width: 1100px) {
+  .win.is-messages .ct-mback,
+  .win.is-messages .ct-mcircle {
+    background: linear-gradient(160deg, rgba(120, 120, 128, .55), rgba(60, 60, 67, .45));
+    border-color: rgba(255, 255, 255, .28);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -2px 4px -2px rgba(255, 255, 255, .12), 0 6px 18px rgba(0, 0, 0, .5);
+    color: #fff;
+  }
+  .win.is-messages .ct-mbadge { background: #fff; color: #000; }
+  .win.is-messages .ct-mtitle {
+    background: rgba(90, 90, 96, .5);
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, .22), inset 0 1px 0 rgba(255, 255, 255, .25), 0 3px 10px rgba(0, 0, 0, .4);
+    color: #fff;
+  }
+  .win.is-messages .ct-mtitle::after { color: #aeaeb2; }
+  .win.is-messages .ct-mav .ct-avatar { box-shadow: 0 4px 14px rgba(0, 0, 0, .5); }
+}
+
+/* điện thoại nhỏ (<= 760px): bong bóng + khung chữ rộng hơn */
+@media (max-width: 760px) {
+  .ct-msgs { padding-left: 14px; padding-right: 14px; }
   .ct-q { max-width: 94%; }
   .ct-bubble { max-width: 82%; }
   .ct-hint { left: auto; right: 14px; }
   .ct-panel { width: min(280px, 86%); }
 }
 
+/* =========================================================
+   8. GIẢM CHUYỂN ĐỘNG / GIẢM TRONG SUỐT
+========================================================= */
 @media (prefers-reduced-motion: reduce) {
   .ct-a, .ct-bubble, .ct-tog::after, .ct-hint, .ct-panel { transition: none; animation: none; }
 }
-/* =========================================================
-   DARK MODE + màu bong bóng. Dán xuống CUỐI messages.css
-========================================================= */
 
-/* --- Token sáng (mặc định) --- */
-.win.is-messages {
-  --ct-bg: #fff;
-  --ct-tx: #111;
-  --ct-side: rgba(244, 244, 246, .94);
-  --ct-head: rgba(250, 250, 251, .9);
-  --ct-panel: rgba(250, 250, 251, .97);
-  --ct-card: #fff;
-  --ct-chip: #ededf0;
-  --ct-chip-tx: #333;
-  --ct-seg-on: #fff;
-  --ct-seg-on-tx: #111;
-  --ct-hover: rgba(0, 0, 0, .04);
-  --ct-pill: #1d1d1f;           /* bong bóng câu hỏi: nền đen kiểu Apple */
-  --ct-pill-tx: #fff;           /* chữ trắng */
-  --ct-green: #39ff14;                   /* xanh lá neon: chỉ dùng cho chữ khi rê chuột */
-  --ct-hint-a: #fff;
-  --ct-hint-b: #e8e8eb;
-  --ct-reply: var(--ct-blue);   /* nền bong bóng trả lời */
-  --ct-reply-tx: #1d1d1f;
-  --ct-tab-tx: #1d1d1f;        /* chữ bong bóng trả lời (nền sáng thì đổi sang #000) */
-  --ct-tab: var(--ct-blue);     /* nền hội thoại đang chọn ở sidebar */
-  color-scheme: light;
-}
-
-/* --- Token tối: hệ thống tối --- */
-@media (prefers-color-scheme: dark) {
-  .win.is-messages {
-    --ct-bg: #1c1c1e; --ct-tx: #f5f5f7; --ct-gray: #98989d; --ct-line: rgba(255, 255, 255, .12);
-    --ct-blue: #0a84ff; --ct-green: #39ff14;
-    --ct-side: rgba(44, 44, 46, .92); --ct-head: rgba(38, 38, 40, .92);
-    --ct-panel: rgba(44, 44, 46, .97); --ct-card: #2c2c2e;
-    --ct-chip: #3a3a3c; --ct-chip-tx: #f5f5f7;
-    --ct-seg-on: #636366; --ct-seg-on-tx: #fff; --ct-hover: rgba(255, 255, 255, .06);
-    --ct-hint-a: #48484a; --ct-hint-b: #3a3a3c;
-    /* khung cửa sổ (thanh tiêu đề trên điện thoại) */
-    --win-bg: rgba(28, 28, 30, .96); --win-bar: rgba(44, 44, 46, .9); --win-tx: #f5f5f7;
-    --win-line: rgba(255, 255, 255, .12); --win-edge: rgba(255, 255, 255, .14); --win-hover: rgba(255, 255, 255, .08);
-    color-scheme: dark;
+@media (prefers-reduced-transparency: reduce) {
+  .win.is-messages * {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-search, .ct-ios-compose,
+    .ct-mback, .ct-mcircle, .ct-mtitle, .ct-comp-plus, .ct-comp-field, .ct-panel, .ct-link) {
+    background: var(--ct-card);
   }
 }
-
-
-/* --- Áp token vào giao diện --- */
-.win.is-messages,
-.is-messages .win-body,
-.is-messages .ct-main { background: var(--ct-bg); }
-.is-messages .ct-app { background: var(--ct-bg); color: var(--ct-tx); }
-
-.is-messages .ct-side { background: var(--ct-side); border-color: var(--ct-line); }
-.is-messages .ct-row { color: var(--ct-tx); }
-.is-messages .ct-row:hover { background: var(--ct-hover); }
-.is-messages .ct-row.on,
-.is-messages .ct-row.on:hover { background: var(--ct-tab); color: var(--ct-tab-tx); }
-.is-messages .ct-row.on .ct-row-h time,
-.is-messages .ct-row.on .ct-row-t p { color: var(--ct-tab-tx); opacity: .85; }
-.is-messages .ct-ph { border-color: var(--ct-line); }
-
-.is-messages .ct-head { background: var(--ct-head); border-color: var(--ct-line); }
-.is-messages .ct-chip { background: var(--ct-chip); color: var(--ct-chip-tx); }
-.is-messages .ct-seg { background: var(--ct-chip); }
-.is-messages .ct-seg-b { color: var(--ct-gray); }
-.is-messages .ct-seg-b.on { background: var(--ct-seg-on); color: var(--ct-seg-on-tx); }
-
-/* Bong bóng câu hỏi: nền đen cố định, chữ trắng; rê chuột = CHỈ chữ chuyển xanh lá neon */
-.is-messages .ct-pill {
-  --bg: var(--ct-pill);
-  color: var(--ct-pill-tx);
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
-}
-.is-messages .ct-q:hover .ct-pill,
-.is-messages .ct-q:focus-visible .ct-pill {
-  --bg: var(--ct-pill);                       /* giữ nền đen (luật gốc đang đổi nó sang #1f1f1f) */
-  color: var(--ct-blue);                      /* rê chuột: chữ xanh dương trên nền đen */
-}
-.is-messages .ct-q:focus-visible .ct-pill { box-shadow: 0 0 0 3px rgba(10, 122, 255, .45); }
-
-/* Đuôi bong bóng: khoét bằng đúng màu nền (trước đây gán cứng #fff) */
-.is-messages .ct-pill.tail::after,
-.is-messages .ct-bubble::after { background: var(--ct-bg); }
-
-/* Nút +: không màu (viền và dấu xám). Khi mở ra thành −: nền xanh dương, dấu trừ trắng */
-.is-messages .ct-tog { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ct-gray); }
-.is-messages .ct-tog::before,
-.is-messages .ct-tog::after { background: var(--ct-gray); }
-
-.is-messages .ct-item.open .ct-tog { background: var(--ct-blue); box-shadow: none; }
-.is-messages .ct-item.open .ct-tog::before,
-.is-messages .ct-item.open .ct-tog::after { background: var(--ct-reply-tx); }
-
-.is-messages .ct-hint { background: linear-gradient(var(--ct-hint-a), var(--ct-hint-b)); color: var(--ct-tx); }
-.is-messages .ct-panel { background: var(--ct-panel); border-color: var(--ct-line); }
-.is-messages .ct-link { background: var(--ct-card); }

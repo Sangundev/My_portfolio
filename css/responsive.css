@@ -1,5 +1,6 @@
 /* =========================================================
-   responsive.css: nạp CUỐI CÙNG (sau sticky-note.css)
+   responsive.css: nạp CUỐI CÙNG (sau mọi file css khác, kể cả css/apps/*)
+   Đã gộp ios.css vào mục 5 ở cuối file.
    Dock tự responsive trong dock.css + dock.js (nút More) nên KHÔNG đụng vào dock ở đây.
 ========================================================= */
 
@@ -23,8 +24,8 @@
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-@media (max-width: 768px) { :root { --menubar-h: 32px; } }
-@media (max-width: 480px) { :root { --menubar-h: 30px; } }
+/* @media (max-width: 768px) { :root { --menubar-h: 32px; } }
+@media (max-width: 480px) { :root { --menubar-h: 30px; } } */
 
 @media (max-width: 768px) {
   html, body {
@@ -57,4 +58,62 @@
   .lights { gap: 10px; }
   .light { position: relative; }
   .light::before { content: ""; position: absolute; inset: -9px; }
+}
+
+/* 5. Giao diện iOS cho tablet + điện thoại (trước đây là css/ios.css) */
+
+@media (max-width:1024px){
+  :root{ --mb-h:34px; --menubar-h:34px; }
+
+  /* menu bar -> status bar iOS: giờ bên trái, icon bên phải */
+  #menubar{
+    background:transparent; border:0;
+    -webkit-backdrop-filter:none; backdrop-filter:none;
+    padding-left:26px; padding-right:26px;   /* không dùng "padding:0 26px" vì sẽ đè padding-top (vùng an toàn) */
+    color:#fff;
+  }
+  .menubar-left{ display:none; }
+
+  #menubar .menubar-right{
+    display:flex; width:100%;
+    justify-content:space-between; align-items:center;
+  }
+  #menubar .status-icons{
+    display:flex !important; align-items:center;
+    margin-left:auto; gap:4px;
+  }
+
+  #clock{ order:-1; color:#fff; font-size:15px; font-weight:600; padding:0; }
+  #clock:hover, .sb:hover{ background:none; }
+  .sb{ color:#fff; padding:0 4px; }
+
+  /* chỉ giữ Wi-Fi + pin, ẩn mọi icon khác (Spotlight, Control Center, Siri, ...) */
+  #menubar .status-icons > :not(.sb-wifi):not(.sb-battery){ display:none !important; }
+  #menubar .menubar-right > :not(.status-icons):not(#clock){ display:none !important; }
+
+  #menubar .status-icons .sb-wifi{ order:1; }
+  #menubar .status-icons .sb-battery{ order:2; }
+}
+
+@media (max-width:768px){
+  :root{ --mb-h:44px; --menubar-h:44px; }   /* đặt cả 2 biến để khớp với mục 3 ở trên */
+  #menubar{ padding-left:28px; padding-right:28px; }
+
+  /* thanh home indicator */
+  body::after{
+    content:''; position:fixed; bottom:8px; left:50%; width:134px; height:5px; margin-left:-67px;
+    border-radius:3px; background:rgba(255,255,255,.85); z-index:300; pointer-events:none;
+  }
+}
+
+/* Trả lại giao diện desktop khi kéo rộng cửa sổ (đè cả inline style do JS để lại) */
+@media (min-width:1025px){
+  :root{ --mb-h:24px !important; --menubar-h:24px !important; }
+  #menubar{
+    height:24px !important;
+    padding-top:0 !important;
+    padding-left:8px !important; padding-right:8px !important;
+  }
+  #menubar .menubar-left{ display:flex !important; }
+  body::after{ content:none !important; }   /* tắt thanh home indicator */
 }

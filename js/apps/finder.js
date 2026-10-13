@@ -551,10 +551,9 @@
        - Folder con chưa có nội dung: báo "đang cập nhật"
        - Còn lại (file, About Me, và mọi thứ trên tablet/điện thoại): mở cửa sổ riêng */
     function activate(k, el) {
-      const desktop = !small() && !isMobile();
-      if (desktop && CHILDREN[k]) show(k, true);
+      if (CHILDREN[k]) show(k, true);                 // desktop + điện thoại: đi vào trong Finder
       else if (FILES[k].leaf) toast('Đang cập nhật nội dung');
-      else open(k, el, null);
+      else open(k, el, null);                         // file (PDF), About Me: mở cửa sổ riêng
     }
 
     function iconItem(k, i, n, scatter) {
