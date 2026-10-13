@@ -117,3 +117,21 @@
   #menubar .menubar-left{ display:flex !important; }
   body::after{ content:none !important; }   /* tắt thanh home indicator */
 }
+@media (max-width: 1100px) {
+  :root {
+    --home-bar-h: 5px;        /* cao thanh vuốt */
+    --home-bar-gap: 8px;      /* thanh vuốt cách đáy màn hình */
+    --dock-gap: 10px;         /* khoảng hở giữa dock và thanh vuốt */
+  }
+
+  /* thanh vuốt: ghim sát đáy, có chừa vùng an toàn */
+  .home-indicator {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--home-bar-gap));
+    height: var(--home-bar-h);
+  }
+
+  /* dock: nâng lên trên thanh vuốt một khoảng cố định */
+  #dock {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--home-bar-gap) + var(--home-bar-h) + var(--dock-gap));
+  }
+}

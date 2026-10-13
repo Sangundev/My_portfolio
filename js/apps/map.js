@@ -1546,8 +1546,24 @@
     info.setAttribute("aria-hidden", "true");
     const scroll = info.lastChild;
 
+        /* header kiểu iOS (chỉ hiện ≤1100px, xem CSS) */
+    const SV = {
+      back: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>',
+      more: '<svg viewBox="0 0 24 24" aria-hidden="true" class="dots"><circle cx="5.5" cy="12" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="18.5" cy="12" r="1.7"/></svg>',
+      find: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5 5"/></svg>',
+      mic: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5.5 11.5a6.5 6.5 0 0013 0M12 18v3"/></svg>',
+    };
+    const hdr = el("header", "mp-hdr", `
+      <div class="mp-nav">
+        <button class="mp-nb back" type="button" aria-label="Quay lại">${SV.back}</button>
+        <h1>${esc(TXT.title)}</h1>
+        <button class="mp-nb more" type="button" aria-label="Thêm" aria-expanded="false">${SV.more}</button>
+      </div>
+      <label class="mp-search">${SV.find}<input type="search" placeholder="Tìm kiếm" enterkeyhint="search" autocomplete="off" aria-label="Tìm kiếm">${SV.mic}</label>
+      <ul class="mp-res" hidden></ul>
+      <div class="mp-menu" hidden><button type="button" data-a="ov">Xem toàn cảnh</button><button type="button" data-a="n">Về hướng Bắc</button></div>`);
     const loading = el("div", "mp-loading", "Đang tải bản đồ…");
-    root.append(view, title, sign, scaleEl, compass, ctl, legend, info, loading);
+    root.append(view, title, sign, scaleEl, compass, ctl, legend, info, hdr, loading);
     body.append(root);
 
     let markers = new Map(),
@@ -1907,7 +1923,48 @@
     }
 
     info.querySelector(".mp-dot.r").addEventListener("click", closeInfo);
+        /* --- header: quay lại / menu / tìm kiếm --- */
+    const hq = hdr.querySelector("input"), hres = hdr.querySelector(".mp-res"),
+      hmenu = hdr.querySelector(".mp-menu"), hmore = hdr.querySelector(".more");
+    const fold = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").toLowerCase();
+    const found = () => {
+      const k = fold(hq.value.trim());
+      return k ? COMPANIES.filter((c) => fold(`${c.name} ${c.aka || ""} ${c.role} ${c.years}`).includes(k)) : [];
+    };
+    const showRes = () => {
+      const l = found();
+      hres.hidden = !hq.value.trim();
+      hres.innerHTML = l.length
+        ? l.map((c) => `<li><button type="button" data-id="${c.id}" style="--c:${c.color}"><span class="no"><img src="${esc(c.logo)}" alt=""></span><span><b>${esc(c.name)}</b><small>${esc(c.role)} · ${esc(c.years)}</small></span></button></li>`).join("")
+        : `<li class="none">Không tìm thấy</li>`;
+    };
+    const pick = (id) => { hq.value = ""; showRes(); hq.blur(); select(id); };
+    const setMenu = (on) => { hmenu.hidden = !on; hmore.setAttribute("aria-expanded", String(on)); };
 
+    hq.addEventListener("input", showRes);
+    hq.addEventListener("keydown", (e) => {
+      e.stopPropagation();                       // không để phím Q / E / 1-4 điều khiển camera khi đang gõ
+      if (e.key === "Enter") { const l = found(); if (l[0]) pick(l[0].id); }
+      else if (e.key === "Escape") { hq.value = ""; showRes(); hq.blur(); }
+    });
+    hres.addEventListener("click", (e) => {
+      const b = e.target.closest("button[data-id]");
+      if (b) pick(b.dataset.id);
+    });
+    hdr.querySelector(".back").addEventListener("click", () => {
+      setMenu(false);
+      if (sel) closeInfo();
+      else { userMoved = false; fly(overview(), 800); }
+    });
+    hmore.addEventListener("click", (e) => { e.stopPropagation(); setMenu(hmenu.hidden); });
+    hmenu.addEventListener("click", (e) => {
+      const a = e.target.closest("button")?.dataset.a;
+      if (!a) return;
+      setMenu(false);
+      if (a === "ov") { if (sel) closeInfo(); else { userMoved = false; fly(overview(), 800); } }
+      else nudge({ rz: 0, rx: DEF.rx });
+    });
+    root.addEventListener("pointerdown", (e) => { if (!e.target.closest(".mp-hdr")) { setMenu(false); hres.hidden = true; } });
     /* --- nút điều khiển --- */
     const nudge = (d) => {
       userMoved = true;

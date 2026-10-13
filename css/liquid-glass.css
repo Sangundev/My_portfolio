@@ -1,23 +1,63 @@
 /* =========================================================
-   liquid-glass.css (bản gộp cuối): kính tinh tế kiểu thư mục iOS
+   liquid-glass.css (bản tối ưu): kính "Liquid Glass" kiểu Apple
    Nạp SAU desktop.css, TRƯỚC sticky-note.css và responsive.css
+
+   Đặc trưng của Liquid Glass được mô phỏng:
+   1. Nền kính gần như trong, chỉ blur vừa phải + tăng bão hoà / sáng (màu hình nền "thấm" qua kính)
+   2. Viền sáng dạng gradient (specular rim): sáng ở góc trên-trái và dưới-phải, gần như tắt ở giữa các cạnh
+   3. Ánh phản chiếu ở nửa trên + bóng trong (inner glow) ở đáy tạo cảm giác có độ dày
+   4. Chuyển động lò xo (spring) khi mở thư mục và khi nhấn
+   5. (Tuỳ chọn, chỉ Chromium) khúc xạ nền bằng SVG displacement: xem mục 11
+
+   Hiệu năng: mỗi lớp kính chỉ có MỘT backdrop-filter; lớp sáng / viền dùng pseudo-element không blur;
+   tắt blur cho phần tử đang kéo; không đặt contain: paint lên phần tử có backdrop-filter.
 ========================================================= */
 
 /* ---------- 1. TOKENS (dock.css cũng dùng các biến này) ---------- */
 :root {
-  --lg-fill: linear-gradient(160deg, rgba(255,255,255,.2), rgba(255,255,255,.1));
-  --lg-edge: rgba(255,255,255,.4);
-  --lg-shadow: 0 10px 30px rgba(0,0,0,.14);
+  --lg-fill:
+    linear-gradient(135deg, rgba(255,255,255,.26), rgba(255,255,255,.07) 55%, rgba(255,255,255,.15));
+  --lg-edge: rgba(255,255,255,.4);                       /* giữ tên cũ cho dock.css */
+  --lg-shadow: 0 12px 32px rgba(0,0,0,.16), 0 2px 6px rgba(0,0,0,.08);
   --lg-text: #fff;
   --lg-text-shadow: 0 1px 4px rgba(0,0,0,.35);
+
+  --lg-blur: blur(14px) saturate(180%) brightness(1.06);
+  --lg-blur-sm: blur(10px) saturate(170%) brightness(1.05);
+  --lg-rim: linear-gradient(145deg,
+    rgba(255,255,255,.85) 0%,
+    rgba(255,255,255,.14) 28%,
+    rgba(255,255,255,.05) 55%,
+    rgba(255,255,255,.12) 78%,
+    rgba(255,255,255,.55) 100%);
+  --lg-spec:
+    inset 1px 1.5px 1px -0.5px rgba(255,255,255,.75),    /* điểm sáng góc trên-trái */
+    inset -1px -1px 1px -0.5px rgba(255,255,255,.35),    /* điểm sáng góc dưới-phải */
+    inset 0 -12px 24px -14px rgba(255,255,255,.28);      /* bóng trong ở đáy */
+  --lg-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --lg-ease: cubic-bezier(.22, .8, .24, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --lg-fill: linear-gradient(160deg, rgba(255,255,255,.14), rgba(255,255,255,.06));
+    --lg-fill:
+      linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04) 55%, rgba(255,255,255,.1));
     --lg-edge: rgba(255,255,255,.25);
-    --lg-shadow: 0 10px 30px rgba(0,0,0,.4);
+    --lg-shadow: 0 12px 32px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.25);
+    --lg-blur: blur(16px) saturate(170%) brightness(.98);
+    --lg-spec:
+      inset 1px 1.5px 1px -0.5px rgba(255,255,255,.55),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,.22),
+      inset 0 -12px 24px -14px rgba(255,255,255,.16);
   }
+}
+
+/* nền động (wallpaper.js gắn body.wp-dark): kính dịu hơn trên nền tối, bất kể chế độ hệ thống */
+body.wp-dark {
+  --lg-fill:
+    linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04) 55%, rgba(255,255,255,.1));
+  --lg-shadow: 0 12px 32px rgba(0,0,0,.4), 0 2px 6px rgba(0,0,0,.25);
+  --lg-blur: blur(16px) saturate(170%) brightness(.98);
 }
 
 
@@ -34,11 +74,11 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,.06);
-  -webkit-backdrop-filter: blur(26px) saturate(115%);
-  backdrop-filter: blur(26px) saturate(115%);
-  animation: fade-in .25s ease both;
-  transition: opacity .22s ease;
+  background: rgba(20,22,34,.1);                         /* hơi tối đi như iOS khi mở thư mục */
+  -webkit-backdrop-filter: blur(22px) saturate(125%);
+  backdrop-filter: blur(22px) saturate(125%);
+  animation: fade-in .28s ease both;
+  transition: opacity .24s ease;
 }
 
 .group-overlay.is-closing::before { opacity: 0; }
@@ -49,21 +89,26 @@
   position: relative;
   overflow: visible;                  /* để tên thư mục nằm phía trên panel */
   padding-top: 26px;
-  border-radius: 38px;
+  border-radius: 40px;
   background: var(--lg-fill);
-  border: 1px solid var(--lg-edge);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), var(--lg-shadow);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid transparent;      /* chỗ cho viền gradient ở ::after, không làm lệch layout */
+  box-shadow: var(--lg-spec), var(--lg-shadow);
+  -webkit-backdrop-filter: var(--lg-blur);
+  backdrop-filter: var(--lg-blur);
+  animation: lg-pop .46s var(--lg-spring) both;
+  transform-origin: 50% 60%;
 }
 
+/* ánh phản chiếu: vệt sáng ở góc trên-trái, mờ dần xuống */
 .group-panel::before {
   content: "";
   position: absolute;
   inset: 0;
   z-index: 0;
   border-radius: inherit;
-  background: linear-gradient(180deg, rgba(255,255,255,.14), transparent 40%);
+  background:
+    radial-gradient(120% 70% at 18% 0%, rgba(255,255,255,.26), transparent 58%),
+    linear-gradient(180deg, rgba(255,255,255,.1), transparent 38%);
   pointer-events: none;
 }
 
@@ -86,27 +131,57 @@
 
 .group-item .label { color: var(--lg-text); text-shadow: var(--lg-text-shadow); }
 
-
-/* ---------- 4. TILE NHÓM TRÊN DESKTOP + Ô GỘP ---------- */
-.desk-group .group-tile {
-  background: var(--lg-fill);
-  border: 1px solid var(--lg-edge);
-  border-radius: 28%;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 4px 12px rgba(0,0,0,.12);
-  -webkit-backdrop-filter: blur(10px) saturate(140%);
-  backdrop-filter: blur(10px) saturate(140%);
+@keyframes lg-pop {
+  from { opacity: 0; transform: scale(.86); }
+  to   { opacity: 1; transform: none; }
 }
+
+
+/* ---------- 4. VIỀN SÁNG (specular rim) dùng chung ---------- */
+.group-panel::after,
+.desk-group .group-tile::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--lg-rim);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+
+/* ---------- 5. TILE NHÓM TRÊN DESKTOP + Ô GỘP ---------- */
+.desk-group .group-tile {
+  position: relative;
+  background: var(--lg-fill);
+  border: 1px solid transparent;
+  border-radius: 28%;
+  box-shadow: var(--lg-spec), 0 6px 16px rgba(0,0,0,.14);
+  -webkit-backdrop-filter: var(--lg-blur-sm);
+  backdrop-filter: var(--lg-blur-sm);
+  transition: transform .35s var(--lg-spring), box-shadow .25s ease;
+}
+
+/* nhấn: lún xuống rồi bật lại kiểu lò xo */
+.desk-group:active .group-tile { transform: scale(.94); }
 
 .desk-icon.merge-target::after {
-  background: rgba(255,255,255,.22);
+  background: rgba(255,255,255,.24);
   outline: 0;
-  border: 1px solid rgba(255,255,255,.55);
+  border: 1px solid rgba(255,255,255,.6);
   border-radius: 28%;
-  box-shadow: none;
+  box-shadow: var(--lg-spec);
+  -webkit-backdrop-filter: blur(8px) saturate(160%);
+  backdrop-filter: blur(8px) saturate(160%);
 }
 
 
-/* ---------- 5. DẤU TRỪ KIỂU GLASS + NHÃN KHI KÉO ---------- */
+/* ---------- 6. DẤU TRỪ KIỂU GLASS + NHÃN KHI KÉO ---------- */
 .desktop-edit-mode :is(.desk-icon, .group-item)::before {
   box-sizing: border-box;
   top: -7px;
@@ -117,12 +192,12 @@
   color: #fff;
   text-shadow: 0 1px 2px rgba(0,0,0,.35);
   background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,.55), transparent 55%),
-    linear-gradient(145deg, rgba(110,110,125,.55), rgba(40,40,55,.45));
-  border: 1px solid rgba(255,255,255,.6);
+    radial-gradient(circle at 30% 20%, rgba(255,255,255,.5), transparent 55%),
+    linear-gradient(145deg, rgba(110,110,125,.5), rgba(40,40,55,.42));
+  border: 1px solid rgba(255,255,255,.55);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.75),
-    inset 0 -3px 5px -2px rgba(255,255,255,.3),
+    inset 1px 1.5px 1px -0.5px rgba(255,255,255,.8),
+    inset -1px -1px 1px -0.5px rgba(255,255,255,.3),
     0 3px 8px rgba(0,0,0,.25);
   -webkit-backdrop-filter: blur(8px) saturate(180%);
   backdrop-filter: blur(8px) saturate(180%);
@@ -132,9 +207,11 @@
   padding: 1px 8px;
   border-radius: 999px;
   background: rgba(255,255,255,.3);
+  box-shadow: var(--lg-spec);
 }
 
-/* ---------- 6. NỀN TỐI: chữ icon + Welcome chuyển trắng (class do wallpaper.js gắn) ---------- */
+
+/* ---------- 7. NỀN TỐI: chữ icon + Welcome chuyển trắng (class do wallpaper.js gắn) ---------- */
 .desk-icon .label,
 .welcome { transition: color .5s ease; }
 
@@ -145,8 +222,9 @@ body.wp-dark .welcome {
 }
 
 
-/* ---------- 7. MƯỢT ---------- */
-.desk-icon { contain: layout style; backface-visibility: hidden; }
+/* ---------- 8. MƯỢT ---------- */
+/* (đã bỏ backface-visibility: hidden: mục 10 vốn đặt lại visible nên rule này không có tác dụng) */
+.desk-icon { contain: layout style; }
 .desk-icon.dragging,
 .group-item.dragging { will-change: translate, scale; }
 .sticky-note.is-dragging { will-change: translate, scale, rotate; }
@@ -155,12 +233,17 @@ body.wp-dark .welcome {
   box-shadow: none;
   filter: none;
 }
+
+/* đang kéo: bỏ blur của tile (tốn GPU nhất), giữ nền + viền để nhìn vẫn như kính */
 .desk-icon.dragging > .group-tile {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), 0 8px 16px rgba(0,0,0,.18);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: linear-gradient(135deg, rgba(255,255,255,.38), rgba(255,255,255,.18));
+  box-shadow: var(--lg-spec), 0 12px 22px rgba(0,0,0,.2);
 }
 
 
-/* ---------- 8. FALLBACK ---------- */
+/* ---------- 9. FALLBACK ---------- */
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .group-panel { background: rgba(110,110,125,.85); }
   .desk-group .group-tile { background: rgba(140,140,170,.35); }
@@ -170,32 +253,45 @@ body.wp-dark .welcome {
   .group-panel,
   .desk-group .group-tile,
   .group-overlay::before,
+  .desk-icon.merge-target::after,
   .desktop-edit-mode :is(.desk-icon, .group-item)::before {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
   .group-panel { background: rgba(110,110,125,.92); }
+  .desk-group .group-tile { background: rgba(120,120,140,.7); }
   .desktop-edit-mode :is(.desk-icon, .group-item)::before { background: rgba(70,70,80,.85); }
+}
+
+@media (prefers-contrast: more) {
+  :root { --lg-rim: linear-gradient(145deg, #fff, rgba(255,255,255,.4) 50%, #fff); }
+  .group-panel { background: rgba(60,60,75,.7); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .group-overlay::before { animation: none; transition: none; }
+  .group-panel { animation: none; }
+  .desk-group .group-tile { transition: none; }
 }
+
+
 /* =========================================================
-   9. HOVER / NHẤN: chỉ giữ hiệu ứng nhấc + phóng to icon
-      Không khung, không bóng, không ô xám
+   10. HOVER / NHẤN: chỉ giữ hiệu ứng nhấc + phóng to icon
+       Không khung, không bóng, không ô xám
 ========================================================= */
 .desktop-icons .desk-icon,
 .desktop-icons .desk-icon:hover,
-.desktop-icons .desk-icon:active,
-.desktop-icons .desk-icon:focus {
+.desktop-icons .desk-icon:active {
   background: none;
   border: 0;
   box-shadow: none;
-  outline: none;
   filter: none;
   backface-visibility: visible;      /* bỏ lớp vẽ riêng gây khung vuông */
 }
+
+/* chỉ tắt viền focus khi bấm chuột; bàn phím (:focus-visible) vẫn có dấu hiệu (nhãn nền kính ở mục 6) */
+.desktop-icons .desk-icon:focus:not(:focus-visible) { outline: none; }
+.desktop-icons .desk-icon:focus { background: none; border: 0; box-shadow: none; filter: none; }
 
 /* !important vì rule hover trong desktop.css có độ ưu tiên rất cao */
 .desktop-icons .desk-icon > img,
@@ -209,3 +305,28 @@ body.wp-dark .welcome {
 
 /* ::after chỉ dành cho ô gộp thư mục, còn lại tắt hết */
 .desktop-icons .desk-icon:not(.merge-target)::after { content: none; }
+
+
+/* =========================================================
+   11. (TUỲ CHỌN, CHỈ CHROMIUM) KHÚC XẠ NỀN
+   Liquid Glass thật bẻ cong hình nền ở rìa kính. CSS thuần không làm được; có thể xấp xỉ bằng
+   bộ lọc SVG feDisplacementMap đưa vào backdrop-filter. Safari / Firefox không hỗ trợ => bỏ qua, vẫn đẹp như trên.
+
+   Bật bằng 2 bước:
+   (a) Dán đoạn SVG này ngay sau <body> trong index.html:
+       <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+         <filter id="lg-refract" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+           <feTurbulence type="fractalNoise" baseFrequency=".008 .012" numOctaves="2" seed="7" result="n"/>
+           <feGaussianBlur in="n" stdDeviation="2" result="nb"/>
+           <feDisplacementMap in="SourceGraphic" in2="nb" scale="26" xChannelSelector="R" yChannelSelector="G"/>
+         </filter>
+       </svg>
+   (b) Thêm class lg-refract lên <html>: document.documentElement.classList.add("lg-refract")
+========================================================= */
+@supports (backdrop-filter: url(#x)) {
+  html.lg-refract .group-panel {
+    -webkit-backdrop-filter: url(#lg-refract) blur(10px) saturate(180%) brightness(1.06);
+    backdrop-filter: url(#lg-refract) blur(10px) saturate(180%) brightness(1.06);
+  }
+  html.lg-refract .desk-icon.dragging > .group-tile { -webkit-backdrop-filter: none; backdrop-filter: none; }
+}

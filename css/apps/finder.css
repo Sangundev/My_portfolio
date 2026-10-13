@@ -881,6 +881,30 @@
 /* =========================================================
    FINDER MOBILE: tinh chỉnh giống app Tệp iPhone + liquid glass
 ========================================================= */
+/* Điện thoại: đúng 3 thư mục / hàng, icon nhỏ lại */
+@media (max-width: 599px) {
+  .fd-canvas:not(.v-mlist) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 4px;
+    padding: 16px 10px 120px;
+  }
+
+  .fd-item img {
+    width: 100%;
+    max-width: 80px;              /* trước là 112px */
+  }
+
+  .fd-item span { font-size: 14px; }
+  .fd-sub { font-size: 12.5px; }
+}
+
+/* Tablet: vẫn lưới tự co giãn nhưng icon nhỏ hơn trước */
+@media (min-width: 600px) and (max-width: 1100px) {
+  .fd-canvas:not(.v-mlist) {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+  .fd-item img { max-width: 96px; }   /* trước là 128px */
+}
 .fd {
   --fm-grad: linear-gradient(#e8e8ec 0, #f6f6f8 150px, #fff 320px);
   --fm-glass: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
@@ -888,6 +912,7 @@
   --fm-shine: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -2px 4px -2px rgba(255,255,255,.6);
   --fm-drop: 0 6px 20px rgba(0, 0, 0, .12);
 }
+
 @media (prefers-color-scheme: dark) {
   .fd {
     --fm-grad: linear-gradient(#1c1c1e 0, #0a0a0b 160px, #000 320px);
@@ -1016,5 +1041,81 @@
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
     background: var(--fm-card);
+  }
+}
+/* =========================================================
+   FINDER GLASS (máy tính >1100px): đồng bộ y hệt kính của Photos
+   Cùng biến màu, cùng blur, cùng vòng viền + bóng.
+   Thay NGUYÊN khối cũ "LIQUID GLASS cho Finder trên máy tính (>1100px)"
+   (file finder-liquid-glass.css). KHÔNG đụng khối kính icon (finder-icons-glass.css).
+========================================================= */
+@media (min-width: 1101px) {
+  .fd {
+    --gl-bg: rgba(255, 255, 255, .52);
+    --gl-side: rgba(233, 233, 234, .72);
+    --gl-ring: rgba(255, 255, 255, .55);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .75), inset 0 -1px 0 rgba(255, 255, 255, .15);
+    --gl-drop: 0 8px 24px rgba(0, 0, 0, .12);
+    --gl-blur: blur(22px) saturate(180%);
+  }
+
+  /* Mọi thành phần nổi dùng chung 1 kiểu kính, giống Photos */
+  .fd-pill,
+  .fd-title,
+  .fd-pop {
+    background: var(--gl-bg);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), var(--gl-drop);
+  }
+
+  .fd-side {
+    background: var(--gl-side);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+  }
+
+  /* Tiêu đề thành viên kính (Photos cũng bọc tiêu đề như vậy) */
+  .fd-title {
+    align-self: center;
+    height: 32px;
+    margin-left: 0;
+    padding: 0 14px;
+    border-radius: 999px;
+  }
+
+  .fd-search:focus-within {
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .4), 0 0 0 .5px rgba(10, 132, 255, .8), var(--gl-hi);
+  }
+
+  .fd-toast {
+    background: rgba(30, 30, 32, .55);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: 0 0 0 .5px rgba(255, 255, 255, .18), inset 0 1px 0 rgba(255, 255, 255, .15);
+  }
+
+  .fd-card {
+    background: var(--gl-bg);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), var(--gl-drop);
+  }
+}
+
+@media (min-width: 1101px) and (prefers-color-scheme: dark) {
+  .fd {
+    --gl-bg: rgba(58, 58, 62, .5);
+    --gl-side: rgba(43, 43, 46, .7);
+    --gl-ring: rgba(255, 255, 255, .14);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --gl-drop: 0 8px 24px rgba(0, 0, 0, .4);
+  }
+}
+
+@media (min-width: 1101px) and (prefers-reduced-transparency: reduce) {
+  .fd-pill, .fd-title, .fd-pop, .fd-side, .fd-card, .fd-toast {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
