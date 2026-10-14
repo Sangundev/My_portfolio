@@ -1685,3 +1685,98 @@
     border-radius: inherit;
   }
 }
+/* =========================================================
+   GLASS: nút + pill giống Photos (dán ở CUỐI file)
+========================================================= */
+.mp {
+  --gl-bg: rgba(255, 255, 255, .52);
+  --gl-ring: rgba(255, 255, 255, .55);
+  --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .75), inset 0 -1px 0 rgba(255, 255, 255, .15);
+  --gl-drop: 0 8px 24px rgba(0, 0, 0, .12);
+  --gl-blur: blur(22px) saturate(180%);
+  --gl-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), var(--gl-drop);
+}
+
+@media (prefers-color-scheme: dark) {
+  .mp:not(.light) {
+    --gl-bg: rgba(58, 58, 62, .5);
+    --gl-ring: rgba(255, 255, 255, .14);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --gl-drop: 0 8px 24px rgba(0, 0, 0, .4);
+  }
+}
+
+/* Pill, la bàn, nhãn bước: cùng một kiểu kính (tắt khi đang .frz để Genie nhẹ) */
+.mp:not(.frz) .mp-pill,
+.mp:not(.frz) .mp-compass,
+.mp:not(.frz) .mp-step {
+  background: var(--gl-bg);
+  -webkit-backdrop-filter: var(--gl-blur);
+  backdrop-filter: var(--gl-blur);
+  box-shadow: var(--gl-shadow);
+}
+
+/* Pill tròn hẳn, nút tròn, bỏ vạch ngăn như Photos */
+.mp-pill { padding: 3px; border-radius: 999px; }
+.mp-b { border-radius: 999px; }
+.mp-b + .mp-b::before { display: none; }
+.mp-b:active { transform: scale(.94); }
+
+/* Bảng "Hành trình" trên máy tính */
+@media (min-width: 1101px) {
+  .mp:not(.frz) .mp-legend {
+    background: var(--gl-bg);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: var(--gl-shadow);
+  }
+}
+
+/* Tablet + điện thoại */
+@media (max-width: 1100px) {
+  /* cụm nút dọc: giữ dạng viên thuốc bo lớn, giữ vạch ngang giữa các nút */
+  .mp-ctl .mp-pill { padding: 0; border-radius: 22px; }
+  .mp-ctl .mp-b + .mp-b::before { display: block; }
+
+  /* chip hành trình, nút header, ô tìm kiếm: kính */
+  .mp:not(.frz) .mp-lg,
+  .mp:not(.frz) .mp-nb,
+  .mp:not(.frz) .mp-search {
+    background: var(--gl-bg);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: var(--gl-shadow);
+  }
+
+  /* chip đang chọn giữ màu nhấn, nhưng vẫn có viền sáng */
+  .mp:not(.frz) .mp-lg.on,
+  .mp:not(.frz) .mp-lg.on:hover,
+  .mp:not(.frz) .mp-lg.on:active {
+    background: var(--accent);
+    box-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), 0 6px 18px rgba(0, 0, 0, .2);
+  }
+
+  .mp:not(.frz) .mp-search:focus-within {
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .4), 0 0 0 .5px rgba(10, 132, 255, .8), var(--gl-hi);
+  }
+}
+
+/* Thẻ thông tin: giữ độ đục cao cho dễ đọc, chỉ thêm viền sáng của kính */
+.mp-info {
+  box-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), 0 2px 6px rgba(20, 30, 50, .12), 0 24px 60px rgba(20, 30, 50, .28);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .mp .mp-pill,
+  .mp .mp-compass,
+  .mp .mp-step,
+  .mp .mp-legend,
+  .mp .mp-lg,
+  .mp .mp-nb,
+  .mp .mp-search {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--mat-solid);
+  }
+  .mp .mp-lg.on { background: var(--accent); }
+}

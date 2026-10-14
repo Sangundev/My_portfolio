@@ -1061,3 +1061,67 @@
     background: var(--ph-card);
   }
 }
+/* =========================================================
+   HEADER MOBILE mới: nút quay lại / "…" không nền, tiêu đề đậm ở giữa,
+   ô tìm kiếm viên thuốc tối có viền sáng (đặt CUỐI file)
+========================================================= */
+@media (max-width: 1100px) {
+  .pm-head {
+    gap: 8px;
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 4px;
+  }
+
+  /* nút tròn: bỏ nền kính, chỉ còn icon trắng, nhấn mới hiện vòng mờ */
+  .pm-circle,
+  .pm-circle:active,
+  .pm-circle:disabled {
+    width: 40px;
+    height: 40px;
+    padding: 10px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    color: var(--ph-text);
+  }
+  .pm-circle:active { background: var(--ph-on); transform: scale(.92); }
+  .pm-circle svg { stroke-width: 2.6; }
+
+  .pm-title { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+
+  /* ô tìm kiếm: viên thuốc cao 44px, nền xám mờ, viền sáng mảnh, kính mờ */
+  .pm-search {
+    height: 44px;
+    margin: 8px 16px 10px;
+    padding: 0 16px;
+    gap: 10px;
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .9), rgba(255, 255, 255, .7));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 14px rgba(0, 0, 0, .1);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
+  }
+  .pm-search .ph-sico { width: 18px; height: 18px; }
+  .pm-search .ph-sico svg { stroke-width: 2.8; }
+  .pm-search input { font-size: 17px; font-weight: 500; }
+  .pm-search input::placeholder { color: var(--ph-sub); font-weight: 500; }
+  .pm-mic { width: 18px; height: 18px; }
+  .pm-search:focus-within {
+    border-color: rgba(10, 132, 255, .8);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .35), 0 4px 14px rgba(0, 0, 0, .12);
+  }
+}
+
+@media (max-width: 1100px) and (prefers-color-scheme: dark) {
+  .pm-search {
+    border-color: rgba(255, 255, 255, .14);
+    background: linear-gradient(180deg, rgba(110, 110, 118, .42), rgba(60, 60, 66, .42));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .14), 0 4px 14px rgba(0, 0, 0, .35);
+  }
+}
+
+@media (min-width: 600px) and (max-width: 1100px) {
+  .pm-head { padding-left: 0; padding-right: 0; }
+}

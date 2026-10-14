@@ -131,12 +131,15 @@
   color: #3c3c43;
   cursor: default;
   -webkit-tap-highlight-color: transparent;
+  transition: background .15s ease, transform .15s ease, opacity .15s ease;
 }
 
 .fd-btn:hover { background: rgba(0, 0, 0, .05); }
+.fd-btn:active { transform: scale(.94); }
 .fd-btn.on { background: rgba(0, 0, 0, .09); }
 .fd-btn.dim { opacity: .45; }
 .fd-btn:disabled { opacity: .35; pointer-events: none; }
+.fd-btn:focus-visible { outline: 2px solid #0a84ff; outline-offset: 1px; }
 
 .fd-div {
   width: 1px;
@@ -907,19 +910,20 @@
 }
 .fd {
   --fm-grad: linear-gradient(#e8e8ec 0, #f6f6f8 150px, #fff 320px);
-  --fm-glass: linear-gradient(160deg, rgba(255,255,255,.92), rgba(255,255,255,.72));
-  --fm-edge: rgba(255, 255, 255, .95);
-  --fm-shine: inset 0 1px 0 rgba(255,255,255,.95), inset 0 -2px 4px -2px rgba(255,255,255,.6);
-  --fm-drop: 0 6px 20px rgba(0, 0, 0, .12);
+  --fm-glass: rgba(255, 255, 255, .62);
+  --fm-edge: rgba(255, 255, 255, .7);
+  --fm-shine: inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -1px 0 rgba(255, 255, 255, .15);
+  --fm-drop: 0 6px 20px rgba(0, 0, 0, .1);
+  --fm-blur: blur(22px) saturate(180%);
 }
 
 @media (prefers-color-scheme: dark) {
   .fd {
     --fm-grad: linear-gradient(#1c1c1e 0, #0a0a0b 160px, #000 320px);
-    --fm-glass: linear-gradient(160deg, rgba(88,88,94,.72), rgba(44,44,46,.62));
-    --fm-edge: rgba(255, 255, 255, .2);
-    --fm-shine: inset 0 1px 0 rgba(255,255,255,.28), inset 0 -2px 4px -2px rgba(255,255,255,.1);
-    --fm-drop: 0 6px 20px rgba(0, 0, 0, .55);
+    --fm-glass: rgba(44, 44, 46, .62);
+    --fm-edge: rgba(255, 255, 255, .13);
+    --fm-shine: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --fm-drop: 0 6px 20px rgba(0, 0, 0, .5);
   }
 }
 
@@ -939,16 +943,22 @@
     backdrop-filter: blur(22px) saturate(180%);
     transition: transform .18s cubic-bezier(.2,.8,.2,1), opacity .18s;
   }
-  .fm-circle:active { transform: scale(.92); opacity: 1; }
+  .fm-circle:active { transform: scale(.93); opacity: 1; }
   .fm-circle:disabled { opacity: 1; }          /* không làm mờ nút Back */
   .fm-circle { width: 44px; height: 44px; }
-  .fm-circle svg { width: 22px; height: 22px; stroke-width: 2.8; }
+  .fm-circle svg { width: 22px; height: 22px; stroke-width: 2.4; }
+  .fm-circle:focus-visible,
+  .fm-tab:focus-visible { outline: 2px solid #0a84ff; outline-offset: 2px; }
 
   .fm-title { font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
 
   .fm-search { height: 44px; margin: 6px 16px 10px; }
-  .fm-search .fd-sico svg { stroke-width: 3; }
-  .fm-search input { font-size: 18px; font-weight: 500; }
+  .fm-search:focus-within {
+    border-color: rgba(10, 132, 255, .8);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .35), var(--fm-shine);
+  }
+  .fm-search .fd-sico svg { stroke-width: 2.6; }
+  .fm-search input { font-size: 17px; font-weight: 500; }
 
   /* Lưới: chừa chỗ cho thanh tab nổi phía dưới */
   .fd-canvas {
@@ -1004,8 +1014,8 @@
     background: var(--fm-glass);
     border: 1px solid var(--fm-edge);
     box-shadow: var(--fm-shine), 0 10px 30px rgba(0, 0, 0, .18);
-    -webkit-backdrop-filter: blur(26px) saturate(190%);
-    backdrop-filter: blur(26px) saturate(190%);
+    -webkit-backdrop-filter: var(--fm-blur);
+    backdrop-filter: var(--fm-blur);
   }
   .fm-tab {
     height: 52px;
@@ -1026,8 +1036,8 @@
     background: var(--fm-glass);
     border: 1px solid var(--fm-edge);
     box-shadow: var(--fm-shine), 0 12px 32px rgba(0, 0, 0, .25);
-    -webkit-backdrop-filter: blur(26px) saturate(180%);
-    backdrop-filter: blur(26px) saturate(180%);
+    -webkit-backdrop-filter: var(--fm-blur);
+    backdrop-filter: var(--fm-blur);
   }
 }
 
@@ -1114,8 +1124,73 @@
 }
 
 @media (min-width: 1101px) and (prefers-reduced-transparency: reduce) {
-  .fd-pill, .fd-title, .fd-pop, .fd-side, .fd-card, .fd-toast {
+  .fd-pill, .fd-title, .fd-pop, .fd-card {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+    background: var(--fm-card);
+  }
+
+  .fd-side {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: #e9e9ea;
+  }
+
+  .fd-toast {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(30, 30, 32, .88);
+  }
+}
+
+@media (min-width: 1101px) and (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  .fd-side { background: #2b2b2e; }
+}
+@media (prefers-color-scheme: dark) and (max-width: 1100px) {
+  .fm-circle {
+    background: linear-gradient(160deg, rgba(88, 88, 94, .72), rgba(44, 44, 46, .62));
+    border: 1.5px solid rgba(255, 255, 255, .3);               /* vòng kính sáng */
+    box-shadow:
+      0 0 0 .5px rgba(0, 0, 0, .7),                            /* viền tối ngoài để vòng tách khỏi nền */
+      inset 0 1px 0 rgba(255, 255, 255, .28),
+      inset 0 -2px 4px -2px rgba(255, 255, 255, .1),
+      0 6px 20px rgba(0, 0, 0, .55);
+  }
+}
+@media (max-width: 1100px) {
+  .fd .fm-head > button,
+  .fd .fm-head .fm-circle {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--fm-edge);
+    background: var(--fm-glass);
+    color: var(--fm-text);
+    box-shadow: var(--fm-shine), var(--fm-drop);
+    -webkit-backdrop-filter: var(--fm-blur);
+    backdrop-filter: var(--fm-blur);
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  .fd .fm-head > button:active { transform: scale(.93); }
+
+  .fd .fm-head > button svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2.4;
+  }
+}
+@media (prefers-color-scheme: dark) and (max-width: 1100px) {
+  .fd .fm-head > button,
+  .fd .fm-head .fm-circle {
+    border-color: rgba(255, 255, 255, .08);
+    background: rgba(44, 44, 46, .5);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, .08),
+      0 4px 14px rgba(0, 0, 0, .35);
   }
 }

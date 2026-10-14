@@ -791,3 +791,135 @@
     .nt-note.sel .nt-n-s b { color: var(--nt-text); }
   }
 }
+/* =========================================================
+   GLASS: nút + pill trên thanh công cụ giống Photos (dán ở CUỐI file)
+========================================================= */
+.nt {
+  --gl-bg: rgba(255, 255, 255, .52);
+  --gl-ring: rgba(255, 255, 255, .55);
+  --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .75), inset 0 -1px 0 rgba(255, 255, 255, .15);
+  --gl-drop: 0 8px 24px rgba(0, 0, 0, .12);
+  --gl-blur: blur(22px) saturate(180%);
+}
+
+@media (prefers-color-scheme: dark) {
+  .nt {
+    --gl-bg: rgba(58, 58, 62, .5);
+    --gl-ring: rgba(255, 255, 255, .14);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .18), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --gl-drop: 0 8px 24px rgba(0, 0, 0, .4);
+  }
+}
+
+/* Pill: cùng kiểu kính với .ph-pill */
+.nt-pill {
+  height: 32px;
+  padding: 0 3px;
+  border-radius: 999px;
+  background: var(--gl-bg);
+  -webkit-backdrop-filter: var(--gl-blur);
+  backdrop-filter: var(--gl-blur);
+  box-shadow: 0 0 0 .5px var(--gl-ring), var(--gl-hi), var(--gl-drop);
+}
+
+/* Nút: cùng kích thước, hover, nhấn như .ph-btn */
+.nt-btn {
+  width: 30px;
+  height: 28px;
+  padding: 5px 6px;
+  color: #3c3c43;
+  transition: background .15s ease, transform .15s ease, opacity .15s ease;
+}
+
+.nt-btn:hover { background: rgba(0, 0, 0, .05); }
+.nt-btn:active { transform: scale(.94); }
+.nt-btn:disabled { opacity: .35; pointer-events: none; }
+.nt-btn.on { background: var(--nt-on); }          /* giữ icon vàng của Notes */
+.nt-btn:focus-visible { outline: 2px solid #0a84ff; outline-offset: 1px; }
+
+@media (prefers-color-scheme: dark) {
+  .nt-btn { color: #e5e5ea; }
+  .nt-btn:hover { background: rgba(255, 255, 255, .08); }
+}
+
+/* Aa / checklist / bảng trong nhóm giữa: giữ bo tròn như pill, không bo vuông */
+.nt-ebar .nt-pill .nt-btn { border-radius: 999px; }
+
+@media (prefers-reduced-transparency: reduce) {
+  .nt-pill {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--nt-card);
+  }
+}
+/* =========================================================
+   NOTES MOBILE: nút + thanh tìm kiếm kính chuẩn iOS (dán ở CUỐI file)
+========================================================= */
+@media (max-width: 1100px) {
+  .nt {
+    --gl-bg: rgba(255, 255, 255, .62);
+    --gl-edge: rgba(255, 255, 255, .7);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -1px 0 rgba(255, 255, 255, .15);
+    --gl-drop: 0 6px 20px rgba(0, 0, 0, .1);
+    --gl-blur: blur(22px) saturate(180%);
+  }
+
+  /* nút tròn + thanh tìm kiếm: cùng một kiểu kính */
+  .nm-circle,
+  .nt-search {
+    border: 1px solid var(--gl-edge);
+    background: var(--gl-bg);
+    -webkit-backdrop-filter: var(--gl-blur);
+    backdrop-filter: var(--gl-blur);
+    box-shadow: var(--gl-hi), var(--gl-drop);
+  }
+
+  .nm-circle {
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1), opacity .18s;
+  }
+  .nm-circle:active { transform: scale(.93); opacity: 1; }
+
+  /* thanh tìm kiếm: viên thuốc cao 44px như Photos */
+  .nt-search {
+    height: 44px;
+    padding: 0 16px;
+    gap: 10px;
+    border-radius: 999px;
+    box-sizing: border-box;
+  }
+  .nt-sico { width: 20px; height: 20px; color: var(--nt-text); }
+  .nt-sico svg { stroke-width: 2.6; }
+  .nt-search input { font-size: 17px; font-weight: 500; }   /* >=16px để iPhone không tự phóng to */
+  .nt-search input::placeholder { color: var(--nt-sub); font-weight: 500; }
+
+  .nt-search:focus-within {
+    border-color: rgba(10, 132, 255, .8);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .35), var(--gl-hi);
+  }
+
+  /* nút soạn nổi: giữ màu vàng, thêm viền sáng + bóng */
+  .nm-fab {
+    border: 1px solid var(--gl-edge);
+    box-shadow: var(--gl-hi), 0 8px 24px rgba(0, 0, 0, .22);
+    transition: transform .18s cubic-bezier(.2, .8, .2, 1);
+  }
+  .nm-fab:active { transform: scale(.93); opacity: 1; }
+}
+
+@media (prefers-color-scheme: dark) and (max-width: 1100px) {
+  .nt {
+    --gl-bg: rgba(44, 44, 46, .62);
+    --gl-edge: rgba(255, 255, 255, .13);
+    --gl-hi: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --gl-drop: 0 6px 20px rgba(0, 0, 0, .5);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .nm-circle,
+  .nt-search {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--nt-card);
+  }
+}

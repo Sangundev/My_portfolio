@@ -46,7 +46,7 @@
   --g-edge: rgba(255, 255, 255, .55);
   --g-shine: inset 0 1px 0 rgba(255, 255, 255, .7), inset 0 -2px 4px -2px rgba(255, 255, 255, .35);
   --g-shadow: 0 8px 24px rgba(0, 0, 0, .12);
-  --g-blur: blur(18px) saturate(170%);
+  --g-blur: blur(22px) saturate(180%);
 
   color-scheme: light;
 }
@@ -132,7 +132,7 @@
   backdrop-filter: blur(30px) saturate(180%);
 }
 .ct-side-top { flex: none; height: 52px; }   /* chừa chỗ cho 3 nút đèn */
-.ct-list { flex: 1; overflow: hidden; }
+.ct-list { flex: 1; overflow: hidden; padding: 0 8px; }
 
 /* dòng hội thoại */
 .ct-row {
@@ -140,8 +140,9 @@
   align-items: center;
   gap: 10px;
   width: 100%;
-  padding: 9px 12px;
+  padding: 8px 10px;
   border: 0;
+  border-radius: 10px;
   background: none;
   color: var(--ct-tx);
   font: inherit;
@@ -535,17 +536,21 @@
   .win.is-messages .ct-side-top { display: none !important; }
 
   /* ---------- Nút / thanh kính (dùng chung) ---------- */
+  .win.is-messages {
+    --gb-bg: rgba(255, 255, 255, .62);
+    --gb-edge: rgba(255, 255, 255, .7);
+    --gb-hi: inset 0 1px 0 rgba(255, 255, 255, .8), inset 0 -1px 0 rgba(255, 255, 255, .15);
+    --gb-drop: 0 6px 20px rgba(0, 0, 0, .1);
+  }
+
   .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-search, .ct-ios-compose, .ct-comp-plus, .ct-comp-field) {
-    background: var(--g-fill);
-    border: 1px solid var(--g-edge);
-    box-shadow: var(--g-shine), var(--g-shadow);
-    -webkit-backdrop-filter: var(--g-blur);
-    backdrop-filter: var(--g-blur);
+    background: var(--gb-bg);
+    border: 1px solid var(--gb-edge);
+    box-shadow: var(--gb-hi), var(--gb-drop);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
   }
-  .win.is-messages :is(.ct-ios-search, .ct-ios-compose) {
-    -webkit-backdrop-filter: blur(24px) saturate(190%);
-    backdrop-filter: blur(24px) saturate(190%);
-  }
+ 
   /* nhấn xuống: nhún nhẹ như kính thật */
   .win.is-messages :is(.ct-ios-edit, .ct-ios-filter, .ct-ios-compose, .ct-mback, .ct-mcircle, .ct-comp-field) {
     transition: transform .18s cubic-bezier(.2, .8, .2, 1), box-shadow .18s;
@@ -624,6 +629,7 @@
     align-items: center;
     gap: 12px;
     padding: 12px 16px 12px 12px;
+    border-radius: 0;
     background: transparent;
     color: var(--ios-tx);
     box-shadow: none;
@@ -690,7 +696,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .1));
   }
   .win.is-messages .ct-ios-search {
     flex: 1;
@@ -720,6 +725,14 @@
   }
   .win.is-messages .ct-ios-search input::placeholder { color: var(--ios-tx); opacity: .85; }
   .win.is-messages .ct-ios-search input::-webkit-search-cancel-button { display: none; }
+  .win.is-messages .ct-ios-search:focus-within {
+    border-color: rgba(10, 132, 255, .8);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .35), var(--gb-hi);
+  }
+  .win.is-messages .ct-ios-search:focus-within {
+    border-color: rgba(10, 132, 255, .8);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, .35), var(--g-shine);
+  }
   .win.is-messages .ct-ios-compose {
     flex: none;
     display: grid;
@@ -917,17 +930,33 @@
 
 /* iOS + chế độ tối: kính tối, chữ trắng */
 @media (prefers-color-scheme: dark) and (max-width: 1100px) {
+   .win.is-messages {
+    --gb-bg: rgba(44, 44, 46, .62);
+    --gb-edge: rgba(255, 255, 255, .13);
+    --gb-hi: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 -1px 0 rgba(255, 255, 255, .04);
+    --gb-drop: 0 6px 20px rgba(0, 0, 0, .5);
+
+    /* các thẻ trong Details dùng chung kính với Search / Edit */
+    --g-fill: linear-gradient(var(--gb-bg), var(--gb-bg));
+    --g-edge: var(--gb-edge);
+    --g-shine: var(--gb-hi);
+  }
+
   .win.is-messages .ct-mback,
   .win.is-messages .ct-mcircle {
-    background: linear-gradient(160deg, rgba(120, 120, 128, .55), rgba(60, 60, 67, .45));
-    border-color: rgba(255, 255, 255, .28);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -2px 4px -2px rgba(255, 255, 255, .12), 0 6px 18px rgba(0, 0, 0, .5);
+    background: var(--gb-bg);
+    border-color: var(--gb-edge);
+    box-shadow: var(--gb-hi), var(--gb-drop);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
     color: #fff;
   }
   .win.is-messages .ct-mbadge { background: #fff; color: #000; }
   .win.is-messages .ct-mtitle {
-    background: rgba(90, 90, 96, .5);
-    box-shadow: 0 0 0 .5px rgba(255, 255, 255, .22), inset 0 1px 0 rgba(255, 255, 255, .25), 0 3px 10px rgba(0, 0, 0, .4);
+    background: var(--gb-bg);
+    box-shadow: 0 0 0 .5px var(--gb-edge), var(--gb-hi), 0 3px 10px rgba(0, 0, 0, .4);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    backdrop-filter: blur(22px) saturate(180%);
     color: #fff;
   }
   .win.is-messages .ct-mtitle::after { color: #aeaeb2; }
