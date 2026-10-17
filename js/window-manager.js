@@ -30,8 +30,13 @@
     cv: "https://drive.google.com/your-cv-link",
   };
 
+
+
   // App rất nhỏ có thể viết thẳng ở đây; còn lại để ở js/apps/*.js
   const APPS = {};
+
+    // Các thư mục này không có cửa sổ riêng: mở Finder và đi thẳng vào thư mục
+   const FINDER_DIRS = ["website_project", "mobile_project", "branding_project", "trash"];
 
   const SVG = (p) =>
     `<svg viewBox="0 0 12 12" fill="none" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -292,7 +297,7 @@
     w.el.setAttribute("aria-label", t.title);
   }
 
-  function addTab(w, key, src) {
+  function addTab(w, key, src, arg) {
     const old = w.tabs.find((t) => t.key === key);
     if (old) return selectTab(w, old);
 
@@ -304,7 +309,7 @@
       key;
 
     const body = h("div", "win-body");
-    (app.build || soon)(body, title, api);
+    (app.build || soon)(body, title, arg ? { ...api, arg } : api);
     body.hidden = true;
 
     const btn = h("div", "wtab");
@@ -435,14 +440,24 @@
   }
 
   /* ---------- Mở cửa sổ / tab ---------- */
-  function open(key, src, into) {
+  function open(key, src, into, arg) {
     // Mục khai báo trong LINKS: mở link ngoài ở tab mới, không tạo cửa sổ
     if (LINKS[key]) {
       window.open(LINKS[key], "_blank", "noopener");
       return null;
     }
 
+    if (FINDER_DIRS.includes(key)) {
+      arg = key;
+      key = "finder";
+    }
+
     let w = findWin(key);
+    // Finder đang mở sẵn: bảo nó chuyển sang thư mục được yêu cầu
+    if (w && arg) {
+      const t0 = w.tabs.find((t) => t.key === key);
+      if (t0) t0.body.dispatchEvent(new CustomEvent("finder:goto", { detail: arg }));
+    }
     if (w) {
       if (w.min) restore(w);
       else focus(w);
@@ -453,7 +468,7 @@
       return w;
     }
     if (into) {
-      addTab(into, key, src);
+      addTab(into, key, src, arg);
       focus(into);
       refresh();
       return into;
@@ -579,7 +594,7 @@
     }
 
     wins.set(w.id, w);
-    addTab(w, key, src);
+    addTab(w, key, src, arg);
     focus(w);
     refresh();
 

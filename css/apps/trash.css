@@ -1,0 +1,202 @@
+/* =========================================================
+   css/apps/trash.css: cửa sổ Trash kiểu macOS
+   Nạp SAU windows.css (cùng chỗ với finder.css, freeform.css...), TRƯỚC responsive.css.
+   Máy tính (>1100px): không có thanh tiêu đề, đèn giao thông đè lên góc trái.
+   Tablet / điện thoại (≤1100px): giữ thanh tiêu đề do app-mode.css lo.
+========================================================= */
+
+/* ---------- Khung chung ---------- */
+.tr {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  background: #fff;
+  color: #1d1d1f;
+  font: 13px/1.3 var(--ui-font, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Arial, sans-serif);
+}
+
+.tr [hidden] { display: none !important; }
+
+/* ---------- Tiêu đề + dòng phụ ---------- */
+.tr-head {
+  flex: none;
+  padding: 14px 24px 12px 92px;          /* chừa chỗ cho đèn giao thông bên trái */
+  border-bottom: 1px solid rgba(0, 0, 0, .08);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tr-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.tr-sub {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #8a8a8e;
+}
+
+/* ---------- Lưới file: hàng ngang ---------- */
+.tr-grid {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 28px 22px;
+  padding: 48px 28px 28px;
+  overflow: auto;
+}
+
+.tr-item {
+  width: 112px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+  outline: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tr-item img {
+  display: block;
+  width: 60px;
+  height: 60px;
+  padding: 3px;
+  box-sizing: content-box;
+  object-fit: contain;
+  border-radius: 8px;
+  pointer-events: none;
+  -webkit-user-drag: none;
+}
+
+/* Ảnh chụp: khung trắng, nhỏ hơn và lệch xuống một chút cho tự nhiên */
+.tr-item.photo img {
+  width: 50px;
+  height: 50px;
+  padding: 0;
+  margin: 16px 0 3px;
+  border: 3px solid #fff;
+  border-radius: 2px;
+  box-sizing: content-box;
+  object-fit: cover;
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, .25), 0 2px 6px rgba(0, 0, 0, .25);
+}
+
+.tr-name {
+  max-width: 100%;
+  padding: 1px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;                /* tên dài xuống dòng, không bị cắt */
+}
+
+.tr-item.sel img { background: rgba(0, 0, 0, .1); }
+.tr-item.photo.sel img { background: none; outline: 2px solid #0a60d8; outline-offset: 1px; }
+.tr-item.sel .tr-name,
+.tr-item:focus-visible .tr-name { background: #0a60d8; color: #fff; }
+
+/* ---------- Thông báo nhỏ ---------- */
+.tr-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 18px;
+  z-index: 10;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: rgba(30, 30, 32, .88);
+  color: #fff;
+  font-size: 13px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* ---------- Máy tính: đèn giao thông đè lên góc, không có thanh tiêu đề ---------- */
+@media (min-width: 1101px) {
+  .win.is-trash > .win-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 48px;
+    z-index: 5;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    pointer-events: none;                 /* kéo cửa sổ do vùng .win-drag của .tr-head lo */
+  }
+
+  .win.is-trash > .win-bar .lights {
+    position: absolute;
+    left: 19px;
+    top: 0;
+    height: 48px;
+    pointer-events: auto;
+  }
+
+  .win.is-trash > .win-bar .win-title,
+  .win.is-trash > .win-bar .win-add { display: none; }
+
+  .win.is-trash > .win-body {
+    display: flex;
+    padding: 0;
+    overflow: hidden;
+    border-radius: inherit;
+  }
+
+  .win.is-trash > .win-body[hidden] { display: none; }
+  .win.is-trash > .win-tabs { display: none !important; }
+}
+
+/* ---------- Tablet + điện thoại ---------- */
+@media (max-width: 1100px) {
+  .win.is-trash > .win-tabs { display: none !important; }
+
+  .win.is-trash > .win-body {
+    padding: 0;
+    border-radius: inherit;
+  }
+
+  /* Thanh tiêu đề của app-mode đã có chữ "Trash" nên chỉ giữ dòng phụ */
+  .tr-title { display: none; }
+
+  .tr-head {
+    padding: 12px 20px;
+    text-align: center;
+  }
+
+  .tr-sub { margin: 0; }
+
+  .tr-grid {
+    gap: 24px 12px;
+    padding: 32px 16px 120px;             /* chừa chỗ cho thanh home */
+  }
+
+  .tr-item { width: 104px; }
+}
+
+/* ---------- Chế độ tối ---------- */
+@media (prefers-color-scheme: dark) {
+  .tr { background: #1e1e20; color: #f5f5f7; }
+  .tr-head { border-bottom-color: rgba(255, 255, 255, .1); }
+  .tr-sub { color: #98989d; }
+  .tr-item.sel img { background: rgba(255, 255, 255, .14); }
+  .tr-item.photo img { border-color: #f5f5f7; }
+  .tr-item.photo.sel img { background: none; }
+}

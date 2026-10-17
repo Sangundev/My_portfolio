@@ -12,6 +12,11 @@
   /* ---------- DỮ LIỆU (sửa ở đây) ---------- */
   // img: tên ảnh trong assets/folders | date: ngày sửa | href: (tuỳ chọn) file để tải về
   // size: (tuỳ chọn) dung lượng, chỉ hiện trên điện thoại, ví dụ '163 KB'
+
+  const TXT_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><path d="M14 4h26l12 12v44H14z" fill="#fff" stroke="#d0d0d4" stroke-width="2"/><path d="M40 4v12h12" fill="#ececef" stroke="#d0d0d4" stroke-width="2" stroke-linejoin="round"/></svg>');
+
+  const PIC_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="3" y="3" width="58" height="58" fill="#d3262f" stroke="#fff" stroke-width="6"/><ellipse cx="32" cy="40" rx="11" ry="13" fill="#2a0a0c"/><circle cx="24" cy="26" r="3" fill="#fff"/><circle cx="40" cy="26" r="3" fill="#fff"/></svg>');
+
   const FILES = {
     website_project:  { name: 'Website_project',  img: 'folder', date: '2026-03-12' },
     mobile_project:   { name: 'Mobile_project',   img: 'folder', date: '2026-02-20' },
@@ -19,8 +24,14 @@
     about:            { name: 'About Me',         img: 'folder', date: '2026-04-02' },
     cv:               { name: 'NgocSang.pdf',     img: 'pdf',    date: '2026-05-15', href: 'assets/files/NgocSang.pdf' },
 
+    // Trash: mục nào có trash:true thì bấm vào chỉ hiện thông báo, không mở
+    t_txt: { name: 'World Domination Plan.txt', img: 'txt',   date: '2026-06-01', src: TXT_ICON,                trash: true },
+    t_img: { name: 'breakdown.img',             img: 'image', date: '2026-06-02', src: PIC_ICON,                trash: true },
+    t_pdf: { name: 'sorry_no thanks.pdf',       img: 'pdf',   date: '2026-06-03', src: 'assets/folders/pdf.png', trash: true },
+    t_web: { name: 'portfolio.html',        img: 'app',   date: '2026-06-04', src: 'assets/dock/Safari.png', trash: true, link: 'portfolio.html' },
+
     // Thư mục con (chỉ xem được khi đi vào bên trong Finder). leaf = chưa có nội dung
-    wp_landing: { name: 'Landing page',    img: 'folder', date: '2026-03-01', leaf: true },
+    wp_landing: { name: 'Landing page',    img: 'folder', date: '2026-03-01', link: 'portfolio.html' },
     wp_dash:    { name: 'Dashboard',       img: 'folder', date: '2026-03-05', leaf: true },
     wp_shop:    { name: 'E-commerce',      img: 'folder', date: '2026-03-09', leaf: true },
     wp_blog:    { name: 'Blog',            img: 'folder', date: '2026-03-12', leaf: true },
@@ -39,7 +50,7 @@
     branding_project: ['bp_logo', 'bp_pack', 'bp_guide']
   };
 
-  const KIND = { folder: 'Folder', pdf: 'PDF Document' };
+  const KIND = { folder: 'Folder', pdf: 'PDF Document', txt: 'Plain Text', image: 'Image', app: 'Application' };
 
   const TAGS = [
     ['Red', '#ff453a'], ['Orange', '#ff9f0a'], ['Yellow', '#ffd60a'],
@@ -54,24 +65,29 @@
   // [MOBILE] Tên hiển thị trên tiêu đề (mục nào không có ở đây thì dùng tên gốc)
   const VI_TITLE = {
     recents: 'Gần đây', shared: 'Được chia sẻ', apps: 'Ứng dụng',
-    desktop: 'Màn hình nền', docs: 'Tài liệu', downloads: 'Tải về'
+    desktop: 'Màn hình nền', docs: 'Tài liệu', downloads: 'Tải về', trash: 'Thùng rác'
   };
 
   const ALL = ['website_project', 'mobile_project', 'branding_project', 'about', 'cv'];
+
+  // Project1/2/3 ở sidebar = 3 thư mục project: bấm vào là vào thẳng thư mục, tiêu đề hiện tên thư mục
+  const PROJ = { p1: 'website_project', p2: 'mobile_project', p3: 'branding_project' };
+  const PROJ_ROW = { website_project: 'p1', mobile_project: 'p2', branding_project: 'p3' };
 
   // [id, tên hiển thị, icon, danh sách file trong mục đó]
   const SIDE = [
     { head: 'Favourites', rows: [
       ['recents',   'Recents',      'clock',   ['website_project', 'cv']],
       ['apps',      'Applications', 'apps',    ALL],
-      ['desktop',   'Desktop',      'desktop', ['branding_project', 'about']],
+      ['desktop',   'Desktop',      'desktop', ['website_project', 'mobile_project', 'branding_project', 'cv', 'about']],
+      // ['docs',      'Documents',    'doc',     ['cv']],
       ['docs',      'Documents',    'doc',     ['cv']],
-      ['downloads', 'Downloads',    'down',    []]
+      ['trash',     'Trash',        'trash',   ['t_txt', 't_img', 't_pdf', 't_web']]
     ] },
     { head: 'iCloud', rows: [
-      ['p1',     'Project1',     'folder', ['website_project']],
-      ['p2',     'Project2',     'folder', ['mobile_project']],
-      ['p3',     'Project3',     'folder', ['branding_project']],
+      ['p1',     'Website',     'folder', ['website_project']],
+      ['p2',     'Mobile',     'folder', ['mobile_project']],
+      ['p3',     'Branding',     'folder', ['branding_project']],
       ['icloud', 'iCloud Drive', 'cloud',  ALL]
     ] }
   ];
@@ -83,6 +99,7 @@
   /* ---------- ICON (SVG) ---------- */
   const svg = p => `<svg viewBox="0 0 24 24" aria-hidden="true">${p}</svg>`;
   const I = {
+    trash:   svg('<path d="M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12M10 11v5M14 11v5"/>'),
     clock:   svg('<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>'),
     apps:    svg('<path d="M12 4l6.5 12M12 4L5.5 16M8 13h8M5 19.5h2.5"/>'),
     desktop: svg('<rect x="4" y="5" width="16" height="11" rx="2"/><path d="M4 12.5h16M9 19.5h6"/>'),
@@ -133,7 +150,7 @@
     return p;
   };
 
-  const imgSrc = k => `assets/folders/${FILES[k].img}.png`;
+  const imgSrc = k => FILES[k].src || `assets/folders/${FILES[k].img}.png`;
   const kindOf = k => KIND[FILES[k].img] || 'Document';
   const fmt = d => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
   const tagColor = n => (TAGS.find(t => t[0] === n) || [])[1];
@@ -191,7 +208,10 @@
         const ic = h('span', 'fd-ico');
         ic.innerHTML = I[icon];
         row.append(ic, h('span', null, label));
-        row.addEventListener('click', () => show(id, true));
+        row.addEventListener('click', () => {
+           
+          show(PROJ[id] || id, true);
+        });
         rows[id] = row;
         side.append(row);
       });
@@ -202,6 +222,10 @@
 
     // [MOBILE] tab "Được chia sẻ" (chưa có nội dung)
     entries.shared = { label: 'Shared', files: [] };
+
+    // Trash: có dòng phụ dưới tiêu đề và xếp icon thành hàng ngang (không rải rác)
+    entries.trash.sub = "I said, don't look!";
+    // entries.trash.flow = true;
 
     /* --- Thanh công cụ --- */
     const back = btn('Back', I.left);
@@ -550,8 +574,17 @@
        - Desktop + folder có nội dung: đi vào trong chính cửa sổ Finder (kiểu macOS)
        - Folder con chưa có nội dung: báo "đang cập nhật"
        - Còn lại (file, About Me, và mọi thứ trên tablet/điện thoại): mở cửa sổ riêng */
+    // Mở một trang trong tab trình duyệt mới. Gọi trực tiếp trong lúc xử lý click nên không bị chặn pop-up
+    const openTab = url => {
+      const w = window.open(url, '_blank');
+      if (w) w.opener = null;
+      else toast('Trình duyệt đang chặn tab mới, hãy cho phép cửa sổ bật lên');
+    };
+
     function activate(k, el) {
       if (CHILDREN[k]) show(k, true);                 // desktop + điện thoại: đi vào trong Finder
+      else if (FILES[k].link) openTab(FILES[k].link); // có link: mở trang trong tab mới (kể cả mục nằm trong Trash)
+      else if (FILES[k].trash) toast("I said, don't look!");
       else if (FILES[k].leaf) toast('Đang cập nhật nội dung');
       else open(k, el, null);                         // file (PDF), About Me: mở cửa sổ riêng
     }
@@ -605,7 +638,7 @@
     function render() {
       canvas.replaceChildren();
       const mode = small() ? (mview === 'list' ? 'mlist' : 'icons') : view;
-      canvas.className = 'fd-canvas v-' + mode;
+      canvas.className = 'fd-canvas v-' + mode + (entries[cur].sub ? ' fd-trash' : '');
 
       const keys = keysNow();
       if (!keys.length) {
@@ -619,7 +652,11 @@
       const plain = groups.length === 1 && groups[0][0] === null;
 
       if (mode === 'icons') {
-        if (plain) keys.forEach((k, i) => canvas.append(iconItem(k, i, keys.length, true)));
+        if (plain && entries[cur].flow && !small()) {
+          const flow = h('div', 'fd-flow fd-flow-top');
+          keys.forEach(k => flow.append(iconItem(k, 0, 0, false)));
+          canvas.append(flow);
+        } else if (plain) keys.forEach((k, i) => canvas.append(iconItem(k, i, keys.length, true)));
         else groups.forEach(([t, ks]) => {
           const flow = h('div', 'fd-flow');
           ks.forEach(k => flow.append(iconItem(k, 0, 0, false)));
@@ -652,6 +689,7 @@
         canvas.append(h('div', 'fd-gal'), strip);
       }
 
+      if (entries[cur].sub) canvas.append(h('p', 'fd-note', entries[cur].sub));
       if (small()) canvas.append(foot(keys.length));     // [MOBILE]
 
       paintSel();
@@ -670,7 +708,7 @@
       cur = id;
       sel = null;
       closePop();
-      Object.entries(rows).forEach(([k, r]) => r.classList.toggle('on', k === id));
+      Object.entries(rows).forEach(([k, r]) => r.classList.toggle('on', k === (PROJ_ROW[id] || id)));
       tText.textContent = entries[id].label;
       tIco.hidden = false;
       mTitle.textContent = VI_TITLE[id] || entries[id].label;     // [MOBILE]
@@ -688,9 +726,17 @@
     mq.addEventListener('change', onMq);
 
     // [MOBILE] Điện thoại / tablet mở thẳng iCloud Drive (như tab "Duyệt"), máy tính mở "Applications"
-    const start = small() ? 'icloud' : 'apps';
-    hist[0] = start;
-    show(start, false);
+    // Nếu được yêu cầu mở thẳng một thư mục (website_project...), vào luôn thư mục đó;
+    // Back vẫn quay về Applications / iCloud Drive.
+    const base = small() ? 'icloud' : 'apps';
+    const want = api.arg && entries[api.arg] ? api.arg : null;
+    // Finder đã mở sẵn mà người dùng bấm thư mục khác ngoài desktop: chuyển sang thư mục đó
+    body.addEventListener('finder:goto', e => {
+      if (entries[e.detail]) show(e.detail, true);
+    });
+    hist = want && want !== base ? [base, want] : [base];
+    hi = hist.length - 1;
+    show(hist[hi], false);
   }
 
   /* ---------- ĐĂNG KÝ APP ---------- */
