@@ -15,12 +15,28 @@
 <div class="rail" aria-hidden="true"><i></i></div>
 
 <header class="bar"><div class="w bar-in">
-  <a href="index.html">← Back to Mac</a>
-  <nav aria-label="Sections"><a href="#journey">Journey</a><a href="#work">Work</a><a href="#practice">Practice</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+  <a class="logo" href="index.html">NGOCSANG</a>
+  <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="menu"></button>
 </div></header>
 
+<div class="menu-bg" aria-hidden="true"></div>
+<div class="menu" id="menu" aria-hidden="true">
+  <button class="menu-x" type="button" aria-label="Close menu"></button>
+  <nav class="menu-nav" aria-label="Sections">
+    <a href="#top" style="--n:0">Home<em>01</em></a>
+    <a href="#journey" style="--n:1">Experience<em>02</em></a>
+    <a href="#work" style="--n:2">Work<em>03</em></a>
+    <a href="#more" style="--n:3">More work<em>04</em></a>
+    <a href="#practice" style="--n:4">Practice<em>05</em></a>
+    <a href="#about" style="--n:5">About<em>06</em></a>
+    <a href="#decisions" style="--n:6">Decisions<em>07</em></a>
+    <a href="#contact" style="--n:7">Contact<em>08</em></a>
+  </nav>
+  <div class="menu-foot"><span>Ngoc Sang</span><span>Product and UI designer</span></div>
+</div>
+
 <main>
- <section class="hero">
+ <section class="hero" id="top">
   <div class="trail" aria-hidden="true"></div>
   <div class="hero-in">
     <h1>I’m Ngoc Sang. I design websites, apps and brands <span>that are clear to read, easy to use and hard to forget.</span></h1>
@@ -47,6 +63,7 @@
     <div><b>Branding</b><p>Logos and guidelines with a clear voice.</p></div>
   </div>
 </section> -->
+<div data-trail>
 <section class="sec w journey" id="journey">
   <small>Experience</small>
   <h2>Learning and building across school, studios and product teams.</h2>
@@ -58,10 +75,12 @@
     <li><time>20XX — Now</time><span class="no">04</span><h3>Nasani</h3><b>Your role here</b><p>One line about what you designed and what changed because of it.</p></li>
   </ol>
 </section>
+</div>
 <section class="work" id="work">
   <div class="w">
     <small>Selected work</small>
-    <h2 style="margin-top:6px">Three areas I work in every day.</h2>
+    <h2>Three areas I work in every day.</h2>
+    <p class="work-sub">Websites, mobile apps and brands, each shaped by the same habit: start from the person, then cut everything else.</p>
   </div>
 
   <div class="stack">
@@ -74,7 +93,7 @@
           <p>Landing pages, dashboards, e-commerce and a blog, each built around one clear action.</p>
           <div class="count"><span><b>01</b> / 03</span><span class="go" aria-hidden="true">↗</span></div>
         </div>
-        <div class="shot"><div class="m web" aria-hidden="true"><b></b><i></i><i style="width:70%"></i><u></u></div></div>
+        <div class="shot"><i class="pill">View Work</i><div class="m web" aria-hidden="true"><b></b><i></i><i style="width:70%"></i><u></u></div></div>
         <dl><div><dt>Role</dt><dd>UI and UX design</dd></div><div><dt>Tools</dt><dd>Figma, Framer</dd></div><div><dt>Includes</dt><dd>Landing page, Dashboard, E-commerce, Blog</dd></div></dl>
       </div>
     </article>
@@ -88,7 +107,7 @@
           <p>Everyday apps where the next step is always obvious.</p>
           <div class="count"><span><b>02</b> / 03</span><span class="go" aria-hidden="true">↗</span></div>
         </div>
-        <div class="shot"><div class="m phone" aria-hidden="true"><b></b><i></i><i style="width:60%"></i><u></u></div></div>
+        <div class="shot"><i class="pill">View Work</i><div class="m phone" aria-hidden="true"><b></b><i></i><i style="width:60%"></i><u></u></div></div>
         <dl><div><dt>Role</dt><dd>UI and UX design</dd></div><div><dt>Tools</dt><dd>Figma</dd></div><div><dt>Includes</dt><dd>Food delivery, Banking app, Fitness</dd></div></dl>
       </div>
     </article>
@@ -102,7 +121,7 @@
           <p>Logos, packaging and guidelines that stay consistent everywhere they appear.</p>
           <div class="count"><span><b>03</b> / 03</span><span class="go" aria-hidden="true">↗</span></div>
         </div>
-        <div class="shot"><div class="m brand" aria-hidden="true"><b></b><b></b><b></b><b></b></div></div>
+        <div class="shot"><i class="pill">View Work</i><div class="m brand" aria-hidden="true"><b></b><b></b><b></b><b></b></div></div>
         <dl><div><dt>Role</dt><dd>Brand and visual design</dd></div><div><dt>Tools</dt><dd>Illustrator, Photoshop, Figma</dd></div><div><dt>Includes</dt><dd>Logo system, Packaging, Brand guideline</dd></div></dl>
       </div>
     </article>
@@ -116,9 +135,9 @@
       <h2>Additional work</h2>
       <p>Landing pages, apps and brand systems. Everything from the folders.</p>
     </div>
-    <a class="t" href="#"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Landing page</b><span class="arr" aria-hidden="true">↗</span></span><small>01 / Website</small></a>
-    <a class="t" href="#"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Food delivery</b><span class="arr" aria-hidden="true">↗</span></span><small>02 / Mobile</small></a>
-    <a class="t" href="#"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Logo system</b><span class="arr" aria-hidden="true">↗</span></span><small>03 / Branding</small></a>
+    <a class="t" href="#more"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Landing page</b><span class="arr" aria-hidden="true">↗</span></span><small>01 / Website</small></a>
+    <a class="t" href="#more"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Food delivery</b><span class="arr" aria-hidden="true">↗</span></span><small>02 / Mobile</small></a>
+    <a class="t" href="#more"><span class="th"><i class="pill">View Work</i></span><span class="row"><b>Logo system</b><span class="arr" aria-hidden="true">↗</span></span><small>03 / Branding</small></a>
   </div>
 </section>
 
@@ -145,7 +164,7 @@
           <p class="st">From who it’s for to what they do</p>
           <p>I begin with who will use the page and what they need to do, then cut everything else.</p>
         </div>
-        <div class="pv"><div class="m" aria-hidden="true"><b style="height:90px"></b><i></i><i style="width:70%"></i><u></u></div></div>
+        <div class="pv"><div class="mock" aria-hidden="true"><div class="mock-t">Start with a person</div><div class="mock-in">Who will use this page, and what do they need to do?<span>User goal</span></div><ul class="mock-ls"><li>Audience and context</li><li>One clear action</li><li>Cut everything else</li></ul></div></div>
       </article>
 
       <article class="pc" id="p2">
@@ -154,7 +173,7 @@
           <p class="st">One set of rules for every page</p>
           <p>Colors, type and components are set once in Figma, so every page stays consistent.</p>
         </div>
-        <div class="pv"><div class="m" aria-hidden="true"><b style="height:60px"></b><i></i><i style="width:55%"></i><i style="width:80%"></i><u></u></div></div>
+        <div class="pv"><div class="mock" aria-hidden="true"><div class="mock-t">Build a system</div><div class="mock-in">Set colors, type and components once in Figma.<span>Design tokens</span></div><ul class="mock-ls"><li>Color and type styles</li><li>Named components</li><li>Same rules on every page</li></ul></div></div>
       </article>
 
       <article class="pc" id="p3">
@@ -163,7 +182,7 @@
           <p class="st">Small fixes after a real look</p>
           <p>I test in the browser early. Small fixes after a real look beat big plans on paper.</p>
         </div>
-        <div class="pv"><div class="m" aria-hidden="true"><b style="height:110px"></b><i style="width:60%"></i><u></u></div></div>
+        <div class="pv"><div class="mock" aria-hidden="true"><div class="mock-t">Ship, look, refine</div><div class="mock-in">Open it in the browser early, then fix one thing at a time.<span>Real look</span></div><ul class="mock-ls"><li>Test in the browser</li><li>Fix small details</li><li>Ship and look again</li></ul></div></div>
       </article>
     </div>
   </div>
@@ -177,7 +196,7 @@
     <p>I’m Ngoc Sang, a designer working across websites, mobile apps and branding. I care about clear layouts, honest copy and the small details people only notice when they’re missing. I’m always sharpening my Figma skills and enjoy working with people around the world.</p>
   </div>
 </section>
-<div class="mq" aria-hidden="true"><p>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em></p></div>
+<div class="mq" aria-hidden="true"><p>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em>Web<em>✦</em><strong>Mobile</strong><em>✦</em>Branding<em>✦</em></p></div>
 
 <section class="sec w two" id="decisions">
   <small>Decision principles</small>
@@ -209,6 +228,9 @@
   <div class="foot"><div class="w foot-in"><b>Ngoc Sang</b><span>Product and UI designer</span><span>© 2026</span></div></div>
 </footer>
 
+<button class="top" type="button" aria-label="Back to top"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V6M6 12l6-6 6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+
 <script src="js/portfolio.js"></script>
+<!-- <script src="js/trail.js"></script> -->
 </body>
 </html>
