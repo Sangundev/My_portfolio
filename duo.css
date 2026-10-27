@@ -1,0 +1,366 @@
+:root {
+    --W: 280px;
+    --H: 392px;
+    --D: 16px;
+    --S: 8px;
+    /* bề rộng trục giữa: nhỏ gọn */
+    --B: 8px;
+    /* bề dày viền đen quanh màn hình */
+    --P: calc(var(--W) + var(--S) / 2);
+    /* x của tâm trục */
+    --bezel: #101012;
+    --ink: #0d0d0d;
+    --K:0px;
+    /* bo góc nhỏ ở trục giữa của viền kim loại khi mở máy (trên và dưới) */
+    --SI: 4px;
+    /* trục ngắn lại: thụt vào mỗi đầu trên/dưới */
+    --SR: 4px;
+    /* bo đủ 4 góc của trục, gần như viên thuốc như mẫu */
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    height: 100vh;
+    overflow: hidden;
+    background: radial-gradient(120% 90% at 50% 38%, #f6f6f7 0%, #d2d2d5 100%);
+    font-family: -apple-system, "Segoe UI", Roboto, Inter, sans-serif;
+    color: var(--ink);
+    --G: 3px;
+    /* nửa khe giữa hai màn hình (tổng khe = 2×G) */
+}
+
+.scene {
+    width: 100vw;
+    height: 100vh;
+    display: grid;
+    place-items: center;
+    perspective: 1900px;
+}
+
+/* mọi lớp 3D đều phải preserve-3d */
+.view,
+.book,
+.spine,
+.gR,
+.gL,
+.gL2,
+.panel {
+    transform-style: preserve-3d;
+}
+
+.view {
+    position: relative;
+    width: calc(var(--W)*2 + var(--S));
+    height: var(--H);
+}
+
+.book {
+    position: absolute;
+    inset: 0;
+}
+
+/* mỗi nửa (thân + kính + màn hình) kéo dài S/2 tới tâm trục: hai nửa chạm nhau đúng trục, không có khe */
+.panel {
+    position: absolute;
+    inset: 0 0 0 calc(var(--S) / -2);
+}
+
+.shadow {
+    position: absolute;
+    top: 30px;
+    height: var(--H);
+    background: rgba(0, 0, 0, .34);
+    filter: blur(28px);
+    border-radius: 70px;
+    transform: translateZ(-110px);
+}
+
+/* ===== Bố cục 3 phần ===== */
+.gR {
+    position: absolute;
+    left: calc(var(--P) + var(--S) / 2);
+    top: 0;
+    width: var(--W);
+    height: var(--H);
+    transform-origin: 0 50% 8px;
+}
+
+.gL {
+    position: absolute;
+    left: var(--P);
+    top: 0;
+    width: var(--W);
+    height: var(--H);
+    transform-origin: 0 50% 0;
+}
+
+.gL2 {
+    position: absolute;
+    left: calc(var(--S) / 2);
+    top: 0;
+    width: var(--W);
+    height: var(--H);
+    transform-origin: 0 50% 0;
+}
+
+.gL2>.panel {
+    transform: translateZ(calc(var(--D) / 2));
+}
+
+/* ===== Thân máy: nhiều lớp titan để có độ dày, tương phản nhẹ ===== */
+/* phía trục giữa vuông góc (radius 0) để các mép tiếp giáp khít, không tạo bậc */
+.layer,
+.face {
+    position: absolute;
+    inset: 0;
+    border-radius: 0 44px 44px 0;
+}
+
+/* mọi lớp độ dày cùng một màu phẳng: không còn sọc sáng/tối xen kẽ ở cạnh */
+.layer {
+    background: #d2cfc5;
+}
+
+/* ===== Mặt kính: viền titan mảnh + khung đen ===== */
+.face {
+    background: var(--bezel);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    box-shadow: 0 0 0 1.2px #e4e1d7, 0 0 0 2px #9a978d;
+}
+
+.face.front {
+    transform: translateZ(calc(var(--D) / 2 + .6px));
+    clip-path: inset(-3px -3px -3px 0);
+}
+
+/* mặt ngoài khi gập: nâng cao hơn mặt trục để khung đen luôn nằm TRÊN trục (JS bo góc trái khi gập) */
+.face.front.cover {
+    clip-path: none;
+    transform: translateZ(calc(var(--D) / 2 + 1.4px));
+}
+
+.face.back {
+    transform: translateZ(calc(var(--D) / -2 - .6px)) rotateY(180deg);
+    border-radius: 44px 0 0 44px;
+    clip-path: inset(-3px 0 -3px -3px);
+}
+
+.face.rear {
+    background: #d8d5cb;
+}
+
+/* khi mở: mỗi nửa lấn 1px sang nửa kia ngay trục giữa, che khe răng cưa giữa hai mặt -> hai màn hình liền thành một hình
+   (mặt back bị lật 180° nên phía trục của nó nằm bên trái trong hệ tọa độ panel) */
+.face.front.base {
+    left: -1px;
+    border-radius: var(--K) 44px 44px var(--K);
+}
+
+.face.back:not(.rear) {
+    left: -1px;
+    border-radius: 44px var(--K) var(--K) 44px;
+}
+
+/* màn hình: không có viền đen riêng, khung đen đã là nền của mặt kính */
+.display {
+    position: absolute;
+    overflow: hidden;
+    background: #fff;
+}
+
+/* mỗi nửa tự kéo màn hình tới tâm trục (S/2): hai màn hình gặp nhau ở giữa và nghiêng độc lập, không có lớp phủ chung */
+.face.front.base .display {
+    inset: var(--B) var(--B) var(--B) 0;
+    border-radius: 0 36px 36px 0;
+}
+
+.face.back .display {
+    inset: var(--B) 0 var(--B) var(--B);
+    border-radius: 36px 0 0 36px;
+}
+
+.face.front.cover .display {
+    inset: var(--B);
+    border-radius: 0 36px 36px 0;
+}
+
+.shade {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* bóng đổ tắt dần về 0 tại mép trục giữa -> không có bậc sáng/tối giữa màn hình và trục */
+#shR {
+    background: linear-gradient(to right, transparent 0, #000 90px);
+}
+
+#shB {
+    background: linear-gradient(to left, transparent 0, #000 90px);
+}
+
+/* ===== Trục giữa: mảnh, NGẮN hơn thân máy, hai đầu bo tròn như mẫu ===== */
+.spine {
+    position: absolute;
+    left: calc(var(--P) - var(--S) / 2);
+    top: var(--SI);
+    width: var(--S);
+    height: calc(var(--H) - var(--SI) * 2);
+}
+
+/* bo tròn phía ngoài (trái), phía trong tiếp giáp thân máy giữ vuông */
+.spine .layer {
+    border-radius: var(--SR);
+    background: #d2cfc5;
+}
+
+/* mặt trục lấn 1px sang hai nửa để che khe do làm tròn tọa độ;
+   nâng nhẹ 0.3px trên mặt kính để thứ tự vẽ cố định, không bị z-fighting */
+.sface {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -1px;
+    right: -1px;
+    border-radius: var(--SR);
+    transform: translateZ(calc(var(--D) / 2 + .4px));
+    /* thấp hơn mặt cover (+1.4px): trục nằm sau khung đen */
+    /* viền mảnh như mẫu: một đường tối rất mỏng ngoài cùng + vệt sáng bên trong cạnh trái */
+    box-shadow: 0 0 0 .8px #8d8a80, inset 1px 0 0 #f1efe6, inset -1px 0 0 rgba(0, 0, 0, .10);
+    clip-path: inset(-3px 0 -3px 0);
+    /* JS mở viền trái khi gập */
+}
+
+/* khi gập: dải titan phẳng */
+.sti {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--SR);
+    background: #d2cfc5;
+}
+
+/* khi mở: chỉ còn hai thanh viền đen trên/dưới; phần giữa trong suốt, KHÔNG có lớp trắng đè lên màn hình */
+.ssc {
+    position: absolute;
+    inset: 0;
+    border-radius: 0;
+    opacity: 0;
+}
+
+.ssc::before,
+.ssc::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--B);
+    background: var(--bezel);
+}
+
+.ssc::before {
+    top: 0;
+}
+
+.ssc::after {
+    bottom: 0;
+}
+
+/* ===== Nút vật lý (cạnh máy) ===== */
+.hwl {
+    position: absolute;
+    border-radius: 2px;
+    background: linear-gradient(135deg, #f0eee6, #b3b0a5);
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .22);
+}
+
+/* ===== Điều khiển ===== */
+.ctrl {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 8px 18px 8px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .7);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+    font-size: 12px;
+    color: #555;
+}
+
+.toggle {
+    padding: 10px 22px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--ink);
+    color: #fff;
+    font: 600 13px Inter, sans-serif;
+    cursor: pointer;
+}
+
+.ctrl label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ctrl input {
+    width: 110px;
+    accent-color: var(--ink);
+}
+/* mảnh nối trong chỗ lõm chữ V: chỉ cao bằng đoạn cong, nằm sau viền titan */
+.view::before,
+.view::after {
+    content: "";
+    position: absolute;
+    left: calc(var(--P) - var(--K));
+    width: calc(var(--K) * 2);
+    height: calc(var(--K) + 2px);
+    background: linear-gradient(to bottom, #3a3a3e, #1c1c1f);
+    transform: translateZ(calc(var(--D) / 2 + .3px));
+    opacity: var(--open, 1);
+    pointer-events: none;
+}
+.view::before {
+    top: 0;
+    border-radius: 0 0 var(--K) var(--K);
+}
+.view::after {
+    bottom: 0;
+    border-radius: var(--K) var(--K) 0 0;
+    background: linear-gradient(to top, #3a3a3e, #1c1c1f);
+}
+/* ===== Hình màn hình ===== */
+:root {
+    --DW: 277px;   /* bề rộng mỗi nửa màn hình trong */
+    --DH: 376px;   /* chiều cao màn hình */
+}
+
+/* màn hình trong: một ảnh chung, mỗi nửa lấy một nửa */
+.face.front.base .display,
+.face.back:not(.rear) .display {
+    background-image: url("assets/system/2.png");
+    background-repeat: no-repeat;
+    background-size: calc(var(--DW) * 2) var(--DH);
+}
+.face.front.base .display       { background-position: calc(var(--DW) * -1) 0; }  /* nửa phải */
+.face.back:not(.rear) .display  { background-position: 0 0; }                      /* nửa trái */
+
+/* màn hình ngoài (khi gập) */
+.face.front.cover .display {
+    background-image: url("assets/system/1.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}

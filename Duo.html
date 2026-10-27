@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iPhone Duo 3D</title>
+<link rel="stylesheet" href="duo.css">
+</head>
+<body>
+<div class="scene">
+ <div class="view" id="view">
+  <div class="book" id="book">
+   <div class="shadow" id="shadow"></div>
+
+   <!-- 1. TRỤC GIỮA: đứng im, mảnh, nối hai bản lề -->
+   <div class="spine" id="spine">
+     <div class="sface" id="sface">
+       <div class="sti" id="sti"></div>
+       <div class="ssc" id="ssc"></div>
+     </div>
+   </div>
+
+   <!-- 2. BẢN LỀ PHẢI -->
+   <div class="gR" id="gR">
+     <div class="panel" id="basePanel">
+       <div class="face front base"><div class="display"><div class="shade" id="shR"></div></div></div>
+       <div class="face back rear"></div>
+     </div>
+   </div>
+
+   <!-- 3. BẢN LỀ TRÁI: lật quanh trục giữa -->
+   <div class="gL" id="gL">
+     <div class="gL2" id="gL2">
+       <div class="panel">
+         <!-- mặt ngoài khi gập -->
+         <div class="face front cover"><div class="display"><div class="shade" id="shF"></div></div></div>
+         <!-- mặt trong khi mở -->
+         <div class="face back"><div class="display"><div class="shade" id="shB"></div></div></div>
+       </div>
+     </div>
+   </div>
+
+  </div>
+ </div>
+</div>
+
+<div class="ctrl">
+  <button class="toggle" id="toggle">Mở máy</button>
+  <label>Gập chữ V <input type="range" id="bend" min="0" max="40" value="0"></label>
+</div>
+
+<script src="duo.js"></script>
+</body>
+</html>
