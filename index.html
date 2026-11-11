@@ -12,12 +12,12 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="NgocSang Portfolio" />
   <meta property="og:description" content="Design portfolio: website, mobile and branding projects." />
-  <meta property="og:image" content="assets/menubar/Logo.png" />
+  <meta property="og:image" content="assets/menubar/Logo_dark.svg" />
 
-  <link rel="icon" href="assets/menubar/Logo.png" />
+  <link rel="icon" href="assets/menubar/Logo_dark.svg" type="image/svg+xml" />
 
   <!-- Nạp sớm ảnh nằm trên màn hình đầu tiên -->
-  <link rel="preload" as="image" href="assets/menubar/Logo.png" />
+  <link rel="preload" as="image" href="assets/menubar/Logo_dark.svg" />
   <link rel="preload" as="image" href="assets/folders/folder.png" />
 
   <!-- CSS: style.css chứa reset, biến, style chung nên phải nạp đầu tiên -->
@@ -79,9 +79,10 @@
   <!-- MENU BAR -->
   <header id="menubar">
     <nav class="menubar-left" aria-label="Menu bar">
-      <img src="assets/menubar/Logo.png" class="logo" alt="Logo" width="32" height="32" />
+      <img src="assets/menubar/Logo_dark.svg" class="logo" alt="Logo" width="32" height="32" />
       <span class="menu-item active">NgocSang Portfolio</span>
-      <span class="menu-item" data-open="cv" role="button" tabindex="0">NgocSang_CV.pdf</span>
+      <a class="menu-item" href="https://drive.google.com/file/d/1FMXgmO621BJzMf6jBqnUB1yMAn4HtWCn/view?usp=sharing"
+        target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">NgocSang_CV.pdf</a>
       <span class="menu-item" data-open="contact" role="button" tabindex="0">Contact</span>
     </nav>
 
@@ -145,10 +146,10 @@
   <main id="desktop">
 
     <!-- Welcome -->
-    <!-- <section class="welcome">
+    <section class="welcome">
       <p class="welcome-sub">Welcome to my</p>
       <h1 class="welcome-title">Portfolio</h1>
-    </section> -->
+    </section>
 
     <!-- Sticky note -->
     <aside class="sticky-note" aria-label="To do list">
@@ -185,10 +186,11 @@
         <span class="label">Branding_project</span>
       </div>
 
-      <div class="desk-icon" data-open="cv" role="button" tabindex="0" style="top:480px; left:340px;">
+      <a class="desk-icon" href="https://drive.google.com/file/d/1FMXgmO621BJzMf6jBqnUB1yMAn4HtWCn/view?usp=sharing"
+        target="_blank" rel="noopener noreferrer" style="top:480px; left:340px; color:inherit; text-decoration:none;">
         <img src="assets/folders/pdf.png" alt="" width="60" height="80" loading="lazy" />
         <span class="label">NgocSang.pdf</span>
-      </div>
+      </a>
 
       <div class="desk-icon" data-open="about" role="button" tabindex="0" style="bottom:160px; left:140px;">
         <img src="assets/folders/folder.png" alt="" width="80" height="80" />

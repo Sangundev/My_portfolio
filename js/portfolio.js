@@ -332,7 +332,15 @@
     document.body.appendChild(trail); // lớp phủ toàn màn hình: ô nổi trên cả menu, không bị cắt ở mép hero
 
     const SRC = [
-      /* 'assets/portfolio/1.jpg', 'assets/portfolio/2.jpg' */
+      "assets/system/Hover/src_1.svg",
+      "assets/system/Hover/src_2.svg",
+      "assets/system/Hover/src_3.svg",
+      "assets/system/Hover/src_4.svg",
+      "assets/system/Hover/src_5.svg",
+      "assets/system/Hover/src_6.svg",
+      "assets/system/Hover/src_7.svg",
+      "assets/system/Hover/src_8.svg",
+      "assets/system/Hover/src_9.svg",
     ];
     const PALETTE = [
       // màu thay thế khi chưa có ảnh (SRC trống), xếp xen kẽ để hai ô liền nhau luôn khác tông
@@ -583,6 +591,13 @@
     const cards = stack ? $$(".card", stack) : [];
     if (!cards.length) return;
 
+    cards.forEach((c) => {
+      c.style.cursor = "pointer";
+      c.addEventListener("click", () => {
+        location.href = "https://sangundev.github.io/Project/";
+      });
+    });
+
     const desk = matchMedia("(min-width: 861px)");
     const FADE = 1; // thẻ bị đè nhạt đi tối đa bao nhiêu (0 = không nhạt, 1 = biến mất hẳn)
     const F0 = 0.06; // thẻ sau ló lên được bấy nhiêu phần màn hình thì thẻ trước bắt đầu thu nhỏ và nhạt
@@ -615,6 +630,7 @@
         lastK[i] = k;
         c.style.transform = k ? `scale(${(1 - k * SHRINK).toFixed(4)})` : "";
         c.style.opacity = k ? (1 - k * FADE).toFixed(3) : "";
+        c.style.borderRadius = k ? (k * 32).toFixed(1) + "px" : "";
       });
     });
   }

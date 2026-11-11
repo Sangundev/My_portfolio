@@ -17,12 +17,16 @@
 
   const PIC_ICON = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect x="3" y="3" width="58" height="58" fill="#d3262f" stroke="#fff" stroke-width="6"/><ellipse cx="32" cy="40" rx="11" ry="13" fill="#2a0a0c"/><circle cx="24" cy="26" r="3" fill="#fff"/><circle cx="40" cy="26" r="3" fill="#fff"/></svg>');
 
+  const PROJECT_URL = 'https://sangundev.github.io/Project/';
+
+  const CV_URL = 'https://drive.google.com/file/d/1FMXgmO621BJzMf6jBqnUB1yMAn4HtWCn/view?usp=sharing';
+
   const FILES = {
     website_project:  { name: 'Website_project',  img: 'folder', date: '2026-03-12' },
     mobile_project:   { name: 'Mobile_project',   img: 'folder', date: '2026-02-20' },
     branding_project: { name: 'Branding_project', img: 'folder', date: '2026-01-08' },
     about:            { name: 'About Me',         img: 'folder', date: '2026-04-02' },
-    cv:               { name: 'NgocSang.pdf',     img: 'pdf',    date: '2026-05-15', href: 'assets/files/NgocSang.pdf' },
+    cv:               { name: 'NgocSang.pdf',     img: 'pdf',    date: '2026-05-15', href: 'assets/files/NgocSang.pdf', link: CV_URL },
 
     // Trash: mục nào có trash:true thì bấm vào chỉ hiện thông báo, không mở
     t_txt: { name: 'World Domination Plan.txt', img: 'txt',   date: '2026-06-01', src: TXT_ICON,                trash: true },
@@ -31,23 +35,21 @@
     t_web: { name: 'portfolio.html',        img: 'app',   date: '2026-06-04', src: 'assets/dock/Safari.png', trash: true, link: 'portfolio.html' },
 
     // Thư mục con (chỉ xem được khi đi vào bên trong Finder). leaf = chưa có nội dung
-    wp_landing: { name: 'Landing page',    img: 'folder', date: '2026-03-01', link: 'portfolio.html' },
-    wp_dash:    { name: 'Dashboard',       img: 'folder', date: '2026-03-05', leaf: true },
-    wp_shop:    { name: 'E-commerce',      img: 'folder', date: '2026-03-09', leaf: true },
-    wp_blog:    { name: 'Blog',            img: 'folder', date: '2026-03-12', leaf: true },
-    mp_food:    { name: 'Food delivery',   img: 'folder', date: '2026-02-02', leaf: true },
-    mp_bank:    { name: 'Banking app',     img: 'folder', date: '2026-02-11', leaf: true },
-    mp_fit:     { name: 'Fitness',         img: 'folder', date: '2026-02-20', leaf: true },
-    bp_logo:    { name: 'Logo system',     img: 'folder', date: '2026-01-02', leaf: true },
-    bp_pack:    { name: 'Packaging',       img: 'folder', date: '2026-01-05', leaf: true },
-    bp_guide:   { name: 'Brand guideline', img: 'folder', date: '2026-01-08', leaf: true }
+    wp_landing: { name: 'Landing page', img: 'folder', date: '2026-03-01', link: PROJECT_URL },
+    wp_full:    { name: 'Full source',  img: 'folder', date: '2026-03-12', link: PROJECT_URL },
+    mp_mini:    { name: 'Mini app',     img: 'folder', date: '2026-02-11', link: PROJECT_URL },
+    mp_mobile:  { name: 'Mobile app',   img: 'folder', date: '2026-02-20', link: PROJECT_URL },
+    bp_banner:  { name: 'Banner',       img: 'folder', date: '2026-01-02', link: PROJECT_URL },
+    bp_poster:  { name: 'Poster',       img: 'folder', date: '2026-01-05', link: PROJECT_URL },
+    bp_logo:    { name: 'Logo system',  img: 'folder', date: '2026-01-06', link: PROJECT_URL },
+    bp_pack:    { name: 'Packaging',    img: 'folder', date: '2026-01-08', link: PROJECT_URL }
   };
 
   // Folder nào có nội dung bên trong: bấm đúp trong Finder (desktop) sẽ đi vào, giống macOS
   const CHILDREN = {
-    website_project:  ['wp_landing', 'wp_dash', 'wp_shop', 'wp_blog'],
-    mobile_project:   ['mp_food', 'mp_bank', 'mp_fit'],
-    branding_project: ['bp_logo', 'bp_pack', 'bp_guide']
+    website_project:  ['wp_landing', 'wp_full'],
+    mobile_project:   ['mp_mini', 'mp_mobile'],
+    branding_project: ['bp_banner', 'bp_poster', 'bp_logo', 'bp_pack']
   };
 
   const KIND = { folder: 'Folder', pdf: 'PDF Document', txt: 'Plain Text', image: 'Image', app: 'Application' };
@@ -88,7 +90,7 @@
       ['p1',     'Website',     'folder', ['website_project']],
       ['p2',     'Mobile',     'folder', ['mobile_project']],
       ['p3',     'Branding',     'folder', ['branding_project']],
-      ['icloud', 'iCloud Drive', 'cloud',  ALL]
+      ['icloud', 'iCloud Drive', 'cloud',  []]
     ] }
   ];
 
@@ -209,7 +211,6 @@
         ic.innerHTML = I[icon];
         row.append(ic, h('span', null, label));
         row.addEventListener('click', () => {
-           
           show(PROJ[id] || id, true);
         });
         rows[id] = row;
@@ -582,8 +583,8 @@
     };
 
     function activate(k, el) {
-      if (CHILDREN[k]) show(k, true);                 // desktop + điện thoại: đi vào trong Finder
-      else if (FILES[k].link) openTab(FILES[k].link); // có link: mở trang trong tab mới (kể cả mục nằm trong Trash)
+      if (FILES[k].link) openTab(FILES[k].link);      // có link: mở trang trong tab mới (kể cả thư mục project và mục trong Trash)
+      else if (CHILDREN[k]) show(k, true);            // desktop + điện thoại: đi vào trong Finder
       else if (FILES[k].trash) toast("I said, don't look!");
       else if (FILES[k].leaf) toast('Đang cập nhật nội dung');
       else open(k, el, null);                         // file (PDF), About Me: mở cửa sổ riêng

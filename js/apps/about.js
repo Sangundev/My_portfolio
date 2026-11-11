@@ -5,13 +5,13 @@
     { key: 'about_ngoc', name: 'Ngoc', src: 'assets/files/me1.png', w: 444, h: 487 },
     { key: 'about_sang', name: 'Sang', src: 'assets/files/me2.png', w: 444, h: 314 }
   ];
-
+  
   const TEXT = [
-    "Hi, I'm Ngọc Sang, a Designer based in Ho Chi Minh City.",
-    "I'm passionate about creating clean, modern, and user-friendly digital experiences. My main interests are web design, UI/UX, and visual design. I enjoy turning ideas into simple and meaningful interfaces that not only look good but also feel intuitive to use.",
-    "I'm always curious about new technologies and enjoy learning through real projects. I believe good design is about finding the right balance between creativity, function, and user experience.",
-    "I'm always looking for new ideas, new challenges, and opportunities to grow as a designer.",
-    "Welcome to my portfolio — feel free to explore my work."
+    "Hi, I'm Ngọc Sang, a Designer based in Ho Chi Minh City, Vietnam.",
+    "With 3 years of experience in the design industry, I focus on creating modern, minimal, and user-friendly digital experiences. My areas of expertise include Web Design, UI/UX Design, Mobile App Design, Mini App Design, and Visual Design. I enjoy transforming ideas into intuitive, visually appealing interfaces that deliver meaningful and practical experiences.",
+    "I'm always curious about new technologies and passionate about learning through real-world projects. I believe great design comes from finding the right balance between creativity, functionality, and user experience.",
+    "I'm constantly seeking new ideas, fresh challenges, and opportunities to grow while continuously refining my design thinking and skills.",
+    "Welcome to my portfolio — feel free to explore my work and discover the projects I've created."
   ];
 
   // Nhạc: thêm nhiều bài thì thêm dòng

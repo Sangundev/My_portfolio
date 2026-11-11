@@ -117,7 +117,7 @@ html.menu-open{overflow:hidden;scrollbar-gutter:stable}
 .cols{display:grid;grid-template-columns:repeat(5,1fr);gap:24px;margin-top:44px}
 .cols div{border-top:1px solid var(--ink);padding-top:14px}
 .cols div:first-child{border-top-color:var(--vio);border-top-width:2px}
-.cols b{display:block;font-size:15px}
+.cols b{display:block;font-size:15px}s
 .cols p{font-size:13px;color:var(--mute);margin-top:6px;line-height:1.5}
 
 /* Selected work */
@@ -127,9 +127,9 @@ html.menu-open{overflow:hidden;scrollbar-gutter:stable}
    Thẻ trước thu nhỏ và nhạt dần: js/portfolio.js đặt transform và opacity trực tiếp trên .card */
 .card{position:sticky;top:calc(72px + var(--i,0)*12px);display:flex;height:clamp(560px,calc(100vh - 120px),720px);height:clamp(560px,calc(100svh - 120px),720px);border-radius:28px;overflow:hidden;isolation:isolate;color:#f3f3f6;background:var(--dk);transform-origin:50% 0;will-change:transform,opacity;backface-visibility:hidden}
 /* .card+.card{margin-top:40px} */
-.card:nth-child(1){--i:0;--bg:radial-gradient(60% 80% at 18% 18%,#4a90e2,transparent 70%),radial-gradient(60% 80% at 86% 82%,#2fd0ff,transparent 70%),#1b2a4a}
-.card:nth-child(2){--i:1;--bg:radial-gradient(60% 80% at 14% 86%,#ff8a5b,transparent 70%),radial-gradient(60% 80% at 86% 14%,#ff4fa3,transparent 70%),#3a1a14}
-.card:nth-child(3){--i:2;--bg:radial-gradient(60% 80% at 18% 18%,#7a5cff,transparent 70%),radial-gradient(60% 80% at 82% 86%,#ff4fa3,transparent 70%),#1d1636}
+.card:nth-child(1){--i:0;--bg:url("../assets/system/1.2.svg");--shot:url("../assets/system/2.svg")}
+.card:nth-child(2){--i:1;--bg:url("../assets/system/1.1.svg");--shot:url("../assets/system/1.svg")}
+.card:nth-child(3){--i:2;--bg:url("../assets/system/1.3.svg");--shot:url("../assets/system/3.svg")}
 .cover{position:absolute;inset:0;z-index:-2;background:var(--bg) center/cover}   /* bìa: thay bằng ảnh thật ở --bg */
 .card::before{content:"";position:absolute;inset:0;z-index:-1;background:rgba(8,8,12,.42)}   /* lớp phủ tối cho chữ dễ đọc */ 
 .body{width:100%;max-width:1200px;height:100%;margin:0 auto;padding:56px 24px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:minmax(0,1fr);gap:40px}
@@ -151,6 +151,7 @@ html.menu-open{overflow:hidden;scrollbar-gutter:stable}
 .go:active{scale:.94}
 .shot{align-self:center;position:relative;display:grid;place-items:center;height:min(100%,590px);aspect-ratio:4/5;border-radius:18px;overflow:hidden;background:var(--shot,linear-gradient(160deg,#eceef3,#c5c8d2)) center/cover;box-shadow:0 30px 70px rgba(0,0,0,.45),0 0 0 1px rgba(255,255,255,.14)}   /* tấm chính giữa: thay bằng ảnh thật ở --shot */
 .card dl{align-self:start}
+.shot .m{display:none}
 .card dl div{padding:12px 0;border-top:1px solid rgba(255,255,255,.16);font-size:14px}
 .card dt{color:rgba(255,255,255,.55)}
 .card dd{margin-top:2px}
@@ -420,7 +421,7 @@ summary:active{opacity:.6}
 }
 /* ===== Selected work: mỗi thẻ cao vừa một màn hình; thẻ sau chỉ ló lên sau khi thẻ trước hiện trọn ===== */
 @media(min-width:861px){
-  .card{top:96px;height:clamp(520px,calc(100vh - 168px),900px);height:clamp(520px,calc(100svh - 168px),900px)}
+  .card{top:96px;border-radius:0;height:clamp(520px,calc(100vh - 168px),900px);height:clamp(520px,calc(100svh - 168px),900px)}
   .card+.card{margin-top:calc(72px + 12vh);margin-top:calc(72px + 12svh)}   /* 72px = lề dưới của thẻ đang dính; 12% màn hình là đoạn thẻ trước đứng yên trước khi thẻ sau ló lên */
 }
 /* */
