@@ -1044,6 +1044,157 @@
     document.addEventListener("visibilitychange", start);
   }
 
+  /* ---------- 8h. Practice: biểu đồ minh họa (thẻ 02 và 03) chạy khi cuộn tới, chạy lại khi quay lại ---------- */
+  function initCharts() {
+    const charts = $$("#practice .mock.ch");
+    if (!charts.length) return;
+    if (reduce || !("IntersectionObserver" in window)) {
+      charts.forEach((c) => c.classList.add("in"));
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.intersectionRatio >= 0.45) e.target.classList.add("in");
+          else if (e.intersectionRatio === 0) e.target.classList.remove("in");
+        }),
+      { threshold: [0, 0.45] },
+    );
+    charts.forEach((c) => io.observe(c));
+  }
+
+  /* ---------- 8i. Practice 01: ô search gõ từng từ khóa, kết quả bên dưới tải dần ---------- */
+  function initSearch() {
+    const CFG = {
+      charMs: 55, // tốc độ gõ mỗi chữ cái (ms)
+      holdMs: 380, // dừng sau khi gõ xong một từ khóa, trước khi "Enter"
+      loadMs: 850, // thời gian vòng tròn quay (đang tải) trước khi hiện dấu tích
+      gapMs: 260, // nghỉ giữa hai từ khóa
+      startMs: 500, // chờ trước khi bắt đầu
+      replay: true, // cuộn đi rồi quay lại thì chạy lại
+    };
+    const ready = [];
+
+    $$("#practice .mock.sr").forEach((mock) => {
+      const box = $(".sr-box", mock);
+      const line = $(".sr-line", mock);
+      const cur = $(".sr-cur", mock);
+      const q = $(".sr-q", mock);
+      const items = $$(".mock-ls li", mock);
+      if (!box || !line || !cur || !q) return;
+      const kws = (box.dataset.kw || "")
+        .split("|")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      if (!kws.length) return;
+
+      let run = 0,
+        state = "idle";
+
+      const addChip = (w) => {
+        const c = document.createElement("i");
+        c.className = "sr-chip";
+        c.textContent = w;
+        line.insertBefore(c, cur);
+      };
+      const reset = () => {
+        run++; // huỷ mọi bước đang chờ
+        state = "idle";
+        $$(".sr-chip", line).forEach((c) => c.remove());
+        q.textContent = "";
+        mock.classList.remove("sr-end");
+        items.forEach((li) => {
+          li.classList.remove("sr-load", "sr-done");
+          li.classList.add("sr-hide");
+        });
+      };
+      const finish = () => {
+        run++;
+        state = "done";
+        $$(".sr-chip", line).forEach((c) => c.remove());
+        kws.forEach(addChip);
+        q.textContent = "";
+        items.forEach((li) => {
+          li.classList.remove("sr-hide", "sr-load");
+          li.classList.add("sr-done");
+        });
+        mock.classList.add("sr-end");
+      };
+      const play = () => {
+        if (state !== "idle") return;
+        if (reduce) return finish();
+        state = "run";
+        const my = ++run;
+        const alive = () => my === run;
+        let i = 0;
+
+        const next = () => {
+          if (!alive()) return;
+          if (i >= kws.length) {
+            setTimeout(() => {
+              if (!alive()) return;
+              items.forEach((li) => {
+                li.classList.remove("sr-hide", "sr-load");
+                li.classList.add("sr-done");
+              });
+              mock.classList.add("sr-end");
+              state = "done";
+            }, CFG.loadMs);
+            return;
+          }
+          const w = kws[i];
+          let n = 0;
+          const commit = () => {
+            if (!alive()) return;
+            addChip(w);
+            q.textContent = "";
+            const li = items[i];
+            if (li) {
+              li.classList.remove("sr-hide");
+              li.classList.add("sr-load");
+              setTimeout(() => {
+                if (!alive()) return;
+                li.classList.remove("sr-load");
+                li.classList.add("sr-done");
+              }, CFG.loadMs);
+            }
+            i++;
+            setTimeout(next, CFG.gapMs);
+          };
+          const type = () => {
+            if (!alive()) return;
+            q.textContent = w.slice(0, ++n);
+            if (n < w.length) setTimeout(type, CFG.charMs + rand(0, 40));
+            else setTimeout(commit, CFG.holdMs);
+          };
+          type();
+        };
+        setTimeout(next, CFG.startMs);
+      };
+
+      reset();
+      mock._sr = { play, reset, finish };
+      ready.push(mock);
+    });
+
+    if (!ready.length) return;
+    if (!("IntersectionObserver" in window)) {
+      ready.forEach((m) => m._sr.finish());
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) =>
+        entries.forEach((e) => {
+          const t = e.target._sr;
+          if (!t) return;
+          if (e.intersectionRatio >= 0.55) t.play();
+          else if (e.intersectionRatio === 0 && CFG.replay) t.reset();
+        }),
+      { threshold: [0, 0.55] },
+    );
+    ready.forEach((m) => io.observe(m));
+  }
+
   /* ---------- 9. Khởi động ---------- */
   initChrome();
   initMenuSpy();
@@ -1058,6 +1209,8 @@
   initHeadings();
   initTop();
   initReveal();
+  initSearch();
+  initCharts();
 
   for (const m of measurers) m(); // đo trước khi vẽ lần đầu
   for (const p of painters) p(scrollY);

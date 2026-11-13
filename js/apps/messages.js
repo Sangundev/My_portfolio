@@ -18,68 +18,34 @@
   // items: { q: câu hỏi, a: trả lời (\n để xuống dòng), sticker/pos: emoji ở góc, open: mở sẵn }
   const CONVOS = [
     {
-      name: "About Me",
+      name: "Ngọc Sang",
       avatar: "assets/system/avata.jpg",
       preview: "Tap a question to open it",
       items: [
         {
-          q: "What kind of designer are you?",
-          a: "A UI/UX designer who loves clean interfaces, playful details and products that feel easy to use.",
+          q: "Where do you draw inspiration from when designing?",
+          a: "I usually study competitors in the same industry and browse Pinterest, Cosmos, Freepik... for ideas on layout, color and typography, then combine them with my own creative thinking.",
           sticker: "❤️",
           pos: "tr",
+          open: true,
         },
         {
-          q: "What inspires your design style?",
-          a: "Everyday objects, motion, music and a lot of Pinterest boards. I like mixing calm layouts with one bold detail.",
+          q: "What roles and types of clients have you worked with?",
+          a: "I've worked with a wide range of clients, from family-run businesses to chain enterprises, and collaborated closely with the Sales and Development teams to deliver products.",
         },
         {
-          q: "What’s your design process like?",
-          a: "Messy but methodical. I start with rapid ideation, test often, and iterate obsessively. User feedback is my North Star.",
+          q: "What's the hardest part of starting a design?",
+          a: "The hardest part is when clients haven't defined their needs clearly or keep changing direction. I usually present several visual options, shaped by the brand's own identity, so clients can picture them easily and choose the right direction.",
           sticker: "⭐",
           pos: "tl",
-          open: true,
         },
         {
-          q: "How do you handle creative blocks?",
-          a: "Step away. Doodle nonsense. Scroll through chaotic, experimental sites. Then come back with a fresh perspective.",
+          q: "What's your favorite design topic?",
+          a: "I love Web UI/UX Design, especially a minimalist, Apple-inspired style that feels modern and refined, focused on usability and a smooth user journey.",
         },
         {
-          q: "Favorite kind of project to work on?",
-          a: "Anything that blends visual storytelling with problem-solving, from playful UI concepts to in-depth UX research.",
-          sticker: "❤️",
-          pos: "tr",
-        },
-        {
-          q: "What makes you a good collaborator?",
-          a: "I’m curious, open-minded, and thrive on feedback. I believe the best ideas come from shared brainstorming.",
-        },
-      ],
-    },
-    {
-      name: "Work Experience",
-      avatar: "💼",
-      tone: "ct-t2",
-      preview: "Where I’ve worked & what I’ve done",
-      // Nội dung mẫu, hãy thay bằng kinh nghiệm thật của bạn
-      items: [
-        {
-          q: "UI/UX Designer · Company Name",
-          a: "2024 – Present\nDesigning web and mobile products from research to hand-off.\n• Built and maintained a shared design system\n• Ran usability tests and turned feedback into iterations",
-          sticker: "⭐",
-          pos: "tr",
-          open: true,
-        },
-        {
-          q: "Freelance Designer · Self-employed",
-          a: "2022 – 2024\nBranding and website projects for small businesses.\n• Logo, identity and social media kits\n• Landing pages designed in Figma and Framer",
-        },
-        {
-          q: "Design Intern · Company Name",
-          a: "2021 – 2022\nSupported the design team with UI components, icons and prototypes.\n• Learned real-world Figma workflows and design reviews",
-        },
-        {
-          q: "Education & Skills",
-          a: "Your school / degree here\nFigma · Framer · Illustrator · Photoshop · Prototyping · User research",
+          q: "Where do you want to go in the future?",
+          a: "I want to grow deeper in Product Design and UI/UX Design, building simple, intuitive digital products that effectively meet real user needs.",
           sticker: "❤️",
           pos: "tr",
         },
@@ -203,6 +169,21 @@
     const main = h("section", "ct-main");
 
     const head = h("header", "ct-head win-drag");
+
+    // Nút ẩn / hiện sidebar: nằm cùng hàng 3 nút đèn (con của .ct-app, CSS định vị)
+    const sbBtn = h("button", "ct-sbtoggle");
+    sbBtn.type = "button";
+    sbBtn.setAttribute("aria-label", "Toggle sidebar");
+    sbBtn.setAttribute("aria-expanded", "true");
+    sbBtn.innerHTML = svg(
+      '<rect x="3.5" y="5" width="17" height="14" rx="3.5"/><path d="M9.5 5v14"/>',
+    );
+    sbBtn.addEventListener("pointerdown", (e) => e.stopPropagation()); // không bị hiểu là kéo cửa sổ
+    sbBtn.addEventListener("click", () => {
+      const hide = app.classList.toggle("side-hidden");
+      sbBtn.setAttribute("aria-expanded", String(!hide));
+    });
+
     const to = h("span", "ct-to");
     const chip = h("span", "ct-chip", CONVOS[0].name);
     to.append("To: ", chip);
@@ -447,7 +428,7 @@
     comp.append(plus, field);
 
     main.append(head, ...panes, comp, panel);
-    app.append(mHead, side, main);
+    app.append(mHead, side, main, sbBtn);
     body.append(app);
   }
 

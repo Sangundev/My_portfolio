@@ -90,100 +90,119 @@
     {
       id: "hutech",
       name: "HUTECH",
-      role: "Sinh viên thiết kế",
-      years: "Đại học",
+      role: "Cử nhân Công nghệ Thông tin – Kỹ thuật Phần mềm",
+      years: "2020 – 2024",
       color: "#fbbf24",
       lat: 10.8553,
       lng: 106.7852,
       h: 66,
       address: "Khu Công nghệ cao XLHN, Tăng Nhơn Phú, TP. Hồ Chí Minh",
+      tasksTitle: "Học tập & Nghiên cứu",
+      projectsTitle: "GitHub",
+      highlightsTitle: "Định hướng chuyên môn",
       tasks: [
-        "Học nền tảng thiết kế: bố cục, màu sắc, chữ, trải nghiệm người dùng",
-        "Làm đồ án và bài tập nhóm, tập trình bày ý tưởng trước lớp",
-        "Xây dựng những sản phẩm đầu tiên cho portfolio",
+        "Trang bị nền tảng về tư duy logic, cấu trúc dữ liệu, giải thuật và quy trình phát triển phần mềm; hiểu cách thức vận hành của hệ thống, luồng dữ liệu và tương tác của người dùng trong ứng dụng",
+        "Có kiến thức cơ bản về lập trình Web/Mobile và các công nghệ như HTML, CSS, JavaScript, C#, .NET, PHP, Node.js và Docker, hỗ trợ quá trình trao đổi và phối hợp với đội ngũ Developer",
+        "Thực hiện các đồ án môn học liên quan đến thiết kế và phát triển sản phẩm số đa nền tảng, bao gồm ứng dụng Mobile, Website và hệ thống quản lý Desktop",
       ],
       projects: [
-        { name: "Đồ án tiêu biểu", img: "assets/photos/ten-file-1.jpg" },
-        { name: "Bài tập nhóm", img: "assets/photos/ten-file-2.jpg" },
+        { name: "github.com/Sangundev", url: "https://github.com/Sangundev" },
       ],
-      lesson:
-        "Nơi mình học cách biến một ý tưởng mơ hồ thành thứ nhìn thấy được và giải thích được.",
-           cover: "assets/journey/hutech/cover.jpg",
-        logo: "assets/system/hutech/H.png",
+      highlights: [
+        "Vận dụng kiến thức công nghệ và tư duy hệ thống vào quá trình nghiên cứu, thiết kế và phát triển sản phẩm số.",
+      ],
+      cover: "assets/journey/hutech/cover.jpg",
+      logo: "assets/system/hutech/H.png",
     },
     {
       id: "miniai",
       name: "Miniai",
-      role: "UI/UX Designer",
+      role: "Product Designer",
       years: "2021 – 2022",
       color: "#a78bfa",
       lat: 10.8425,
       lng: 106.711,
       h: 62,
-      address:
-        "152 Đường 16, Khu Đô Thị Vạn Phúc, Phường Hiệp Bình, TP. Hồ Chí Minh",
+      address: "152 Đường 16, Khu đô thị Vạn Phúc, TP. Hồ Chí Minh",
       tasks: [
-        "Thiết kế giao diện website và ứng dụng di động",
-        "Xây dựng wireframe và prototype cho từng tính năng",
-        "Làm việc cùng developer để bàn giao thiết kế",
+        "Là một trong những thành viên đầu tiên tham gia xây dựng đội ngũ phát triển Zalo Mini App tại Miniai",
+        "Nghiên cứu thị trường và hành vi người dùng Việt Nam, đề xuất ý tưởng và phát triển các giao diện template ban đầu",
+        "Thiết kế, cải tiến giao diện và các tính năng Mini App như hồ sơ người dùng, tích điểm, khách hàng thân thiết và trò chơi tương tác",
+        "Xây dựng thư viện template có khả năng tùy chỉnh và tái sử dụng cho nhiều lĩnh vực kinh doanh",
+        "Phối hợp với Developer bàn giao thiết kế, kiểm tra bản build và hoàn thiện sản phẩm",
+        "Tham gia các sự kiện công nghệ và chuyển đổi số trong và ngoài tỉnh để triển khai, trải nghiệm thử nghiệm ứng dụng thực tế và thu thập phản hồi từ khách hàng nhằm cải thiện sản phẩm",
       ],
       projects: [
-        { name: "Ứng dụng đặt lịch", img: "assets/journey/miniai/1.jpg" },
-        { name: "Landing page", img: "assets/journey/miniai/2.jpg" },
+        { name: "Miniai – Zalo Mini App Template Library", search: "Miniai" },
+        { name: "Tmark – Zalo Mini App", search: "Tmark" },
+        { name: "Các ứng dụng template thực tế cho thương hiệu: KFC, YADEA, Pernod Ricard, Nerman và Nha Khoa Việt Mỹ" },
       ],
-      lesson:
-        "Những dự án đầu tiên dạy tôi cách biến yêu cầu mơ hồ thành giao diện rõ ràng.",
+      gallery: [
+        "assets/journey/miniai/1.jpg",
+        "assets/journey/miniai/2.jpg",
+      ],
+      highlights: [
+        "Góp phần xây dựng thư viện giao diện được Miniai tiếp tục sử dụng và thương mại hóa cho các khách hàng mới sau khi tôi kết thúc thời gian làm việc.",
+        "Phát triển hệ thống giao diện có khả năng tái sử dụng, mở rộng và tối ưu thời gian triển khai sản phẩm.",
+      ],
       cover: "assets/journey/miniai/cover.jpg",
       logo: "assets/system/miniai/M.png",
     },
     {
       id: "digibird",
       name: "Digibird",
-      role: "UI/UX Designer",
-      years: "2022 – 2023",
+      role: "UI/UX Designer (Zalo Mini App)",
+      years: "04/2024 – 10/2024",
       color: "#4da3ff",
       lat: 10.7905,
       lng: 106.757,
       h: 78,
       address: "62 Lương Định Của, Phường Bình Trưng Tây, Thủ Đức, TP.HCM",
+      highlightsTitle: "Kinh nghiệm & Bài học tích lũy",
       tasks: [
-        "Thiết kế giao diện website và sản phẩm số",
-        "Xây dựng layout, component và prototype",
-        "Phối hợp với developer và team để phát triển sản phẩm",
+        "Phụ trách thiết kế giao diện, hệ thống template và các tính năng theo đặc thù của từng ngành nghề trên nền tảng Zalo Mini App",
+        "Phối hợp chặt chẽ với đội ngũ Developer và Product để hiện thực hóa ý tưởng thiết kế, đảm bảo trải nghiệm người dùng mượt mà, trực quan và mang đậm dấu ấn thương hiệu",
+        "Nghiên cứu, phân tích và tối ưu hóa luồng người dùng (User Flow), nâng cao tính tiện ích và hiệu quả sử dụng cho các ứng dụng doanh nghiệp",
       ],
       projects: [
-        { name: "Dashboard quản trị", img: "assets/journey/digibird/1.jpg" },
-        { name: "Website thương mại", img: "assets/journey/digibird/2.jpg" },
+        { name: "Tham gia thiết kế và triển khai hơn 35 ứng dụng Zalo Mini App, cùng hệ thống template đa dạng phục vụ nhiều lĩnh vực kinh doanh" },
+        { name: "Tham gia phát triển các giải pháp số hóa quy trình vận hành, bán hàng và chăm sóc khách hàng trên nền tảng di động" },
+        { name: "Có cơ hội tham gia các dự án thuộc hệ sinh thái khách hàng và đối tác với nhiều thương hiệu nổi bật như Vinamilk, Viettel Money, Castrol, Nutifood, PNJ, FPT Shop, ZaloPay, MoMo và VNPAY" },
       ],
-      lesson:
-        "Lần đầu được làm việc với khách hàng nước ngoài, tôi học được cách lắng nghe, phân tích và giải quyết vấn đề trong môi trường thực tế.",
-           cover: "assets/journey/digibird/cover.jpg",
+      highlights: [
+        "Lần đầu làm việc trong môi trường chuyên nghiệp, có cơ hội tiếp cận quy trình thiết kế sản phẩm thực tế và các dự án gắn với nhiều thương hiệu lớn.",
+        "Nâng cao khả năng thiết kế giao diện đa ngành nghề, linh hoạt thích ứng với nhận diện thương hiệu và nhu cầu kinh doanh của từng khách hàng.",
+        "Học cách xây dựng hệ thống giao diện mẫu (Template System) có tính tái sử dụng và linh hoạt cao, góp phần tối ưu thời gian thiết kế và triển khai sản phẩm.",
+        "Cải thiện kỹ năng phối hợp liên phòng ban, tư duy giải quyết vấn đề và chuyển đổi yêu cầu kinh doanh thành trải nghiệm người dùng trực quan.",
+      ],
+      cover: "assets/journey/digibird/cover.jpg",
       logo: "assets/system/digibird/D.png",
     },
     {
       id: "nasani",
       name: "Nasani",
       aka: "Nina",
-      role: "Product Designer",
-      years: "2023 – 2024",
+      role: "2D Designer (Website)",
+      years: "11/2024 – 02/2026",
       color: "#4ade80",
       lat: 10.8535,
       lng: 106.6265,
       h: 70,
-      address:
-        "Công viên phần mềm Quang Trung, Tòa nhà Saigon ICT, Lô 46 Quang Trung, Phường Trung Mỹ Tây, TP. Hồ Chí Minh",
+      address: "TP. Hồ Chí Minh",
       tasks: [
-        "Dẫn dắt thiết kế cho một sản phẩm từ ý tưởng tới ra mắt",
-        "Xây dựng design system dùng chung cho cả team",
-        "Làm việc với dữ liệu người dùng để cải thiện trải nghiệm",
+        "Phụ trách thiết kế giao diện các sản phẩm kỹ thuật số, tập trung vào tính độc bản và trải nghiệm trực quan cho website",
+        "Phối hợp chặt chẽ với bộ phận kinh doanh (Sales) và đội ngũ lập trình (Developer) để nắm bắt yêu cầu và triển khai thực tế",
+        "Định hình phong cách thiết kế và tối ưu hóa các thành phần giao diện nhằm đáp ứng đa dạng nhu cầu của các dự án kỹ thuật số",
       ],
       projects: [
-        { name: "Design system", img: "assets/journey/nasani/1.jpg" },
-        { name: "Ứng dụng tài chính", img: "assets/journey/nasani/2.jpg" },
+        { name: "Tham gia thiết kế và triển khai “hơn 500 dự án” website cho các đối tác và khách hàng" },
+        { name: "Các sản phẩm kỹ thuật số tập trung vào thiết kế website chuyên nghiệp và độc bản" },
       ],
-      lesson:
-        "Một design system tốt giúp cả team đi nhanh hơn mà vẫn giữ được sự nhất quán.",
-          cover: "assets/journey/nasani/cover.jpg",
+      highlights: [
+        "Trực tiếp tham gia vào quy mô sản xuất lớn với hơn 500 dự án website thành công, góp phần tối ưu hóa quy trình phối hợp giữa các phòng ban.",
+        "Đảm bảo chất lượng thẩm mỹ và tính độc bản cho dải sản phẩm kỹ thuật số đa dạng của công ty.",
+      ],
+      cover: "assets/journey/nasani/cover.jpg",
       logo: "assets/system/nasani/N.png",
     },
   ];
@@ -196,7 +215,7 @@
     sign2: "My work. My journey.",
     tasks: "Công việc chính",
     projects: "Dự án tiêu biểu",
-    lesson: "Những điều tôi học được",
+    highlights: "Đóng góp nổi bật",
     dist: "Khoảng cách tới các mốc khác",
     distNote:
       "Khoảng cách thật theo đường chim bay (bản đồ đã được thu nhỏ). Quãng đường đi thực tế dài hơn.",
@@ -1455,7 +1474,7 @@
       here = pending;
       curC = pendC;
       [wb.x, wb.y] = pendPos;
-      setTone(toneTo);
+      setCol(colTo);
       man.classList.remove("walk");
       setHere(curC);
       paths.forEach((p) => (p.style.strokeDashoffset = 0));
@@ -1642,12 +1661,15 @@
 
       const ql = QL[Q],
         cull = nearOn; // toàn cảnh: hiện tất cả; zoom gần mới cắt theo khoảng cách tới tâm
+      /* dựng ô theo NGÂN SÁCH THỜI GIAN: đang kéo / bay thì chỉ ~2,5ms mỗi khung (luôn dựng ít nhất 1 ô), đứng yên thì 6ms */
+      const t0 = performance.now(),
+        budget = root.classList.contains("moving") ? 2.5 : 6;
       let built = 0,
         more = false;
       for (const t of lod.minTiles) {
         const on = !cull || tileDist(t) <= ql.minR;
         if (on && !t.el) {
-          if (built >= 2) {
+          if (built > 0 && performance.now() - t0 > budget) {
             more = true;
             continue;
           }
@@ -1825,8 +1847,8 @@
       const t0 = performance.now();
       const step = (now) => {
         if (!root.isConnected) return;
-        const k = Math.min(1, (now - t0) / ms);
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        const k = Math.min(1, Math.max(0, (now - t0) / ms)); // chặn k âm ở khung đầu
+        const e = 1 - Math.pow(1 - k, 4); // ease-out kiểu iOS: nhanh trước, dừng êm
         for (const key of KEYS)
           cam[key] = from[key] + (goal[key] - from[key]) * e;
         cam.s = from.s * Math.pow(goal.s / from.s, e);
@@ -1868,6 +1890,7 @@
         })
         .join("");
       const idx = COMPANIES.indexOf(c) + 1;
+      const gal = c.gallery || c.projects.map((p) => p.img).filter(Boolean);
       scroll.innerHTML = `
         <div class="mp-cover"><span class="mp-step">${idx} / ${COMPANIES.length}</span></div>
         <div class="mp-pbody">
@@ -1879,17 +1902,17 @@
           <h3>${esc(TXT.dist)}</h3>
           <ul class="mp-dist">${others}</ul>
           <p class="mp-note">${esc(TXT.distNote)}</p>
-          <h3>${esc(TXT.tasks)}</h3>
+          <h3>${esc(c.tasksTitle || TXT.tasks)}</h3>
           <ul>${c.tasks.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
-          <h3>${esc(TXT.projects)}</h3>
-          <div class="mp-proj">${c.projects.map((p) => `<figure class="mp-pj"><i></i><figcaption>${esc(p.name)}</figcaption></figure>`).join("")}</div>
-          <h3>${esc(TXT.lesson)}</h3>
-          <blockquote>${esc(c.lesson)}</blockquote>
+          <h3>${esc(c.projectsTitle || TXT.projects)}</h3>
+          <ul>${c.projects.map((p) => `<li>${p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${esc(p.name)} ↗</a>` : esc(p.name)}${p.search ? ` <small>(Tìm trên Zalo: “${esc(p.search)}”)</small>` : ""}</li>`).join("")}</ul>
+          ${c.highlights && c.highlights.length ? `<h3>${esc(c.highlightsTitle || TXT.highlights)}</h3><ul>${c.highlights.map((t) => `<li>${esc(t)}</li>`).join("")}</ul>` : ""}
+          ${gal.length ? `<div class="mp-proj" style="margin-top:14px">${gal.map(() => `<figure class="mp-pj"><i></i></figure>`).join("")}</div>` : ""}
         </div>`;
       bgTry(scroll.querySelector(".mp-cover"), c.cover);
       scroll
         .querySelectorAll(".mp-pj i")
-        .forEach((n, i) => bgTry(n, c.projects[i] && c.projects[i].img));
+        .forEach((n, i) => bgTry(n, gal[i]));
       scroll.scrollTop = 0;
     }
 
@@ -2035,6 +2058,7 @@
       p.y = e.clientY;
       if (g.mode === "pinch") {
         if (ptrs.size < 2) return;
+        if (!root.classList.contains("moving")) setMoving(true); // chụm cũng tắt hiệu ứng nặng như khi kéo
         const [a, b] = [...ptrs.values()];
         cam.s = clampS((g.s0 * Math.hypot(a.x - b.x, a.y - b.y)) / g.d0);
         queueApply();
@@ -2075,22 +2099,28 @@
       if (dt < 8 || performance.now() - b[0] > 70) return false;
       let vx = (b[1] - a[1]) / dt,
         vy = (b[2] - a[2]) / dt; // px / ms
-      if (Math.hypot(vx, vy) < 0.15) return false;
+      const sp = Math.hypot(vx, vy);
+      if (sp < 0.15) return false;
+      if (sp > 4) {
+        // giới hạn vận tốc: vuốt quá mạnh không làm bản đồ bay mất
+        vx *= 4 / sp;
+        vy *= 4 / sp;
+      }
       let ox = gs.dx,
         oy = gs.dy,
         last = performance.now();
       setMoving(true);
       const step = (now) => {
-        const d = Math.min(48, now - last);
+        const d = Math.min(48, Math.max(0, now - last));
         last = now;
         ox += vx * d;
         oy += vy * d;
-        const decay = Math.pow(0.94, d / 16);
+        const decay = Math.pow(0.998, d); // hệ số giảm tốc "normal" của UIScrollView (0,998 mỗi ms)
         vx *= decay;
         vy *= decay;
         panFrom(gs.c0, ox, oy);
         apply();
-        if (Math.hypot(vx, vy) > 0.02 && root.isConnected)
+        if (Math.hypot(vx, vy) > 0.03 && root.isConnected)
           graf = requestAnimationFrame(step);
         else {
           graf = 0;
@@ -2118,7 +2148,18 @@
           if (!glide(gs)) setMoving(false);
         } else setMoving(false);
       } else if (g && g.mode === "pinch") {
-        g = null;
+        // nhấc 1 ngón khi đang chụm: ngón còn lại chuyển sang kéo tiếp, không bị đứng hình
+        const [p] = [...ptrs.values()];
+        g = {
+          mode: "pan",
+          x: p.x,
+          y: p.y,
+          moved: true,
+          c0: { ...cam },
+          dx: 0,
+          dy: 0,
+          hist: [[performance.now(), p.x, p.y]],
+        };
       }
     };
     view.addEventListener("pointerup", endPtr);
@@ -2132,21 +2173,26 @@
     });
 
     /* cuộn chuột: đặt mục tiêu zoom, camera tiến dần tới đó => mượt, không giật theo từng nấc */
-    const zstep = () => {
+    let zlast = 0;
+    const zstep = (now) => {
       if (zt == null || !root.isConnected) {
         zraf = 0;
+        zlast = 0;
         return;
       }
+      const dt = zlast && now - zlast < 100 ? Math.min(48, now - zlast) : 16; // theo thời gian, không phụ thuộc 60/120Hz
+      zlast = now;
       const d = zt - cam.s;
       if (Math.abs(d) < cam.s * 0.002 || reduce) {
         cam.s = zt;
         zt = null;
         zraf = 0;
+        zlast = 0;
         apply();
         setMoving(false);
         return;
       }
-      cam.s += d * 0.2;
+      cam.s += d * (1 - Math.pow(0.8, dt / 16)); // tương đương 0,2 mỗi khung 60Hz
       apply();
       zraf = requestAnimationFrame(zstep);
     };

@@ -16,17 +16,16 @@
   const EXT = 'jpg';
   const EXTS = ['jpg', 'jpeg', 'png', 'webp'];        // các đuôi sẽ thử lần lượt
   const ALBUMS = [
-    { id: 'travel', name: 'Travel', folder: 'travels', hue: 160},
-     { id: 'family', name: 'Family',      folder: 'family', hue: 30  },
-    { id: 'food',   name: 'Food',        folder: 'food',   hue: 48  }
+    { id: 'travel', name: 'Travel', folder: 'travels', hue: 160 },
+    { id: 'saigon', name: 'Saigon', folder: 'Saigon',  hue: 20  },
+    { id: 'pets',   name: 'Pets',   folder: 'pets',    hue: 30  }
   ];
 
   // Các mục ghim ở sidebar, mỗi mục một thư mục riêng
   const SETS = {
     favorites: { name: "Favorites", folder: "favorites", hue: 340 },
-    videos: { name: "Videos", folder: "videos", hue: 280 },
+    videos: { name: "Videos", folder: "video", hue: 280, video: true },
     people: { name: "People & Pets", folder: "people-pets", hue: 200 },
-    shared: { name: "Shared Albums", folder: "shared", hue: 120 },
   };
 
   const ALL = [];
@@ -39,7 +38,8 @@
       id: `${key}-${n}`, album: g, title: `${g.name} ${n}`,
       src,
       thumb: USE_THUMBS ? `${BASE}/${g.folder}/thumbs/${n}.webp` : src,
-      hue: (g.hue + n * 11) % 360
+      hue: (g.hue + n * 11) % 360,
+      video: !!g.video
     };
     BY[p.id] = p;
     return p;
@@ -57,8 +57,24 @@
     });
 
   /* Gọi 1.jpg, 2.jpg, ... cho đến khi gặp ảnh không có thì dừng */
+  const existsVideo = (src) =>
+    new Promise((res) => {
+      const v = document.createElement("video");
+      v.preload = "metadata";
+      v.onloadedmetadata = () => res(true);
+      v.onerror = () => res(false);
+      v.src = src;
+    });
+
   async function load(key, g) {
     g.photos = [];
+    if (g.video) {                                   // thư mục video: 1.mp4, 2.mp4, ...
+      for (let n = 1; n <= MAX; n++) {
+        if (!(await existsVideo(`${BASE}/${g.folder}/${n}.mp4`))) break;
+        g.photos.push(makePhoto(key, g, n, "mp4"));
+      }
+      return;
+    }
     let ext = EXTS[0];
     for (let n = 1; n <= MAX; n++) {
       const order = [ext, ...EXTS.filter((e) => e !== ext)];     // thử đuôi vừa tìm được trước
@@ -152,7 +168,7 @@
         ...ALBUMS.map((a) => ["album:" + a.id, a.name, null, a]),
       ],
     },
-    { head: "Sharing", rows: [["shared", "Shared Albums", "person"]] },
+
   ];
 
   /* ---------- ICON (SVG, kiểu nét như Finder) ---------- */
@@ -240,6 +256,22 @@
     return p;
   };
 
+  /* Video: lấy khung hình đầu của chính video làm ảnh bìa */
+  const paintVideo = (el, p) => {
+    const v = document.createElement("video");
+    v.muted = true;
+    v.playsInline = true;
+    v.preload = "metadata";
+    v.draggable = false;
+    v.setAttribute("aria-hidden", "true");
+    v.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none";
+    v.addEventListener("loadeddata", () => el.classList.add("ld"));
+    v.addEventListener("error", () => v.remove());
+    v.src = p.src + "#t=0.1";                    // #t=0.1 để trình duyệt vẽ khung hình đầu (tránh khung đen)
+    el.prepend(v);
+  };
+
   /* Tô ô bằng ảnh (fade-in khi tải xong), thiếu ảnh thì giữ gradient */
   const paint = (el, p) => {
     el.classList.add("ph-g");
@@ -254,8 +286,16 @@
     let fell = first === p.src;
     im.addEventListener("load", () => el.classList.add("ld"));
     im.addEventListener("error", () => {
-      if (!fell && p.src) { fell = true; im.src = p.src; }   // thiếu thumbnail thì dùng ảnh gốc
-      else im.remove();
+      im.remove();
+      if (p.video) { paintVideo(el, p); return; }            // video: dùng khung hình đầu
+      if (!fell && p.src) {                                  // ảnh: thiếu thumbnail thì dùng ảnh gốc
+        fell = true;
+        const im2 = im.cloneNode();
+        im2.addEventListener("load", () => el.classList.add("ld"));
+        im2.addEventListener("error", () => im2.remove());
+        im2.src = p.src;
+        el.prepend(im2);
+      }
     });
     im.src = first;
     el.prepend(im);                              // prepend để ảnh luôn nằm dưới nhãn / tim
@@ -760,7 +800,13 @@
     big.alt = "";
     big.draggable = false;
     big.decoding = "async";
-    frame.append(big);
+    const vid = document.createElement("video");
+    vid.controls = true;
+    vid.playsInline = true;
+    vid.hidden = true;
+    vid.style.cssText =
+      "position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#000";
+    frame.append(big, vid);
     big.addEventListener("load", () => frame.classList.add("ld"));
     big.addEventListener("error", () => {
       big.hidden = true;
@@ -789,8 +835,20 @@
       const p = L.list[L.i];
       frame.style.setProperty("--hue", p.hue);
       frame.classList.remove("ld");
-      big.hidden = false;
-      big.src = p.src;
+      if (p.video) {
+        big.hidden = true;
+        vid.hidden = false;
+        frame.classList.add("ld");
+        vid.src = p.src;
+        vid.play().catch(() => {});
+      } else {
+        vid.pause();
+        vid.removeAttribute("src");
+        vid.load();
+        vid.hidden = true;
+        big.hidden = false;
+        big.src = p.src;
+      }
       lbTitle.textContent = p.title;
       lbCount.textContent =
         `${L.i + 1} / ${L.list.length}` +
@@ -810,7 +868,7 @@
         );
       }
       [L.list[L.i + 1], L.list[L.i - 1]].forEach((x) => {   // nạp trước ảnh kế và ảnh trước
-        if (x) new Image().src = x.src;
+        if (x && !x.video) new Image().src = x.src;
       });
     }
 
@@ -853,6 +911,7 @@
     function closeLB() {
       if (!L) return;
       stopSlide();
+      vid.pause();
       const p = L.list[L.i],
         tile = tileMap.get(p.id);
       L = null;
@@ -893,7 +952,7 @@
 
     function slideshow() {
       const vis = [...canvas.querySelectorAll(".ph-ph, .ph-cf-item")]
-        .filter((n) => !n.hidden && BY[n.dataset.key])
+        .filter((n) => !n.hidden && BY[n.dataset.key] && !BY[n.dataset.key].video)
         .map((n) => BY[n.dataset.key]);
       if (!vis.length) return;
       openLB(vis, 0, null);
@@ -921,6 +980,7 @@
     /* Vuốt ngang = đổi ảnh, vuốt xuống = đóng */
     let sw = null;
     frame.addEventListener("pointerdown", (e) => {
+      if (e.target === vid) return;
       sw = { x: e.clientX, y: e.clientY };
     });
     frame.addEventListener("pointercancel", () => {

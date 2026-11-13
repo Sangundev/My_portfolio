@@ -48,6 +48,16 @@
   --g-shadow: 0 8px 24px rgba(0, 0, 0, .12);
   --g-blur: blur(22px) saturate(180%);
 
+  /* nút kính phẳng (nút toggle sidebar + chip "To:") */
+  --ct-btn-bg: rgba(255, 255, 255, .62);
+  --ct-btn-edge: rgba(255, 255, 255, .7);
+  --ct-btn-hi: inset 0 1px 0 rgba(255, 255, 255, .8);
+  --ct-btn-drop: 0 2px 8px rgba(0, 0, 0, .1);
+
+  /* thẻ "To:" kiểu #tag của Notes: xám trung tính phẳng */
+  --ct-tag-bg: #e5e5ea;
+  --ct-tag-tx: #3a3a3c;
+
   color-scheme: light;
 }
 
@@ -88,6 +98,15 @@
     --g-edge: rgba(255, 255, 255, .22);
     --g-shine: inset 0 1px 0 rgba(255, 255, 255, .3), inset 0 -2px 4px -2px rgba(255, 255, 255, .12);
     --g-shadow: 0 8px 24px rgba(0, 0, 0, .45);
+
+    /* nút kính phẳng: tối, viền mảnh, bóng nhẹ như nút ở Notes */
+    --ct-btn-bg: rgba(44, 44, 46, .7);
+    --ct-btn-edge: rgba(255, 255, 255, .1);
+    --ct-btn-hi: inset 0 1px 0 rgba(255, 255, 255, .07);
+    --ct-btn-drop: 0 2px 6px rgba(0, 0, 0, .3);
+
+    --ct-tag-bg: #3a3a3c;
+    --ct-tag-tx: #d1d1d6;
 
     color-scheme: dark;
   }
@@ -214,15 +233,17 @@
   font-size: 12px;
   color: var(--ct-gray);
 }
+/* chip "To:": thẻ nâu xám phẳng, nổi lên như #tag bên Notes */
 .ct-chip {
   display: inline-block;
   margin-left: 4px;
-  padding: 2px 9px;
-  border-radius: 6px;
-  background: var(--ct-chip);
-  border: 1px solid var(--g-edge);
-  box-shadow: var(--g-shine);
-  color: var(--ct-chip-tx);
+  padding: 3px 11px;
+  border-radius: 999px;
+  background: var(--ct-tag-bg);
+  color: var(--ct-tag-tx);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
 }
 .ct-details {
   padding: 4px 0 4px 10px;
@@ -233,7 +254,7 @@
   cursor: pointer;
 }
 .ct-details:hover { text-decoration: underline; }
-
+.ct-sbtoggle { display: none; }                     /* chỉ bật ở desktop */
 .ct-msgs {
   flex: 1;
   min-height: 0;
@@ -520,6 +541,53 @@
 
   .win.is-messages .ct-side { box-shadow: inset -1px 0 0 var(--g-edge); }
   .win.is-messages .ct-row.on { box-shadow: var(--g-shine); }
+
+    /* nút ẩn / hiện sidebar: viên kính tròn, cùng hàng 3 nút đèn, góc phải sidebar */
+  .win.is-messages .ct-sbtoggle {
+    position: absolute;
+    top: 3px;                            /* tâm nút trùng tâm hàng 3 nút đèn */
+    left: 190px;                         /* 236 (sidebar) − 34 (nút) − 12 (lề) */
+    z-index: 7;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border-radius: 50%;
+    border: 1px solid var(--ct-btn-edge);
+    background: var(--ct-btn-bg);
+    box-shadow: var(--ct-btn-hi), var(--ct-btn-drop);
+    -webkit-backdrop-filter: var(--g-blur);
+    backdrop-filter: var(--g-blur);
+    color: var(--ct-chip-tx);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: left .3s cubic-bezier(.2, .8, .2, 1), transform .18s cubic-bezier(.2, .8, .2, 1), box-shadow .18s;
+  }
+  .win.is-messages .ct-sbtoggle:active { transform: scale(.94); }
+  .win.is-messages .ct-sbtoggle:focus-visible { outline: 3px solid rgba(10, 122, 255, .45); outline-offset: 2px; }
+  .win.is-messages .ct-sbtoggle svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.9;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ẩn sidebar: nút trượt sang đứng sau 3 nút đèn, header chừa chỗ cho cả hai */
+  .win.is-messages .ct-side { transition: margin-left .3s cubic-bezier(.2, .8, .2, 1), opacity .25s, visibility .3s; }
+  .win.is-messages .ct-app.side-hidden .ct-side {
+    margin-left: -236px;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .win.is-messages .ct-app.side-hidden .ct-sbtoggle { left: 84px; }
+  .win.is-messages .ct-head { transition: padding-left .3s cubic-bezier(.2, .8, .2, 1); }
+  .win.is-messages .ct-app.side-hidden .ct-head { padding-left: 128px; }   /* 84 + 34 nút + 10 hở */
 }
 
 /* =========================================================
@@ -976,7 +1044,8 @@
    8. GIẢM CHUYỂN ĐỘNG / GIẢM TRONG SUỐT
 ========================================================= */
 @media (prefers-reduced-motion: reduce) {
-  .ct-a, .ct-bubble, .ct-tog::after, .ct-hint, .ct-panel { transition: none; animation: none; }
+  .ct-a, .ct-bubble, .ct-tog::after, .ct-hint, .ct-panel,
+  .ct-side, .ct-head, .ct-sbtoggle { transition: none; animation: none; }
 }
 
 @media (prefers-reduced-transparency: reduce) {
